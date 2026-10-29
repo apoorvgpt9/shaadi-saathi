@@ -38,7 +38,7 @@ export function ChangeSummaryPanel({ pending, onAccept, onUndo }: { pending: Pen
       el?.close();
       // The opener may be disabled by now (the change box empties on Accept) or gone (the trade-offs panel closes
       // once the plan fits), so fall back to the change box.
-      const usable = opener instanceof HTMLElement && opener.isConnected && !opener.matches(":disabled");
+      const usable = opener instanceof HTMLElement && opener !== document.body && opener.isConnected && !opener.matches(":disabled");
       (usable ? opener : document.getElementById("change-input"))?.focus();
     };
   }, []);
@@ -52,6 +52,15 @@ export function ChangeSummaryPanel({ pending, onAccept, onUndo }: { pending: Pen
         onUndo();
       }}
       onClick={(e) => e.target === e.currentTarget && onUndo()}
+      onKeyDown={(e) => {
+        // Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap at the ends here.
+        const items = [...e.currentTarget.querySelectorAll<HTMLElement>("button, [tabindex='0']")];
+        const edge = items[e.shiftKey ? 0 : items.length - 1];
+        if (e.key === "Tab" && document.activeElement === edge) {
+          e.preventDefault();
+          items[e.shiftKey ? items.length - 1 : 0].focus();
+        }
+      }}
       className="card reveal m-0 ml-auto h-full max-h-none w-full max-w-md rounded-none border-y-0 border-r-0 p-0 backdrop:bg-ink/30 [--from:translateX(24px)]"
     >
       <div className="flex h-full flex-col">

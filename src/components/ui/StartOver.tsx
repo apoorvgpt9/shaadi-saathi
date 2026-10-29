@@ -20,7 +20,7 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
     );
   }
   return (
-    <div role="group" aria-label="Confirm start over" onKeyDown={(e) => e.key === "Escape" && close()} className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
+    <div role="group" aria-label="Confirm start over" onKeyDown={(e) => e.key === "Escape" && close()} className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
       <p className="text-sm text-muted">This clears your plan from this browser.</p>
       <div className="flex gap-2">
         <Button variant="primary" onClick={onConfirm}>Start over</Button>
