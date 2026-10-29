@@ -43,7 +43,12 @@ export function cancelRequests() {
 }
 
 /** POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal` cancels it. */
-export async function post<Req, Res>(path: string, body: Req, schema: z.ZodType<Res>, signal: AbortSignal = scope.signal): Promise<ApiResult<Res>> {
+export async function post<Req, Res>(
+  path: string,
+  body: Req,
+  schema: z.ZodType<Res>,
+  signal: AbortSignal = scope.signal,
+): Promise<ApiResult<Res>> {
   const request = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => {
@@ -85,7 +90,10 @@ export const api = {
 const FAILURE_COPY: Record<ApiFailureCode, { title: string; hint: string }> = {
   rate_limited: { title: "That is a lot of requests at once", hint: "Give it a few minutes and try again." },
   refused: { title: "The assistant could not help with that", hint: "Try rewording it, or add the details yourself." },
-  invalid_input: { title: "That message could not be sent", hint: "Shorten it or remove unusual characters, then try again." },
+  invalid_input: {
+    title: "That message could not be sent",
+    hint: "Shorten it or remove unusual characters, then try again.",
+  },
   network: { title: "You appear to be offline", hint: "Check your connection and retry." },
   timeout: { title: "This is taking longer than usual", hint: "Please try again." },
   aborted: { title: "That request was cancelled", hint: "Please try again." },

@@ -26,15 +26,22 @@ function setWeddingGuests(plan: Plan, count: number): Plan {
 function setGuests(plan: Plan, { function: target, count }: ChangeOf<"set_guests">): Outcome {
   if (target === "all") {
     const scale = count / plan.profile.guests;
-    return ok(setWeddingGuests(withFunctions(plan, (f) => ({ ...f, guests: clampGuests(f.guests * scale) })), count));
+    return ok(
+      setWeddingGuests(
+        withFunctions(plan, (f) => ({ ...f, guests: clampGuests(f.guests * scale) })),
+        count,
+      ),
+    );
   }
   if (target === "wedding") return ok(setWeddingGuests(plan, count));
-  if (!hasFunction(plan, target)) return ignore(`${FUNCTION_LABELS[target]} is not in the plan, so its guest count was not changed`);
+  if (!hasFunction(plan, target))
+    return ignore(`${FUNCTION_LABELS[target]} is not in the plan, so its guest count was not changed`);
   return ok(withFunctions(plan, (f) => (f.kind === target ? { ...f, guests: count } : f)));
 }
 
 function setFunctionDate(plan: Plan, { function: kind, date }: ChangeOf<"set_function_date">): Outcome {
-  if (!hasFunction(plan, kind)) return ignore(`${FUNCTION_LABELS[kind]} is not in the plan, so its date was not changed`);
+  if (!hasFunction(plan, kind))
+    return ignore(`${FUNCTION_LABELS[kind]} is not in the plan, so its date was not changed`);
   return ok(withFunctions(plan, (f) => (f.kind === kind ? { ...f, date } : f)));
 }
 
@@ -46,7 +53,10 @@ function addFunction(plan: Plan, { function: kind, date, guests }: ChangeOf<"add
 function removeFunction(plan: Plan, { function: kind }: ChangeOf<"remove_function">): Outcome {
   if (kind === "wedding") return ignore("The wedding function cannot be removed");
   if (!hasFunction(plan, kind)) return ignore(`${FUNCTION_LABELS[kind]} is not in the plan, so nothing was removed`);
-  return ok({ ...plan, profile: { ...plan.profile, functions: plan.profile.functions.filter((f) => f.kind !== kind) } });
+  return ok({
+    ...plan,
+    profile: { ...plan.profile, functions: plan.profile.functions.filter((f) => f.kind !== kind) },
+  });
 }
 
 function setStyle(plan: Plan, { style, category }: ChangeOf<"set_style">): Outcome {

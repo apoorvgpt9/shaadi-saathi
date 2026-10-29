@@ -34,7 +34,9 @@ export function App() {
       setStatus("loading");
       const [vendors, ideas] = await Promise.all([
         refreshVendors || plan.vendors.length === 0 ? api.vendors({ profile: plan.profile }) : null,
-        plan.ideas.length === 0 ? api.ideas({ profile: plan.profile, function: null, feedback: null, previous: [] }) : null,
+        plan.ideas.length === 0
+          ? api.ideas({ profile: plan.profile, function: null, feedback: null, previous: [] })
+          : null,
       ]);
       if (vendors?.ok) {
         // Ticks are stored by item position, so they only stay valid for the checklists they were made against.

@@ -38,11 +38,28 @@ export function ProfileEditForm({ draft, onSave, onCancel }: Props) {
       <Field label="Wedding date" name="date" type="date" min={today} defaultValue={draft.weddingDate ?? ""} />
       <Field label="City" name="city" maxLength={LIMITS.cityChars} defaultValue={draft.city ?? ""} />
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Guests" name="guests" type="number" min={LIMITS.guests.min} max={LIMITS.guests.max} defaultValue={draft.guests ?? ""} />
-        <Field label="Budget (rupees)" name="budget" type="number" min={LIMITS.budget.min} max={LIMITS.budget.max} step={1000} defaultValue={draft.budget ?? ""} />
+        <Field
+          label="Guests"
+          name="guests"
+          type="number"
+          min={LIMITS.guests.min}
+          max={LIMITS.guests.max}
+          defaultValue={draft.guests ?? ""}
+        />
+        <Field
+          label="Budget (rupees)"
+          name="budget"
+          type="number"
+          min={LIMITS.budget.min}
+          max={LIMITS.budget.max}
+          step={1000}
+          defaultValue={draft.budget ?? ""}
+        />
       </div>
       <div className="flex gap-2">
-        <Button type="submit" variant="primary">Save details</Button>
+        <Button type="submit" variant="primary">
+          Save details
+        </Button>
         <Button onClick={onCancel}>Cancel</Button>
       </div>
     </form>

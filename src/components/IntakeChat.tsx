@@ -60,8 +60,12 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
   return (
     <section aria-labelledby="chat-title" className="card reveal flex flex-col" style={{ "--i": 1 } as CSSProperties}>
       <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4 sm:px-8">
-        <h2 id="chat-title" className="font-serif text-2xl tracking-tight">Opening questions</h2>
-        <Button onClick={() => send(exampleMessage())} disabled={busy}>Try an example</Button>
+        <h2 id="chat-title" className="font-serif text-2xl tracking-tight">
+          Opening questions
+        </h2>
+        <Button onClick={() => send(exampleMessage())} disabled={busy}>
+          Try an example
+        </Button>
       </div>
       <ChatLog messages={messages} busy={busy} notice={notice} onRetry={() => void ask(messages)} />
       <form
@@ -71,10 +75,26 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
         }}
         className="flex items-end gap-3 border-t border-line p-4 sm:px-6"
       >
-        <label htmlFor="chat-input" className="sr-only">Your message</label>
-        <TextArea id="chat-input" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKeyDown} maxLength={LIMITS.messageChars}
-          rows={2} placeholder="Shaadi 15 February ko Jaipur mein, 200 log, budget 8 lakh..." className="min-h-14 flex-1 resize-none" />
-        <Button type="submit" variant="primary" disabled={busy || !text.trim()} aria-label="Send message" className="size-10 shrink-0 px-0">
+        <label htmlFor="chat-input" className="sr-only">
+          Your message
+        </label>
+        <TextArea
+          id="chat-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={onKeyDown}
+          maxLength={LIMITS.messageChars}
+          rows={2}
+          placeholder="Shaadi 15 February ko Jaipur mein, 200 log, budget 8 lakh..."
+          className="min-h-14 flex-1 resize-none"
+        />
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={busy || !text.trim()}
+          aria-label="Send message"
+          className="size-10 shrink-0 px-0"
+        >
           <Icon name="send" className="size-5" />
         </Button>
       </form>

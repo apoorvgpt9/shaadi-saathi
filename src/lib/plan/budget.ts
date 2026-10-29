@@ -32,9 +32,7 @@ type RateFor = (rates: Record<Style, number>) => number;
 
 /** Functions with a non-zero weight for this cost driver, with that weight. */
 function weightedFunctions(profile: Profile, weight: WeightKind) {
-  return profile.functions
-    .map((f) => ({ f, weight: FUNCTION_WEIGHTS[weight][f.kind] }))
-    .filter((p) => p.weight > 0);
+  return profile.functions.map((f) => ({ f, weight: FUNCTION_WEIGHTS[weight][f.kind] })).filter((p) => p.weight > 0);
 }
 
 /** Raw (unrounded) cost and a plain-words basis for one category. */

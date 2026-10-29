@@ -40,13 +40,21 @@ export function PlanScreen({ plan, pending, actions, extras }: Props) {
   const propose = (build: Proposal) => actions.propose(build, today);
 
   async function onChange(message: string): Promise<ChangeOutcome> {
-    const res = await api.change({ message, profile: plan.profile, tasks: tasks.map(({ id, title, status }) => ({ id, title, status })), today });
+    const res = await api.change({
+      message,
+      profile: plan.profile,
+      tasks: tasks.map(({ id, title, status }) => ({ id, title, status })),
+      today,
+    });
     if (!res.ok) return { kind: "error", message: failureMessage(res.error) };
     const { changes, reply } = res.data;
     if (changes.length === 0) {
       return reply
         ? { kind: "question", text: reply }
-        : { kind: "error", message: "I could not find a change in that. Try saying what moved, such as guests, budget or dates." };
+        : {
+            kind: "error",
+            message: "I could not find a change in that. Try saying what moved, such as guests, budget or dates.",
+          };
     }
     propose((p) => applyChanges(p, changes));
     return { kind: "applied" };
@@ -62,19 +70,38 @@ export function PlanScreen({ plan, pending, actions, extras }: Props) {
         onReset={actions.reset}
         panels={{
           budget: <BudgetTab plan={plan} summary={summary} onUpdate={actions.updatePlan} onPropose={propose} />,
-          timeline: <TimelineTab tasks={tasks} onSet={(id, status, date) => actions.updatePlan((p) => setTask(p, id, status, date))} />,
+          timeline: (
+            <TimelineTab
+              tasks={tasks}
+              onSet={(id, status, date) => actions.updatePlan((p) => setTask(p, id, status, date))}
+            />
+          ),
           vendors: (
-            <AiGate ready={plan.vendors.length > 0} status={extras.status} noun="vendor checklists" onRetry={() => extras.reload(plan)}>
+            <AiGate
+              ready={plan.vendors.length > 0}
+              status={extras.status}
+              noun="vendor checklists"
+              onRetry={() => extras.reload(plan)}
+            >
               <VendorsTab
                 plan={plan}
                 summary={summary}
                 onUpdate={actions.updatePlan}
-                refresh={{ stale: extras.staleVendors, busy: extras.status === "loading", onRefresh: () => extras.reload(plan, true) }}
+                refresh={{
+                  stale: extras.staleVendors,
+                  busy: extras.status === "loading",
+                  onRefresh: () => extras.reload(plan, true),
+                }}
               />
             </AiGate>
           ),
           ideas: (
-            <AiGate ready={plan.ideas.length > 0} status={extras.status} noun="ideas" onRetry={() => extras.reload(plan)}>
+            <AiGate
+              ready={plan.ideas.length > 0}
+              status={extras.status}
+              noun="ideas"
+              onRetry={() => extras.reload(plan)}
+            >
               <IdeasTab plan={plan} onUpdate={actions.updatePlan} />
             </AiGate>
           ),

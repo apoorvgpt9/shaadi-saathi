@@ -21,9 +21,13 @@ export function NextTasks({ tasks }: { tasks: ScheduledTask[] }) {
   return (
     <aside aria-labelledby="next-title" className="card p-6">
       <p className="eyebrow">Ready to start</p>
-      <h2 id="next-title" className="mt-1 font-serif text-2xl tracking-tight">Next 3 things to do</h2>
+      <h2 id="next-title" className="mt-1 font-serif text-2xl tracking-tight">
+        Next 3 things to do
+      </h2>
       {tasks.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">Nothing is waiting on you. Everything open depends on a task still in progress.</p>
+        <p className="mt-4 text-sm text-muted">
+          Nothing is waiting on you. Everything open depends on a task still in progress.
+        </p>
       ) : (
         <ol className="mt-4 divide-y divide-line">
           {tasks.slice(0, 3).map((t, i) => (

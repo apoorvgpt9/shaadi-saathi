@@ -13,14 +13,20 @@ const STATUSES: { value: TaskStatus; label: string; selected: string }[] = [
 ];
 
 const monthOf = (iso: string) =>
-  new Date(`${iso.slice(0, 7)}-01T00:00:00Z`).toLocaleDateString("en-IN", { month: "long", year: "numeric", timeZone: "UTC" });
+  new Date(`${iso.slice(0, 7)}-01T00:00:00Z`).toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 
 function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }) {
   const done = task.status === "done";
   return (
     <li className="grid gap-3 py-4 md:grid-cols-[1fr_auto] md:items-center">
       <div className="min-w-0">
-        <p className={`font-medium leading-snug wrap-anywhere ${done ? "text-muted line-through" : ""}`}>{task.title}</p>
+        <p className={`font-medium leading-snug wrap-anywhere ${done ? "text-muted line-through" : ""}`}>
+          {task.title}
+        </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
           <span>{done ? "Done" : `Due ${formatDate(task.due)}`}</span>
           {task.category && <span>{CATEGORY_LABELS[task.category]}</span>}
@@ -31,11 +37,19 @@ function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }) {
         {task.status === "delayed" && (
           <label className="text-sm text-muted">
             <span className="sr-only">New date for {task.title}</span>
-            <input type="date" defaultValue={task.due} onChange={(e) => e.target.value && onSet(task.id, "delayed", e.target.value)}
-              className="min-h-9 rounded-md border border-line bg-surface px-2 text-sm" />
+            <input
+              type="date"
+              defaultValue={task.due}
+              onChange={(e) => e.target.value && onSet(task.id, "delayed", e.target.value)}
+              className="min-h-9 rounded-md border border-line bg-surface px-2 text-sm"
+            />
           </label>
         )}
-        <div role="group" aria-label={`Status of ${task.title}`} className="inline-flex rounded-md border border-line bg-surface p-0.5">
+        <div
+          role="group"
+          aria-label={`Status of ${task.title}`}
+          className="inline-flex rounded-md border border-line bg-surface p-0.5"
+        >
           {STATUSES.map((s) => (
             <button
               key={s.value}

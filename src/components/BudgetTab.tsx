@@ -50,19 +50,37 @@ function Line({ line, plan, onUpdate }: { line: BudgetLine; plan: Plan; onUpdate
       </div>
       <div className="sm:text-right">
         <p className="text-lg font-semibold tabular-nums">{formatINR(line.amount)}</p>
-        {line.amount !== line.estimate && <p className="text-xs text-muted tabular-nums">Benchmark {formatINR(line.estimate)}</p>}
+        {line.amount !== line.estimate && (
+          <p className="text-xs text-muted tabular-nums">Benchmark {formatINR(line.estimate)}</p>
+        )}
       </div>
       <div className="sm:col-span-2">
         {editing ? (
           <form onSubmit={save} className="flex flex-wrap items-end gap-2">
-            <Field label={`${label} amount in rupees`} name="amount" type="number" min={0} max={LIMITS.budget.max} step={1000}
-              defaultValue={entry?.override ?? ""} placeholder="Blank to use the estimate" className="w-56" />
-            <Button type="submit" variant="primary">Save</Button>
+            <Field
+              label={`${label} amount in rupees`}
+              name="amount"
+              type="number"
+              min={0}
+              max={LIMITS.budget.max}
+              step={1000}
+              defaultValue={entry?.override ?? ""}
+              placeholder="Blank to use the estimate"
+              className="w-56"
+            />
+            <Button type="submit" variant="primary">
+              Save
+            </Button>
             <Button onClick={() => setEditing(false)}>Cancel</Button>
           </form>
         ) : (
           <div className="-ml-3 flex gap-1 text-sm">
-            <Button variant="ghost" className="min-h-9 px-3" onClick={() => setEditing(true)} aria-label={`Edit amount for ${label}`}>
+            <Button
+              variant="ghost"
+              className="min-h-9 px-3"
+              onClick={() => setEditing(true)}
+              aria-label={`Edit amount for ${label}`}
+            >
               Edit amount
             </Button>
             <Button
@@ -83,7 +101,9 @@ function Line({ line, plan, onUpdate }: { line: BudgetLine; plan: Plan; onUpdate
 export function BudgetTab({ plan, summary, onUpdate, onPropose }: Props) {
   return (
     <div className="space-y-6">
-      {summary.ratio > 1 && <TradeoffPanel plan={plan} total={summary.total} budget={summary.budget} onChoose={onPropose} />}
+      {summary.ratio > 1 && (
+        <TradeoffPanel plan={plan} total={summary.total} budget={summary.budget} onChoose={onPropose} />
+      )}
       <ul className="card divide-y divide-line px-6 sm:px-8">
         {summary.lines.map((line) => (
           <Line key={line.category} line={line} plan={plan} onUpdate={onUpdate} />

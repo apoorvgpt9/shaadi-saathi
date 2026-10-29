@@ -10,8 +10,7 @@ const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"
 
 export const metadata: Metadata = {
   title: "ShaadiSaathi: AI wedding planner",
-  description:
-    "Plan your wedding budget, timeline and vendors with AI. Built for Indian weddings.",
+  description: "Plan your wedding budget, timeline and vendors with AI. Built for Indian weddings.",
 };
 
 export const viewport: Viewport = {
@@ -21,10 +20,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <a
           href="#main"

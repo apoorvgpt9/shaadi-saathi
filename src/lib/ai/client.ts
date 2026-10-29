@@ -94,7 +94,8 @@ export async function generate<S extends z.ZodType>(
     } catch (err) {
       // The SDK throws a plain AnthropicError (not an APIError) when the output fails schema validation.
       const retryable =
-        err instanceof AiOutputError || (err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError));
+        err instanceof AiOutputError ||
+        (err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError));
       if (attempt === 0 && retryable) continue;
       throw err;
     }

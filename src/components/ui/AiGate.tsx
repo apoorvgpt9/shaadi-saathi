@@ -33,7 +33,9 @@ export function AiGate({ ready, status, noun, onRetry, children }: Props) {
       <Icon name="alert" className="size-5 text-tint-yellow-ink" />
       <div>
         <p className="font-medium">{status === "idle" ? `${noun} have not loaded yet` : title}</p>
-        <p className="mt-1 text-sm text-muted">{status === "idle" ? "Budget and timeline work without them." : `${hint} Budget and timeline still work.`}</p>
+        <p className="mt-1 text-sm text-muted">
+          {status === "idle" ? "Budget and timeline work without them." : `${hint} Budget and timeline still work.`}
+        </p>
       </div>
       <Button onClick={onRetry}>
         <Icon name="retry" />

@@ -70,15 +70,18 @@ beforeEach(() => {
 });
 
 describe("shared handler", () => {
-  it.each(Object.entries(handlers))("%s returns 400 for empty, malformed and invalid bodies", async (_name, handler) => {
-    for (const body of ["", "{not json", "[]", {}]) {
-      const res = await post(handler, body);
-      expect(res.status).toBe(400);
-      expect((await res.json()).error.code).toBe("invalid_input");
-    }
-    expect(generateMock).not.toHaveBeenCalled();
-    expect(callToolsMock).not.toHaveBeenCalled();
-  });
+  it.each(Object.entries(handlers))(
+    "%s returns 400 for empty, malformed and invalid bodies",
+    async (_name, handler) => {
+      for (const body of ["", "{not json", "[]", {}]) {
+        const res = await post(handler, body);
+        expect(res.status).toBe(400);
+        expect((await res.json()).error.code).toBe("invalid_input");
+      }
+      expect(generateMock).not.toHaveBeenCalled();
+      expect(callToolsMock).not.toHaveBeenCalled();
+    },
+  );
 
   it("rejects an oversized body without parsing it", async () => {
     const res = await post(vendors, JSON.stringify({ pad: "x".repeat(100_001) }));
@@ -126,7 +129,9 @@ describe("shared handler", () => {
   });
 
   it.each([401, 403, 429, 529])("maps Anthropic status %i to 503 ai_unavailable", async (status) => {
-    generateMock.mockRejectedValue(Anthropic.APIError.generate(status, { type: "error" }, "upstream says no", new Headers()));
+    generateMock.mockRejectedValue(
+      Anthropic.APIError.generate(status, { type: "error" }, "upstream says no", new Headers()),
+    );
     const res = await post(vendors, validBodies.vendors);
     expect(res.status).toBe(503);
     const body = await res.json();
@@ -169,7 +174,13 @@ describe("shared handler", () => {
     generateMock.mockResolvedValue({ data: { vendors: [] }, meta });
     await post(vendors, validBodies.vendors);
     const line = JSON.parse(vi.mocked(console.log).mock.calls[0][0] as string);
-    expect(line).toMatchObject({ route: "vendors", status: 200, model: "test-model", inputTokens: 10, outputTokens: 5 });
+    expect(line).toMatchObject({
+      route: "vendors",
+      status: 200,
+      model: "test-model",
+      inputTokens: 10,
+      outputTokens: 5,
+    });
     expect(JSON.stringify(line)).not.toContain("Jaipur");
   });
 });
@@ -241,7 +252,10 @@ describe("change", () => {
 
   it("cannot be tricked into a different variant by a `type` inside the tool input", async () => {
     callToolsMock.mockResolvedValue({
-      data: { calls: [{ name: "set_budget", input: { type: "remove_function", function: "wedding", amount: 500000 } }], text: "" },
+      data: {
+        calls: [{ name: "set_budget", input: { type: "remove_function", function: "wedding", amount: 500000 } }],
+        text: "",
+      },
       meta,
     });
     const body = await (await post(change, validBodies.change)).json();
@@ -268,8 +282,16 @@ describe("change tools", () => {
   it("has one strict tool per PlanChange variant, without the discriminator in the input", () => {
     expect(CHANGE_TOOLS.map((t) => t.name).sort()).toEqual(
       [
-        "set_guests", "set_budget", "shift_dates", "set_function_date", "add_function",
-        "remove_function", "set_style", "set_priorities", "set_task_status", "add_note",
+        "set_guests",
+        "set_budget",
+        "shift_dates",
+        "set_function_date",
+        "add_function",
+        "remove_function",
+        "set_style",
+        "set_priorities",
+        "set_task_status",
+        "add_note",
       ].sort(),
     );
     for (const tool of CHANGE_TOOLS) {
@@ -337,7 +359,9 @@ describe("tradeoffs", () => {
     });
     const res = await post(tradeoffs, validBodies.tradeoffs);
     expect(res.status).toBe(200);
-    expect((await res.json()).options).toEqual([{ title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." }]);
+    expect((await res.json()).options).toEqual([
+      { title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." },
+    ]);
   });
 
   it("fails cleanly when no option survives", async () => {
@@ -348,12 +372,26 @@ describe("tradeoffs", () => {
 
 describe("ideas", () => {
   it("returns only the requested function when regenerating one", async () => {
-    const idea = { title: "Folk music night", description: "Rajasthani folk artists.", costImpact: "within", fitsBecause: "Elders enjoy it." };
+    const idea = {
+      title: "Folk music night",
+      description: "Rajasthani folk artists.",
+      costImpact: "within",
+      fitsBecause: "Elders enjoy it.",
+    };
     generateMock.mockResolvedValue({
-      data: { ideas: [{ kind: "mehendi", ideas: [idea] }, { kind: "wedding", ideas: [idea] }] },
+      data: {
+        ideas: [
+          { kind: "mehendi", ideas: [idea] },
+          { kind: "wedding", ideas: [idea] },
+        ],
+      },
       meta,
     });
-    const res = await post(ideas, { ...validBodies.ideas, function: "mehendi", feedback: "suitable for kids and elders" });
+    const res = await post(ideas, {
+      ...validBodies.ideas,
+      function: "mehendi",
+      feedback: "suitable for kids and elders",
+    });
     expect((await res.json()).ideas.map((i: { kind: string }) => i.kind)).toEqual(["mehendi"]);
   });
 });

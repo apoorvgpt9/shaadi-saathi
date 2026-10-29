@@ -43,12 +43,22 @@ export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
         </div>
       </div>
       <div role="img" aria-label={description} className="relative mt-6">
-        <div style={{ "--from": "scaleX(0.85)" } as CSSProperties} className="reveal flex h-2 origin-left gap-0.5 overflow-hidden rounded-[4px] bg-sand">
-          <div className="rounded-[4px] bg-marigold ring-1 ring-inset ring-marigold-deep" style={{ flexBasis: `${within}%` }} />
+        <div
+          style={{ "--from": "scaleX(0.85)" } as CSSProperties}
+          className="reveal flex h-2 origin-left gap-0.5 overflow-hidden rounded-[4px] bg-sand"
+        >
+          <div
+            className="rounded-[4px] bg-marigold ring-1 ring-inset ring-marigold-deep"
+            style={{ flexBasis: `${within}%` }}
+          />
           {over && <div className="rounded-[4px] bg-maroon" style={{ flexBasis: `${100 - within}%` }} />}
         </div>
         {over && (
-          <span aria-hidden="true" className="absolute -bottom-1 -top-1 w-0.5 rounded-full bg-ink" style={{ left: `${within}%` }} />
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-1 -top-1 w-0.5 rounded-full bg-ink"
+            style={{ left: `${within}%` }}
+          />
         )}
       </div>
     </div>

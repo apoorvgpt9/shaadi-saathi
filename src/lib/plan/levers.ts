@@ -53,13 +53,11 @@ function candidateLevers(plan: Plan): Candidate[] {
   });
   const skips = profile.functions
     .filter((f) => OPTIONAL_FUNCTIONS.includes(f.kind))
-    .map(
-      (f): Candidate => ({
-        id: `skip-${f.kind}`,
-        label: `Skip the ${FUNCTION_LABELS[f.kind]} function`,
-        changes: [{ type: "remove_function", function: f.kind }],
-      }),
-    );
+    .map((f): Candidate => ({
+      id: `skip-${f.kind}`,
+      label: `Skip the ${FUNCTION_LABELS[f.kind]} function`,
+      changes: [{ type: "remove_function", function: f.kind }],
+    }));
   return [...trimFunctions, trimAll, ...stepDowns, ...skips];
 }
 
@@ -82,5 +80,8 @@ export function listLevers(plan: Plan): Lever[] {
 /** Applies the union of the chosen levers' changes. Unknown ids are ignored. */
 export function applyLevers(plan: Plan, ids: string[]): Plan {
   const chosen = candidateLevers(plan).filter((lever) => ids.includes(lever.id));
-  return applyChanges(plan, chosen.flatMap((lever) => lever.changes)).plan;
+  return applyChanges(
+    plan,
+    chosen.flatMap((lever) => lever.changes),
+  ).plan;
 }

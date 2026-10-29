@@ -38,12 +38,19 @@ export function Workspace({ profile, budget, nextTasks, panels, changeBox, onRes
       <main id="main" className="mx-auto w-full max-w-6xl px-5 pb-24 sm:px-8">
         <section aria-labelledby="plan-title" className="reveal pb-8 pt-10">
           <p className="eyebrow">Your plan</p>
-          <h1 id="plan-title" className="mt-2 font-serif text-3xl leading-[1.1] tracking-[-0.02em] wrap-anywhere sm:text-4xl">
+          <h1
+            id="plan-title"
+            className="mt-2 font-serif text-3xl leading-[1.1] tracking-[-0.02em] wrap-anywhere sm:text-4xl"
+          >
             {meta.filter(Boolean).join(" · ")}
           </h1>
         </section>
         <div className="space-y-6">
-          <section aria-label="Budget at a glance" className="card reveal p-6 sm:p-8" style={{ "--i": 1 } as CSSProperties}>
+          <section
+            aria-label="Budget at a glance"
+            className="card reveal p-6 sm:p-8"
+            style={{ "--i": 1 } as CSSProperties}
+          >
             <BudgetMeter summary={budget} />
           </section>
           {changeBox}

@@ -55,10 +55,18 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                   </th>
                   <td className="py-3 pr-4 tabular-nums">{formatINR(q.total)}</td>
                   <td className="py-3 pr-4 tabular-nums">
-                    {q.guestsCovered ? formatINR(Math.round(q.total / q.guestsCovered)) : <span className="text-muted">Unknown</span>}
+                    {q.guestsCovered ? (
+                      formatINR(Math.round(q.total / q.guestsCovered))
+                    ) : (
+                      <span className="text-muted">Unknown</span>
+                    )}
                   </td>
                   <td className="py-3 pr-4">
-                    {q.guestsCovered === null ? <span className="text-muted">Not stated</span> : `${q.guestsCovered} of ${needed}`}
+                    {q.guestsCovered === null ? (
+                      <span className="text-muted">Not stated</span>
+                    ) : (
+                      `${q.guestsCovered} of ${needed}`
+                    )}
                     {short && (
                       <span className="mt-1 block">
                         <Badge tone="red">Short by {needed - (q.guestsCovered ?? 0)}</Badge>
@@ -66,13 +74,19 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                     )}
                   </td>
                   <td className="py-3 pr-4">
-                    {list(q.extraCharges.map((c) => (c.amount === null ? c.item : `${c.item}: ${formatINR(c.amount)}`)))}
+                    {list(
+                      q.extraCharges.map((c) => (c.amount === null ? c.item : `${c.item}: ${formatINR(c.amount)}`)),
+                    )}
                   </td>
                   <td className="py-3 pr-4">{list(q.openQuestions)}</td>
                   <td className="py-3">
                     <div className="flex flex-col gap-1">
-                      <Button className="min-h-9" disabled={usedId === q.id} onClick={() => onUse(q.id)}>Use this quote</Button>
-                      <Button variant="ghost" className="min-h-9" onClick={() => onRemove(q.id)}>Remove</Button>
+                      <Button className="min-h-9" disabled={usedId === q.id} onClick={() => onUse(q.id)}>
+                        Use this quote
+                      </Button>
+                      <Button variant="ghost" className="min-h-9" onClick={() => onRemove(q.id)}>
+                        Remove
+                      </Button>
                     </div>
                   </td>
                 </tr>

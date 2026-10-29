@@ -33,7 +33,11 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
     setBusy(false);
     const fresh = res.ok ? res.data.ideas.find((i) => i.kind === kind) : undefined;
     if (!fresh) {
-      setError(res.ok ? "No new ideas came back. Try describing it differently." : failureMessage(res.error, "Your ideas are unchanged."));
+      setError(
+        res.ok
+          ? "No new ideas came back. Try describing it differently."
+          : failureMessage(res.error, "Your ideas are unchanged."),
+      );
       return false;
     }
     onUpdate((p) => ({ ...p, ideas: [...p.ideas.filter((i) => i.kind !== kind), fresh] }));
@@ -55,13 +59,17 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
       {ideas.length === 0 ? (
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <p className="text-sm text-muted">No ideas yet for this function.</p>
-          <Button disabled={busy} onClick={() => void request(null)}>{busy ? "Thinking" : `Get ideas for ${name}`}</Button>
+          <Button disabled={busy} onClick={() => void request(null)}>
+            {busy ? "Thinking" : `Get ideas for ${name}`}
+          </Button>
         </div>
       ) : (
         <ul className="mt-4 grid gap-4 md:grid-cols-3">
           {ideas.map((idea) => (
             <li key={idea.title} className="flex flex-col rounded-lg border border-line bg-canvas p-5 wrap-anywhere">
-              <span className="self-start"><Badge tone={IMPACT[idea.costImpact].tone}>{IMPACT[idea.costImpact].label}</Badge></span>
+              <span className="self-start">
+                <Badge tone={IMPACT[idea.costImpact].tone}>{IMPACT[idea.costImpact].label}</Badge>
+              </span>
               <h3 className="mt-3 font-medium leading-snug">{idea.title}</h3>
               <p className="mt-2 text-sm">{idea.description}</p>
               <p className="mt-3 text-sm text-muted">
@@ -73,8 +81,13 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
         </ul>
       )}
       <form onSubmit={(e) => void refresh(e)} className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end">
-        <Field label={`Feedback on the ${name.toLowerCase()} ideas`} name="feedback" maxLength={LIMITS.messageChars}
-          placeholder="Too expensive, or suitable for kids and elders" className="flex-1" />
+        <Field
+          label={`Feedback on the ${name.toLowerCase()} ideas`}
+          name="feedback"
+          maxLength={LIMITS.messageChars}
+          placeholder="Too expensive, or suitable for kids and elders"
+          className="flex-1"
+        />
         <Button type="submit" disabled={busy}>
           {busy ? "Thinking" : "Refresh ideas"}
         </Button>

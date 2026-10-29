@@ -46,10 +46,24 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   task("menu-tasting", "Menu tasting and final menu", "catering", 45, ["book-caterer"]),
   task("finalise-decor", "Finalise decor theme and mock-up", "decor", 40, ["book-decorator"]),
   task("send-invitations", "Send invitations", "invitations", 40, ["order-invitations"]),
-  task("sangeet-rehearsals", "Start sangeet choreography and rehearsals", "entertainment", 21, ["book-entertainment"], "sangeet"),
+  task(
+    "sangeet-rehearsals",
+    "Start sangeet choreography and rehearsals",
+    "entertainment",
+    21,
+    ["book-entertainment"],
+    "sangeet",
+  ),
   task("outfit-fittings", "Final outfit fittings", "attire", 20, ["order-outfits"]),
-  task("final-headcount", "Chase RSVPs and send final headcount to caterer", "catering", 14, ["send-invitations", "menu-tasting"]),
-  task("vendor-contracts", "Confirm contracts and payment schedule with all vendors", null, 14, ["book-caterer", "book-decorator", "book-photographer"]),
+  task("final-headcount", "Chase RSVPs and send final headcount to caterer", "catering", 14, [
+    "send-invitations",
+    "menu-tasting",
+  ]),
+  task("vendor-contracts", "Confirm contracts and payment schedule with all vendors", null, 14, [
+    "book-caterer",
+    "book-decorator",
+    "book-photographer",
+  ]),
   task("haldi-prep", "Arrange haldi items and seating", "rituals", 7, [], "haldi"),
   task("day-of-plan", "Prepare day-of schedule and assign family coordinators", null, 7, ["vendor-contracts"]),
   task("vendor-final-calls", "Final confirmation call with every vendor", null, 3, ["day-of-plan"]),
@@ -94,7 +108,10 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
         const dep = scheduled.get(id);
         return dep && dep.status !== "done" && dep.due >= due ? [dep] : [];
       });
-      const latestBlocker = blockers.map((dep) => dep.due).sort().at(-1);
+      const latestBlocker = blockers
+        .map((dep) => dep.due)
+        .sort()
+        .at(-1);
       if (latestBlocker !== undefined) {
         due = addDays(latestBlocker, 1);
         // Only a reported delay upstream is a risk; ties from spreading urgent tasks are just sequencing.

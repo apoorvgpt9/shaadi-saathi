@@ -9,7 +9,9 @@ export function SiteHeader({ children }: { children?: ReactNode }) {
           <Mark />
           <span className="font-serif text-xl tracking-tight">ShaadiSaathi</span>
         </div>
-        {children || <p className="hidden text-sm text-muted sm:block">Saved only in this browser. No account needed.</p>}
+        {children || (
+          <p className="hidden text-sm text-muted sm:block">Saved only in this browser. No account needed.</p>
+        )}
       </div>
     </header>
   );

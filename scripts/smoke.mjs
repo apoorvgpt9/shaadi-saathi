@@ -29,29 +29,65 @@ const quoteText = `Shree Caterers, Jaipur. Veg wedding menu for 200 guests at Rs
 Includes two live counters, service staff and crockery. GST 5% extra. Tasting charged separately.`;
 
 const checks = [
-  ["intake", {
-    messages: [{ role: "user", content: `We're planning our wedding in Jaipur on ${iso(120)}, around 200 guests, budget 8 lakh. Mehendi the day before with about 120 people. Food matters most to us, then photography.` }],
-    draft: null,
-    today,
-  }, (r) => r.draft?.city && r.draft?.budget === 800000 && typeof r.reply === "string"],
+  [
+    "intake",
+    {
+      messages: [
+        {
+          role: "user",
+          content: `We're planning our wedding in Jaipur on ${iso(120)}, around 200 guests, budget 8 lakh. Mehendi the day before with about 120 people. Food matters most to us, then photography.`,
+        },
+      ],
+      draft: null,
+      today,
+    },
+    (r) => r.draft?.city && r.draft?.budget === 800000 && typeof r.reply === "string",
+  ],
   ["vendors", { profile }, (r) => r.vendors?.length > 0],
   ["ideas", { profile, function: null, feedback: null, previous: [] }, (r) => r.ideas?.length > 0],
-  ["change", { message: "50 more guests, budget down to 7 lakh, and the wedding two weeks earlier", profile, tasks: [], today },
+  [
+    "change",
+    { message: "50 more guests, budget down to 7 lakh, and the wedding two weeks earlier", profile, tasks: [], today },
     (r) =>
       r.changes?.some((c) => c.type === "set_budget" && c.amount === 700000) &&
       r.changes.some((c) => c.type === "set_guests" && c.count === 250) &&
-      r.changes.some((c) => c.type === "shift_dates" && c.days === -14)],
+      r.changes.some((c) => c.type === "shift_dates" && c.days === -14),
+  ],
   ["quote", { text: quoteText, category: "catering", guests: 200 }, (r) => r.quote?.total === 240000],
-  ["tradeoffs", {
-    profile,
-    total: 958000,
-    levers: [
-      { id: "trim-guests-mehendi", label: "Trim Mehendi guests by 20% (120 to 96)", saving: 30000, touchesPriority: false },
-      { id: "trim-guests-all", label: "Trim every guest list by 10% (200 to 180 at the wedding)", saving: 70000, touchesPriority: false },
-      { id: "step-down-decor", label: "Step Decor down from Classic to Simple", saving: 90000, touchesPriority: false },
-      { id: "step-down-catering", label: "Step Catering down from Classic to Simple", saving: 120000, touchesPriority: true },
-    ],
-  }, (r) => r.options?.length > 0 && r.options.every((o) => o.leverIds.length > 0)],
+  [
+    "tradeoffs",
+    {
+      profile,
+      total: 958000,
+      levers: [
+        {
+          id: "trim-guests-mehendi",
+          label: "Trim Mehendi guests by 20% (120 to 96)",
+          saving: 30000,
+          touchesPriority: false,
+        },
+        {
+          id: "trim-guests-all",
+          label: "Trim every guest list by 10% (200 to 180 at the wedding)",
+          saving: 70000,
+          touchesPriority: false,
+        },
+        {
+          id: "step-down-decor",
+          label: "Step Decor down from Classic to Simple",
+          saving: 90000,
+          touchesPriority: false,
+        },
+        {
+          id: "step-down-catering",
+          label: "Step Catering down from Classic to Simple",
+          saving: 120000,
+          touchesPriority: true,
+        },
+      ],
+    },
+    (r) => r.options?.length > 0 && r.options.every((o) => o.leverIds.length > 0),
+  ],
 ];
 
 let failed = 0;
@@ -66,7 +102,9 @@ for (const [route, body, ok] of checks) {
     const json = await res.json();
     const pass = res.status === 200 && ok(json);
     if (!pass) failed++;
-    console.log(`${pass ? "PASS" : "FAIL"} ${route} ${res.status} ${Date.now() - started}ms${pass ? "" : ` ${JSON.stringify(json).slice(0, 300)}`}`);
+    console.log(
+      `${pass ? "PASS" : "FAIL"} ${route} ${res.status} ${Date.now() - started}ms${pass ? "" : ` ${JSON.stringify(json).slice(0, 300)}`}`,
+    );
   } catch (err) {
     failed++;
     console.log(`FAIL ${route} ${err.message}`);

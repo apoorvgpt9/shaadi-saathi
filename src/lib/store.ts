@@ -73,7 +73,10 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
       return {
         ...state,
         draft: action.draft,
-        messages: [...state.messages, { role: "assistant", content: action.reply.trim().slice(0, LIMITS.messageChars) || "Noted." }],
+        messages: [
+          ...state.messages,
+          { role: "assistant", content: action.reply.trim().slice(0, LIMITS.messageChars) || "Noted." },
+        ],
       };
     case "edit_draft":
       return { ...state, draft: action.draft };
@@ -90,7 +93,9 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
     }
     case "accept":
       // Re-applied to the plan as it is now: vendors, ideas and edits that landed behind the dialog survive.
-      return state.pending && state.plan ? { ...state, plan: state.pending.build(state.plan).plan, pending: null } : state;
+      return state.pending && state.plan
+        ? { ...state, plan: state.pending.build(state.plan).plan, pending: null }
+        : state;
     case "undo":
       return { ...state, pending: null };
     case "reset":

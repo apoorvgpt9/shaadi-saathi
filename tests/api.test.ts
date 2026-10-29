@@ -14,7 +14,8 @@ const profile: Profile = {
   mustHaves: [],
   notes: [],
 };
-const reply = (status: number, body: unknown) => vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status }));
+const reply = (status: number, body: unknown) =>
+  vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status }));
 
 /** A fetch that never answers and rejects when its signal aborts, like the real one. */
 const hangingFetch = () =>
@@ -40,7 +41,11 @@ describe("api client", () => {
 
   it("maps a structured error body to its code", async () => {
     vi.stubGlobal("fetch", reply(429, { error: { code: "rate_limited", message: "Slow down" } }));
-    const res = await api.tradeoffs({ profile, total: 900_000, levers: [{ id: "a", label: "Trim", saving: 1, touchesPriority: false }] });
+    const res = await api.tradeoffs({
+      profile,
+      total: 900_000,
+      levers: [{ id: "a", label: "Trim", saving: 1, touchesPriority: false }],
+    });
     expect(res).toEqual({ ok: false, error: { code: "rate_limited", message: "Slow down" } });
   });
 
@@ -86,7 +91,9 @@ describe("api client", () => {
   });
 
   it("has distinct copy for each failure family", () => {
-    const titles = (["rate_limited", "refused", "invalid_input", "network", "timeout", "ai_unavailable"] as const).map((c) => describeFailure(c).title);
+    const titles = (["rate_limited", "refused", "invalid_input", "network", "timeout", "ai_unavailable"] as const).map(
+      (c) => describeFailure(c).title,
+    );
     expect(new Set(titles).size).toBe(6);
   });
 });
@@ -96,18 +103,26 @@ describe("failureMessage", () => {
     const quote = "I could not find a total price in that quote. Check the text and try again.";
     expect(failureMessage({ code: "ai_error", message: quote })).toBe(quote);
     expect(failureMessage({ code: "refused", message: "Try rephrasing." })).toBe("Try rephrasing.");
-    expect(failureMessage({ code: "invalid_input", message: "Too long." }, "Your text is still here.")).toBe("Too long. Your text is still here.");
+    expect(failureMessage({ code: "invalid_input", message: "Too long." }, "Your text is still here.")).toBe(
+      "Too long. Your text is still here.",
+    );
   });
 
   it("uses standard copy when the message is empty, and for codes the server's text does not replace", () => {
-    expect(failureMessage({ code: "ai_error", message: "" })).toBe("The planning assistant is unavailable right now. Try again in a moment.");
+    expect(failureMessage({ code: "ai_error", message: "" })).toBe(
+      "The planning assistant is unavailable right now. Try again in a moment.",
+    );
     expect(failureMessage({ code: "rate_limited", message: "Too many requests." })).toBe(
       "That is a lot of requests at once. Give it a few minutes and try again.",
     );
-    expect(failureMessage({ code: "network", message: "" })).toBe("You appear to be offline. Check your connection and retry.");
+    expect(failureMessage({ code: "network", message: "" })).toBe(
+      "You appear to be offline. Check your connection and retry.",
+    );
   });
 
   it("gives a timeout its own copy", () => {
-    expect(failureMessage({ code: "timeout", message: "" })).toBe("This is taking longer than usual. Please try again.");
+    expect(failureMessage({ code: "timeout", message: "" })).toBe(
+      "This is taking longer than usual. Please try again.",
+    );
   });
 });

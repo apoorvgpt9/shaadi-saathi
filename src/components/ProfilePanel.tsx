@@ -10,8 +10,16 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
 
 const EMPTY_DRAFT: IntakeDraft = {
-  weddingDate: null, city: null, cityTier: null, guests: null, budget: null,
-  functions: [], style: null, priorities: [], mustHaves: [], notes: [],
+  weddingDate: null,
+  city: null,
+  cityTier: null,
+  guests: null,
+  budget: null,
+  functions: [],
+  style: null,
+  priorities: [],
+  mustHaves: [],
+  notes: [],
 };
 
 interface Props {
@@ -39,7 +47,9 @@ export function ProfilePanel({ draft, onDraftChange, onBuild }: Props) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="eyebrow">Live summary</p>
-          <h2 id="profile-title" className="mt-1 font-serif text-2xl tracking-tight">What I&apos;ve understood</h2>
+          <h2 id="profile-title" className="mt-1 font-serif text-2xl tracking-tight">
+            What I&apos;ve understood
+          </h2>
         </div>
         {!editing && (
           <Button variant="ghost" className="-mr-2 px-3" onClick={() => setEditing(true)}>

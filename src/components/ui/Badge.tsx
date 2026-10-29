@@ -13,7 +13,9 @@ export type Tone = keyof typeof TONES;
 /** A status pill. The label always carries the meaning; colour is only reinforcement. */
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.05em] ${TONES[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.05em] ${TONES[tone]}`}
+    >
       {children}
     </span>
   );

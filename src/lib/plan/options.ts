@@ -11,7 +11,10 @@ export interface TradeoffOption {
 }
 
 /** The AI's options with unknown lever ids dropped; an option left with no levers is dropped too. */
-export function usableOptions(raw: { title: string; why: string; leverIds: string[] }[], levers: { id: string }[]): TradeoffOption[] {
+export function usableOptions(
+  raw: { title: string; why: string; leverIds: string[] }[],
+  levers: { id: string }[],
+): TradeoffOption[] {
   const known = new Set(levers.map((l) => l.id));
   return raw.flatMap((o) => {
     const ids = o.leverIds.filter((id) => known.has(id));

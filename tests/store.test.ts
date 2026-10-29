@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { applyChanges } from "@/lib/plan/changes";
 import { patchEntry, setTask } from "@/lib/plan/edits";
-import { awaitingReply, bindActions, initialState, parseStored, reducer, type PlanAction, type PlanState, type Proposal } from "@/lib/store";
+import {
+  awaitingReply,
+  bindActions,
+  initialState,
+  parseStored,
+  reducer,
+  type PlanAction,
+  type PlanState,
+  type Proposal,
+} from "@/lib/store";
 import type { IntakeDraft, Plan } from "@/lib/types";
 import { makePlan, TODAY } from "./plan-fixtures";
 
@@ -53,7 +62,10 @@ describe("reducer", () => {
   it("accept re-applies the change to the plan as it is now, keeping edits made meanwhile", () => {
     const proposed = reducer(started(), { type: "propose", build: guests250, today: TODAY });
     const edited = [
-      (p: Plan): Plan => ({ ...p, vendors: [{ category: "venue", needs: ["Power backup"], questions: [], confirmBeforeBooking: [] }] }),
+      (p: Plan): Plan => ({
+        ...p,
+        vendors: [{ category: "venue", needs: ["Power backup"], questions: [], confirmBeforeBooking: [] }],
+      }),
       (p: Plan): Plan => patchEntry(p, "decor", { override: 90_000 }),
       (p: Plan): Plan => setTask(p, "finalise-dates", "done", null),
     ].reduce((s, update) => reducer(s, { type: "update_plan", update }), proposed);
@@ -106,7 +118,12 @@ describe("awaitingReply", () => {
   it("is true only when the user spoke last", () => {
     expect(awaitingReply([])).toBe(false);
     expect(awaitingReply([{ role: "user", content: "hi" }])).toBe(true);
-    expect(awaitingReply([{ role: "user", content: "hi" }, { role: "assistant", content: "Hello" }])).toBe(false);
+    expect(
+      awaitingReply([
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "Hello" },
+      ]),
+    ).toBe(false);
   });
 });
 
@@ -125,7 +142,16 @@ describe("bindActions", () => {
     a.undo();
     a.reset();
     expect(seen.map((x) => x.type)).toEqual([
-      "hydrate", "user_message", "assistant_reply", "edit_draft", "start_plan", "update_plan", "propose", "accept", "undo", "reset",
+      "hydrate",
+      "user_message",
+      "assistant_reply",
+      "edit_draft",
+      "start_plan",
+      "update_plan",
+      "propose",
+      "accept",
+      "undo",
+      "reset",
     ]);
   });
 });

@@ -19,7 +19,12 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
 
   function onKeyDown(e: KeyboardEvent, index: number) {
     const last = tabs.length - 1;
-    const next = { ArrowRight: index === last ? 0 : index + 1, ArrowLeft: index === 0 ? last : index - 1, Home: 0, End: last }[e.key];
+    const next = {
+      ArrowRight: index === last ? 0 : index + 1,
+      ArrowLeft: index === 0 ? last : index - 1,
+      Home: 0,
+      End: last,
+    }[e.key];
     if (next === undefined) return;
     e.preventDefault();
     setActive(tabs[next].id);

@@ -46,10 +46,23 @@ function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: P
     <details className="mt-6 border-t border-line pt-4">
       <summary className="cursor-pointer py-1 text-sm font-medium text-maroon">Paste a quote</summary>
       <div className="mt-3">
-        <label htmlFor={id} className="text-sm text-muted">Paste the vendor&apos;s message or quote as text</label>
-        <TextArea id={id} value={text} onChange={(e) => setText(e.target.value)} maxLength={LIMITS.quoteChars} rows={5} className="mt-1 block w-full" />
+        <label htmlFor={id} className="text-sm text-muted">
+          Paste the vendor&apos;s message or quote as text
+        </label>
+        <TextArea
+          id={id}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={LIMITS.quoteChars}
+          rows={5}
+          className="mt-1 block w-full"
+        />
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <Button variant="primary" disabled={busy || text.trim().length < LIMITS.quoteMinChars} onClick={() => void extract()}>
+          <Button
+            variant="primary"
+            disabled={busy || text.trim().length < LIMITS.quoteMinChars}
+            onClick={() => void extract()}
+          >
             {busy ? "Reading the quote" : "Extract details"}
           </Button>
           <span className="text-xs text-muted tabular-nums">
@@ -76,9 +89,12 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
               return (
                 <li key={k}>
                   <label className="flex cursor-pointer items-start gap-2.5 text-sm">
-                    <input type="checkbox" checked={!!plan.checked[k]}
+                    <input
+                      type="checkbox"
+                      checked={!!plan.checked[k]}
                       onChange={() => onUpdate((p) => ({ ...p, checked: { ...p.checked, [k]: !p.checked[k] } }))}
-                      className="mt-1 size-4 shrink-0 accent-maroon" />
+                      className="mt-1 size-4 shrink-0 accent-maroon"
+                    />
                     <span className={`wrap-anywhere ${plan.checked[k] ? "text-muted line-through" : ""}`}>{item}</span>
                   </label>
                 </li>
@@ -94,10 +110,14 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
 export function VendorsTab({ plan, summary, onUpdate, refresh }: Props) {
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted">Quote details are extracted from the text you paste. Confirm with the vendor before booking.</p>
+      <p className="text-sm text-muted">
+        Quote details are extracted from the text you paste. Confirm with the vendor before booking.
+      </p>
       {refresh.stale && (
         <div className="card flex flex-wrap items-center justify-between gap-3 border-tint-yellow-ink/30 bg-tint-yellow p-4 text-sm text-tint-yellow-ink">
-          <p className="min-w-0 flex-1">Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.</p>
+          <p className="min-w-0 flex-1">
+            Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.
+          </p>
           <Button disabled={refresh.busy} onClick={refresh.onRefresh}>
             <Icon name="retry" />
             {refresh.busy ? "Refreshing" : "Refresh checklists"}
