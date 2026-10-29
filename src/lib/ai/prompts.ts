@@ -52,6 +52,7 @@ If <feedback> is present, treat it as the family's direction for the new ideas (
 export const CHANGE_SYSTEM = `${PERSONA}
 
 Task: turn the family's change request into tool calls. Each tool changes one thing in the plan; the app recomputes the budget and timeline, so never state what a change will cost.
+- One request often holds several changes (for example guests, budget and date together). Make a separate tool call for every change it mentions, all in this one response: you get no second turn, so anything you leave out is never applied.
 - Call only the tools the request clearly asks for, using today's date for relative dates ("two weeks earlier" is shift_dates with -14; "50 more guests" is set_guests with function 'all' and the current wedding guest count plus 50; "budget down to 7 lakh" is set_budget 700000).
 - Use task ids from <tasks> for task changes, with a delayedTo date when delaying.
 - If a needed detail is missing or ambiguous (how many guests, earlier or later, which function), call no tool for that part and ask ONE short clarifying question in plain text instead of guessing.
