@@ -116,7 +116,7 @@ export function computeBudget(plan: Plan): BudgetSummary {
   );
   const contingency = resolveLine(plan, "contingency", {
     amount: roundToStep(sum(benchmarked.map((l) => l.amount)) * CONTINGENCY_RATE),
-    source: `${CONTINGENCY_RATE * 100}% of all other lines, kept aside for surprises.`,
+    source: `${Math.round(CONTINGENCY_RATE * 100)}% of all other lines, kept aside for surprises.`,
   });
   const lines = [...benchmarked, contingency];
   const total = sum(lines.map((l) => l.amount));

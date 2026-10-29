@@ -61,6 +61,7 @@ describe("computeBudget", () => {
     const summary = computeBudget(plan);
     const others = summary.lines.filter((l) => l.category !== "contingency").reduce((s, l) => s + l.amount, 0);
     expect(line(plan, "contingency").amount).toBe(Math.round((others * 0.07) / 1000) * 1000);
+    expect(line(plan, "contingency").source).toMatch(/^7% of all other lines/);
   });
 
   it("keeps an override as an estimate and remembers the benchmark", () => {
