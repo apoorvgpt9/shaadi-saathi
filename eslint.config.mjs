@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "coverage/**",
     // Local agent worktrees (gitignored).
     ".claude/**",
+    ".planning/**",
   ]),
 ]);
 
