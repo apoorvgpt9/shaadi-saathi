@@ -49,9 +49,17 @@ describe("scheduleTasks", () => {
     const tasks = scheduleTasks(withWeddingIn(5), TODAY);
     const urgent = tasks.filter((t) => t.flags.includes("urgent"));
     expect(urgent.length).toBeGreaterThan(14);
-    const latestOwnDue = urgent.filter((t) => !t.flags.includes("at_risk")).map((t) => t.due);
-    expect(latestOwnDue.every((d) => d <= addDays(TODAY, 6))).toBe(true);
+    const openIds = new Set(tasks.filter((t) => t.status !== "done").map((t) => t.id));
+    const unblocked = urgent.filter((t) => t.dependsOn.every((id) => !openIds.has(id)));
+    expect(unblocked.every((t) => t.due <= addDays(TODAY, 6))).toBe(true);
     expect(find(tasks, "book-venue").due).toBe(TODAY);
+  });
+
+  it("sequences urgent tasks behind their prerequisites without flagging them at risk", () => {
+    const tasks = scheduleTasks(withWeddingIn(60), TODAY);
+    const caterer = find(tasks, "book-caterer");
+    expect(caterer.due > find(tasks, "book-venue").due).toBe(true);
+    expect(tasks.some((t) => t.flags.includes("at_risk"))).toBe(false);
   });
 
   it("does not flag done tasks and keeps their ideal date", () => {

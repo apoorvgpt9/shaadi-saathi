@@ -86,16 +86,15 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
         due = addDays(today, Math.min(MAX_URGENT_STAGGER_DAYS, Math.floor(rank / URGENT_TASKS_PER_DAY)));
         flags.push("urgent");
       }
-      const latestOpenDependency = template.dependsOn
-        .flatMap((id) => {
-          const dep = scheduled.get(id);
-          return dep && dep.status !== "done" ? [dep.due] : [];
-        })
-        .sort()
-        .at(-1);
-      if (latestOpenDependency !== undefined && latestOpenDependency >= due) {
-        due = addDays(latestOpenDependency, 1);
-        flags.push("at_risk");
+      const blockers = template.dependsOn.flatMap((id) => {
+        const dep = scheduled.get(id);
+        return dep && dep.status !== "done" && dep.due >= due ? [dep] : [];
+      });
+      const latestBlocker = blockers.map((dep) => dep.due).sort().at(-1);
+      if (latestBlocker !== undefined) {
+        due = addDays(latestBlocker, 1);
+        // Only a reported delay upstream is a risk; ties from spreading urgent tasks are just sequencing.
+        if (blockers.some((dep) => dep.status === "delayed" || dep.flags.includes("at_risk"))) flags.push("at_risk");
       }
       if (due >= anchorDate) flags.push("clash");
     }

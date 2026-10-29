@@ -44,17 +44,17 @@ function applyModel(model: CostModel, rateFor: RateFor, profile: Profile): { raw
     case "per_guest_per_function": {
       const parts = weightedFunctions(profile, model.weight);
       const text = parts.map(({ f, weight }) => {
-        const weightNote = weight < 1 ? ` (x${weight})` : "";
+        const weightNote = weight < 1 ? ` (×${weight})` : "";
         return `${plural(f.guests, model.unit)} at ${FUNCTION_LABELS[f.kind]}${weightNote}`;
       });
       return {
         raw: sum(parts.map(({ f, weight }) => rate * f.guests * weight)),
-        basis: `${formatINR(rate)}/${model.unit} x ${text.join(" + ")}`,
+        basis: `${formatINR(rate)}/${model.unit} × ${text.join(" + ")}`,
       };
     }
     case "per_function": {
       const parts = weightedFunctions(profile, model.weight);
-      const text = parts.map(({ f, weight }) => `${FUNCTION_LABELS[f.kind]} (x${weight})`);
+      const text = parts.map(({ f, weight }) => `${FUNCTION_LABELS[f.kind]} (×${weight})`);
       return {
         raw: sum(parts.map(({ weight }) => rate * weight)),
         basis: `${formatINR(rate)} per function, scaled by size: ${text.join(", ")}`,
@@ -77,7 +77,7 @@ function applyModel(model: CostModel, rateFor: RateFor, profile: Profile): { raw
       return { raw: rate + addOnRate, basis: `${formatINR(rate)} flat + ${formatINR(addOnRate)} ${addOn.label}` };
     }
     case "per_wedding_guest":
-      return { raw: rate * profile.guests, basis: `${formatINR(rate)}/guest x ${profile.guests} wedding guests` };
+      return { raw: rate * profile.guests, basis: `${formatINR(rate)}/guest × ${profile.guests} wedding guests` };
   }
 }
 
