@@ -6,7 +6,7 @@ export type RouteName = "intake" | "ideas" | "vendors" | "change" | "quote" | "t
 
 const ROUTES = {
   intake: { effort: "low", maxTokens: 8000 },
-  change: { effort: "low", maxTokens: 8000 },
+  change: { effort: "medium", maxTokens: 8000 },
   quote: { effort: "low", maxTokens: 8000 },
   vendors: { effort: "medium", maxTokens: 16000 },
   ideas: { effort: "medium", maxTokens: 16000 },

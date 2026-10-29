@@ -84,9 +84,9 @@ describe("shared handler", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 429 after 20 requests from one IP, but not for another IP", async () => {
+  it("returns 429 after 40 requests from one IP, but not for another IP", async () => {
     generateMock.mockResolvedValue({ data: { vendors: [] }, meta });
-    for (let i = 0; i < 20; i++) expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
+    for (let i = 0; i < 40; i++) expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
     const blocked = await post(vendors, validBodies.vendors, "9.9.9.9");
     expect(blocked.status).toBe(429);
     expect((await blocked.json()).error.code).toBe("rate_limited");

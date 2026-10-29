@@ -4,7 +4,7 @@ import type { ApiError, ApiErrorCode } from "@/lib/types";
 import { AiOutputError, RefusalError, type AiResult, type Meta, type RouteName } from "./client";
 
 const WINDOW_MS = 10 * 60_000;
-const LIMIT = 20;
+const LIMIT = 40;
 const MAX_BODY_CHARS = 100_000;
 // Auth, permission, payment, rate limit and overload all mean "AI is not available right now".
 const UNAVAILABLE_STATUSES = new Set([401, 402, 403, 429, 503, 529]);
