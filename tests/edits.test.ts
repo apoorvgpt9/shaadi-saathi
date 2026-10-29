@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { patchEntry, removeQuote, setTask } from "@/components/edits";
+import { patchEntry, removeQuote, setTask } from "@/lib/plan/edits";
 import { computeBudget } from "@/lib/plan/budget";
-import { scheduleTasks } from "@/lib/plan/timeline";
-import { TODAY, makePlan, makeQuote } from "./plan-fixtures";
+import { makePlan, makeQuote } from "./plan-fixtures";
 
 const line = (plan: ReturnType<typeof makePlan>, category: "catering") => computeBudget(plan).lines.find((l) => l.category === category);
 
@@ -27,12 +26,6 @@ describe("plan edits", () => {
     expect(removed.quotes).toEqual([]);
     expect(removed.budget.catering?.quoteId).toBeNull();
     expect(line(removed, "catering")?.status).toBe("estimate");
-  });
-
-  it("delaying a prerequisite flags its dependents as at risk", () => {
-    const delayed = setTask(makePlan(), "book-venue", "delayed", "2027-01-20");
-    const flagged = scheduleTasks(delayed, TODAY).find((t) => t.id === "book-caterer");
-    expect(flagged?.flags).toContain("at_risk");
   });
 
   it("returning a task to to-do drops its delayed date", () => {

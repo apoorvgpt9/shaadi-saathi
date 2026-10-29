@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import type { BudgetLine, BudgetSummary, Plan, PriceStatus } from "@/lib/types";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
-import { patchEntry } from "@/components/edits";
+import { patchEntry } from "@/lib/plan/edits";
 import { TradeoffPanel } from "@/components/TradeoffPanel";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

@@ -8,6 +8,7 @@ import { POST as intake } from "@/app/api/intake/route";
 import { POST as quote } from "@/app/api/quote/route";
 import { POST as tradeoffs } from "@/app/api/tradeoffs/route";
 import { POST as vendors } from "@/app/api/vendors/route";
+import { BASE_PROFILE as profile } from "./plan-fixtures";
 
 // Mock only the network calls; the error classes stay real so the handler can recognise them.
 vi.mock("@/lib/ai/client", async (importOriginal) => ({
@@ -20,29 +21,17 @@ const generateMock = vi.mocked(generate);
 const callToolsMock = vi.mocked(callTools);
 const meta = { model: "test-model", inputTokens: 10, outputTokens: 5 };
 
-const profile = {
-  city: "Jaipur",
-  cityTier: "tier2",
-  guests: 200,
-  budget: 800000,
-  functions: [
-    { kind: "mehendi", date: "2027-02-14", guests: 120 },
-    { kind: "wedding", date: "2027-02-15", guests: 200 },
-  ],
-  style: "classic",
-  categoryStyles: {},
-  priorities: ["catering", "photography"],
-  mustHaves: [],
-  notes: [],
-};
-
 let nextIp = 0;
 /** Each request gets its own IP unless one is given, so the rate limiter never leaks between tests. */
 function post(handler: (r: Request) => Promise<Response>, body: unknown, ip = `10.0.0.${++nextIp}`) {
+  return postWith(handler, body, { "x-forwarded-for": `${ip}, 1.1.1.1` });
+}
+
+function postWith(handler: (r: Request) => Promise<Response>, body: unknown, headers: Record<string, string>) {
   return handler(
     new Request("http://localhost/api/x", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-forwarded-for": `${ip}, 1.1.1.1` },
+      headers: { "content-type": "application/json", ...headers },
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
   );
@@ -59,6 +48,18 @@ const validBodies = {
     total: 960000,
     levers: [{ id: "trim-all-10", label: "Trim all guests by 10%", saving: 50000, touchesPriority: false }],
   },
+};
+const EMPTY_DRAFT = {
+  weddingDate: null,
+  city: null,
+  cityTier: null,
+  guests: null,
+  budget: null,
+  functions: [],
+  style: null,
+  priorities: [],
+  mustHaves: [],
+  notes: [],
 };
 const handlers = { intake, ideas, vendors, change, quote, tradeoffs };
 
@@ -91,6 +92,37 @@ describe("shared handler", () => {
     expect(blocked.status).toBe(429);
     expect((await blocked.json()).error.code).toBe("rate_limited");
     expect((await post(vendors, validBodies.vendors, "8.8.8.8")).status).toBe(200);
+  });
+
+  it("rejects a declared oversize body without reading it", async () => {
+    const request = new Request("http://localhost/api/x", {
+      method: "POST",
+      headers: { "x-forwarded-for": "10.9.9.9", "content-length": "100001" },
+      body: "{}",
+    });
+    const text = vi.spyOn(request, "text");
+    expect((await vendors(request)).status).toBe(400);
+    expect(text).not.toHaveBeenCalled();
+  });
+
+  it("keys the limit on x-real-ip first, ignoring a changing x-forwarded-for", async () => {
+    for (let i = 0; i < 40; i++) {
+      await postWith(vendors, {}, { "x-real-ip": "7.7.7.7", "x-forwarded-for": `spoofed-${i}` });
+    }
+    const blocked = await postWith(vendors, {}, { "x-real-ip": "7.7.7.7", "x-forwarded-for": "fresh" });
+    expect(blocked.status).toBe(429);
+  });
+
+  it("shares one bucket when no client address header is present", async () => {
+    for (let i = 0; i < 40; i++) await postWith(vendors, {}, {});
+    expect((await postWith(vendors, {}, {})).status).toBe(429);
+  });
+
+  it("resets the counters if a flood of distinct addresses fills the map", async () => {
+    for (let i = 0; i < 40; i++) await post(vendors, {}, "6.6.6.6");
+    expect((await post(vendors, {}, "6.6.6.6")).status).toBe(429);
+    for (let i = 0; i < 5001; i++) await post(vendors, {}, `flood-${i}`);
+    expect((await post(vendors, {}, "6.6.6.6")).status).toBe(400);
   });
 
   it.each([401, 403, 429, 529])("maps Anthropic status %i to 503 ai_unavailable", async (status) => {
@@ -165,6 +197,17 @@ describe("intake", () => {
     const res = await post(intake, validBodies.intake);
     expect(res.status).toBe(200);
     expect((await res.json()).draft.city).toBe("Jaipur");
+  });
+
+  it("trims the reply, caps its length, and falls back when it is blank", async () => {
+    const draft = { ...EMPTY_DRAFT };
+    const ask = async (reply: string) => {
+      generateMock.mockResolvedValueOnce({ data: { reply, draft }, meta });
+      return (await (await post(intake, validBodies.intake)).json()).reply as string;
+    };
+    expect(await ask("  Lovely.  ")).toBe("Lovely.");
+    expect(await ask("x".repeat(3000))).toHaveLength(2000);
+    expect(await ask("   ")).toMatch(/noted/i);
   });
 });
 
@@ -255,6 +298,12 @@ describe("quote", () => {
     const res = await post(quote, validBodies.quote);
     expect(res.status).toBe(200);
     expect((await res.json()).quote.total).toBe(240000);
+  });
+
+  it("files the quote under the requested category, whatever the model returned", async () => {
+    generateMock.mockResolvedValue({ data: { quote: { ...extracted.quote, category: "venue" } }, meta });
+    const res = await post(quote, validBodies.quote);
+    expect((await res.json()).quote.category).toBe("catering");
   });
 
   it("refuses a quote with no total instead of returning zero", async () => {

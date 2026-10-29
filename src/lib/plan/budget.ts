@@ -1,6 +1,6 @@
-import { formatINR } from "../format";
-import { CATEGORY_IDS } from "../types";
-import type { BudgetLine, BudgetSummary, CategoryId, Plan, PriceStatus, Profile, Style } from "../types";
+import { formatINR } from "@/lib/format";
+import { CATEGORY_IDS } from "@/lib/types";
+import type { BudgetLine, BudgetSummary, CategoryId, Plan, PriceStatus, Profile, Style } from "@/lib/types";
 import {
   BENCHMARKS,
   CITY_TIER_LABELS,
@@ -11,8 +11,8 @@ import {
   ROUNDING_STEP,
   STYLE_LABELS,
   TIER_MULTIPLIER,
-} from "./benchmarks";
-import type { CostModel, WeightKind } from "./benchmarks";
+} from "@/lib/plan/benchmarks";
+import type { CostModel, WeightKind } from "@/lib/plan/benchmarks";
 
 type BenchmarkCategory = keyof typeof BENCHMARKS;
 interface Estimate {

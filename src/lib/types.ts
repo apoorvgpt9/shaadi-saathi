@@ -3,7 +3,29 @@ import { z } from "zod";
 // Shared contract between the planning engine, the AI routes and the UI.
 // Stored state is validated with these schemas; derived views are plain types.
 
-export const FUNCTION_KINDS = ["haldi", "mehendi", "sangeet", "wedding", "reception"] as const;
+// zod's JIT probe calls Function(""), which our CSP forbids and logs as a violation on every page load.
+z.config({ jitless: true });
+
+/** Every size limit in the contract, so schemas, engine and UI never disagree. */
+export const LIMITS = {
+  guests: { min: 1, max: 5000 },
+  budget: { min: 10_000, max: 1_000_000_000 },
+  functions: 5,
+  cityChars: 80,
+  textChars: 300,
+  mustHaves: 10,
+  notes: 20,
+  priorities: 5,
+  quotes: 30,
+  quoteChars: 6000,
+  quoteMinChars: 20,
+  messageChars: 2000,
+  chatMessages: 20,
+  /** Functions sit within a week of the wedding day; anything further is out of scope. */
+  functionOffsetDays: 7,
+} as const;
+
+const FUNCTION_KINDS = ["haldi", "mehendi", "sangeet", "wedding", "reception"] as const;
 export const CATEGORY_IDS = [
   "venue",
   "catering",
@@ -18,7 +40,7 @@ export const CATEGORY_IDS = [
   "contingency",
 ] as const;
 export const STYLES = ["simple", "classic", "premium"] as const;
-export const CITY_TIERS = ["metro", "tier2", "town"] as const;
+const CITY_TIERS = ["metro", "tier2", "town"] as const;
 
 export const FunctionKind = z.enum(FUNCTION_KINDS);
 export const CategoryId = z.enum(CATEGORY_IDS);
@@ -26,9 +48,9 @@ export const Style = z.enum(STYLES);
 export const CityTier = z.enum(CITY_TIERS);
 export const IsoDate = z.iso.date();
 
-const Guests = z.number().int().min(1).max(5000);
-const Rupees = z.number().int().min(0).max(1_000_000_000);
-const ShortText = z.string().trim().min(1).max(300);
+const Guests = z.number().int().min(LIMITS.guests.min).max(LIMITS.guests.max);
+const Rupees = z.number().int().min(0).max(LIMITS.budget.max);
+const ShortText = z.string().trim().min(1).max(LIMITS.textChars);
 
 export const WeddingFunction = z.object({
   kind: FunctionKind,
@@ -38,20 +60,20 @@ export const WeddingFunction = z.object({
 
 /** A complete profile. `guests` is the wedding-day headcount; a "wedding" function always exists. */
 export const Profile = z.object({
-  city: z.string().trim().min(1).max(80),
+  city: z.string().trim().min(1).max(LIMITS.cityChars),
   cityTier: CityTier,
   guests: Guests,
-  budget: Rupees.min(10_000),
+  budget: Rupees.min(LIMITS.budget.min),
   functions: z
     .array(WeddingFunction)
     .min(1)
-    .max(5)
+    .max(LIMITS.functions)
     .refine((fns) => fns.some((f) => f.kind === "wedding"), "A wedding function is required"),
   style: Style,
   categoryStyles: z.partialRecord(CategoryId, Style),
-  priorities: z.array(CategoryId).max(5),
-  mustHaves: z.array(ShortText).max(10),
-  notes: z.array(ShortText).max(20),
+  priorities: z.array(CategoryId).max(LIMITS.priorities),
+  mustHaves: z.array(ShortText).max(LIMITS.mustHaves),
+  notes: z.array(ShortText).max(LIMITS.notes),
 });
 
 /** What the intake AI extracts each turn. Nullable rather than optional to suit structured outputs. */
@@ -116,7 +138,7 @@ export const Plan = z.object({
   profile: Profile,
   budget: z.partialRecord(CategoryId, BudgetEntry),
   tasks: z.record(z.string(), TaskState),
-  quotes: z.array(Quote).max(30),
+  quotes: z.array(Quote).max(LIMITS.quotes),
   vendors: z.array(VendorChecklist),
   /** Ticked checklist items, keyed `${category}:${section}:${index}`. */
   checked: z.record(z.string(), z.boolean()),
@@ -126,13 +148,13 @@ export const Plan = z.object({
 /** One structured edit. The change route exposes each variant to Claude as a tool named by `type`. */
 export const PlanChange = z.discriminatedUnion("type", [
   z.object({ type: z.literal("set_guests"), function: z.union([FunctionKind, z.literal("all")]), count: Guests }),
-  z.object({ type: z.literal("set_budget"), amount: Rupees.min(10_000) }),
+  z.object({ type: z.literal("set_budget"), amount: Rupees.min(LIMITS.budget.min) }),
   z.object({ type: z.literal("shift_dates"), days: z.number().int().min(-365).max(365) }),
   z.object({ type: z.literal("set_function_date"), function: FunctionKind, date: IsoDate }),
   z.object({ type: z.literal("add_function"), function: FunctionKind, date: IsoDate, guests: Guests }),
   z.object({ type: z.literal("remove_function"), function: FunctionKind }),
   z.object({ type: z.literal("set_style"), style: Style, category: CategoryId.nullable() }),
-  z.object({ type: z.literal("set_priorities"), priorities: z.array(CategoryId).max(5) }),
+  z.object({ type: z.literal("set_priorities"), priorities: z.array(CategoryId).max(LIMITS.priorities) }),
   z.object({
     type: z.literal("set_task_status"),
     taskId: z.string().min(1).max(64),
@@ -216,10 +238,14 @@ export interface ChangeSummary {
 
 // API contracts for the AI routes (request bodies are validated server-side).
 
-const ChatMessage = z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(2000) });
+export const ChatMessage = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().trim().min(1).max(LIMITS.messageChars),
+});
+export type ChatMessage = z.infer<typeof ChatMessage>;
 
 export const IntakeRequest = z.object({
-  messages: z.array(ChatMessage).min(1).max(20),
+  messages: z.array(ChatMessage).min(1).max(LIMITS.chatMessages),
   draft: IntakeDraft.nullable(),
   today: IsoDate,
 });
@@ -228,7 +254,7 @@ export const IntakeResponse = z.object({ reply: z.string(), draft: IntakeDraft }
 export const IdeasRequest = z.object({
   profile: Profile,
   function: FunctionKind.nullable(),
-  feedback: z.string().trim().max(2000).nullable(),
+  feedback: z.string().trim().max(LIMITS.messageChars).nullable(),
   previous: z.array(FunctionIdeas),
 });
 export const IdeasResponse = z.object({ ideas: z.array(FunctionIdeas) });
@@ -237,7 +263,7 @@ export const VendorsRequest = z.object({ profile: Profile });
 export const VendorsResponse = z.object({ vendors: z.array(VendorChecklist) });
 
 export const ChangeRequest = z.object({
-  message: z.string().trim().min(1).max(2000),
+  message: z.string().trim().min(1).max(LIMITS.messageChars),
   profile: Profile,
   tasks: z.array(z.object({ id: z.string(), title: z.string(), status: TaskStatus })).max(60),
   today: IsoDate,
@@ -245,7 +271,7 @@ export const ChangeRequest = z.object({
 export const ChangeResponse = z.object({ changes: z.array(PlanChange), reply: z.string().nullable() });
 
 export const QuoteRequest = z.object({
-  text: z.string().trim().min(20).max(6000),
+  text: z.string().trim().min(LIMITS.quoteMinChars).max(LIMITS.quoteChars),
   category: CategoryId,
   guests: Guests,
 });

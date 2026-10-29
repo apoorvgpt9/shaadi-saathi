@@ -2,7 +2,7 @@
 
 ShaadiSaathi helps an Indian family organise their wedding: the **budget**, the **timeline**, **vendor checklists** and **personalized ideas** for every function (haldi, mehendi, sangeet, wedding, reception). It is built for execution, not inspiration. It asks before it assumes, shows the consequences of every decision, is honest about which numbers are estimates, and revises the plan when life changes.
 
-**Live demo:** _link added at deployment_
+**Live demo:** <https://shaadi-saathi-omega.vercel.app>
 
 ## The problem
 
@@ -16,7 +16,7 @@ ShaadiSaathi keeps that plan, and uses GenAI where it adds real value: understan
 |---|---|
 | **Understand the family first** | A short conversation (English or Hinglish) asks 1–2 questions at a time. A live "What I've understood" panel shows the date, city, guests, budget, functions, priorities and notes as they are captured. Nothing is planned until the essentials are known. |
 | **Budget** | Each category (venue, catering, decor, photography, attire, makeup, entertainment, rituals, invitations, transport, contingency) is estimated bottom-up from guests per function, city tier and style. Every line shows its basis and an **Estimate / Quoted / Confirmed** badge. You can override any line, and the totals update instantly. |
-| **Timeline** | 27 planning tasks with lead times and dependencies, scheduled back from each function's date. Overdue tasks become **Urgent, do this week**. Delaying a task pushes its dependents and flags them **At risk**, or **Clash** if they run into the function. "Next 3 things to do" always shows what is actionable now. |
+| **Timeline** | 27 planning tasks with lead times and dependencies, scheduled back from each function's date. Overdue tasks, including delayed ones whose new date has passed, become **Urgent, this week**. Delaying a task pushes its dependents and flags them **At risk**, or **Clash** if they run into the function. "Next 3 things to do" always shows what is actionable now. |
 | **Vendor checklists** | A personalized checklist per vendor category: what you need, questions to ask, and what to confirm before paying an advance. **Paste a quote** and the AI extracts the total, guests covered, inclusions, extra charges and open questions. Then **compare quotes** side by side against the budget estimate. |
 | **Personalized ideas** | Three ideas per function, each marked as saving money, staying within budget or adding cost, and tied to *this* family (ages, culture, accessibility, priorities). Feedback such as "too expensive" or "suitable for kids and elders" regenerates them. |
 | **Adapting to change** | Type "50 more guests, budget is now 7 lakh, wedding two weeks earlier". The AI turns it into structured changes with function calling, the plan is recomputed, and a **What changed** summary shows the money and task impact. Then you choose **Accept** or **Undo**. |
@@ -35,7 +35,7 @@ All money and dates are computed by a **deterministic, tested planning engine** 
 | `POST /api/ideas` | Writes ideas per function, and refines them from feedback | Structured output |
 | `POST /api/quote` | Extracts facts from a pasted vendor quote | Structured output, with the quote treated as untrusted data |
 
-Each route makes a single Claude call: adaptive thinking, effort tuned per route, and server-side refusal fallback. Every response is re-validated with zod before it reaches the browser; structured-output routes retry once on malformed output, and invalid tool calls are dropped. The model is configurable per route through environment variables.
+Each route sends one Claude request: adaptive thinking, effort tuned per route, and server-side refusal fallback. Every response is re-validated with zod before it reaches the browser. The structured-output routes repeat the request once, only when the output is malformed, and invalid tool calls from `/api/change` are dropped. The model is configurable per route through environment variables.
 
 ## Architecture
 
@@ -53,16 +53,17 @@ flowchart LR
 
 ```
 src/lib/types.ts      shared zod contract
-src/lib/plan/         deterministic engine (benchmarks, budget, timeline, changes, levers, profile)
+src/lib/plan/         deterministic engine (benchmarks, budget, timeline, changes, summary, edits, levers, profile)
 src/lib/ai/           Claude client, prompts, tools, shared route handler
 src/app/api/*/        six AI route handlers + health check
 src/components/       UI (intake, workspace, tabs, change summary, trade-offs)
-tests/                unit and route tests (Vitest)
+tests/                unit and route tests (Vitest), with shared fixtures in plan-fixtures.ts
+scripts/smoke.mjs     optional end-to-end check against a running server with a real key
 ```
 
 ## Try it
 
-Press **Try an example** on the first screen. It sends the explainer's scenario as a real message: a Jaipur wedding about four months away, 200 guests, ₹8 lakh, with a mehendi the day before. Then:
+Press **Try an example** on the first screen. It sends an example scenario as a real message: a Jaipur wedding about four months away, 200 guests, ₹8 lakh, with a mehendi the day before. Then:
 
 1. **Build my plan.** The estimate comes to about ₹9.6L, roughly 20% over, and the urgent bookings are flagged.
 2. In **What changed?**, type: *50 more guests, budget down to 7 lakh, wedding two weeks earlier*. Review the summary, then Accept.
@@ -87,9 +88,11 @@ npm run dev                  # http://localhost:3000
 | `ANTHROPIC_MODEL_<ROUTE>` | Optional per-route override, e.g. `ANTHROPIC_MODEL_INTAKE` |
 
 ```bash
-npm test            # unit and route tests (no network; the Claude client is mocked)
+npm test              # unit and route tests (no network; the Claude client is mocked)
+npm run test:coverage # the same tests with a V8 coverage report
 npm run lint
 npm run typecheck
+npm run build
 node scripts/smoke.mjs http://localhost:3000   # optional: real end-to-end calls against a running server
 ```
 
@@ -99,8 +102,8 @@ node scripts/smoke.mjs http://localhost:3000   # optional: real end-to-end calls
 - **Security:**
   - The API key stays on the server.
   - Every request body is validated with zod and size-capped.
-  - Rate limit: 20 AI requests per IP per 10 minutes.
-  - Strict security headers (CSP, `X-Frame-Options`, `nosniff`).
+  - Rate limit: 40 AI requests per client IP per 10 minutes, keyed on the address headers the host platform sets.
+  - Strict security headers (CSP, HSTS, `X-Frame-Options`, `nosniff`).
   - User text and pasted quotes are wrapped as untrusted data in prompts.
   - Logs contain only route, status, latency, model and token counts, never user content. See [SECURITY.md](SECURITY.md).
 - **Resilience:** AI failures map to clear 4xx/5xx JSON errors, never an unhandled crash. The budget and timeline keep working without the AI.
