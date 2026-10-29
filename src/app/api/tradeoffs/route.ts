@@ -3,7 +3,7 @@ import { TRADEOFFS_SYSTEM, tradeoffsMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
 import { TradeoffsRequest, TradeoffsResponse } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   return handleAi(request, "tradeoffs", TradeoffsRequest, TradeoffsResponse, async (input) => {

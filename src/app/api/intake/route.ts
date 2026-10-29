@@ -3,7 +3,7 @@ import { INTAKE_SYSTEM, intakeMessages } from "@/lib/ai/prompts";
 import { handleAi, InvalidInputError } from "@/lib/ai/route";
 import { IntakeRequest, IntakeResponse } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   return handleAi(request, "intake", IntakeRequest, IntakeResponse, (input) => {

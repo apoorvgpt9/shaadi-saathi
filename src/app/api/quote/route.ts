@@ -3,7 +3,7 @@ import { QUOTE_SYSTEM, quoteMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
 import { QuoteRequest, QuoteResponse } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   return handleAi(request, "quote", QuoteRequest, QuoteResponse, async (input) => {

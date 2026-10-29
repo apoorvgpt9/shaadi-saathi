@@ -4,7 +4,7 @@ import { handleAi } from "@/lib/ai/route";
 import { CHANGE_TOOLS } from "@/lib/ai/tools";
 import { ChangeRequest, ChangeResponse, PlanChange } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const NOT_SURE = "I wasn't sure what to change. Could you say it a little differently?";
 

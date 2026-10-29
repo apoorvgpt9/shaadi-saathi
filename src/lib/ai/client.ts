@@ -36,8 +36,9 @@ export class AiOutputError extends Error {}
 
 let singleton: Anthropic | undefined;
 // Lazy so that building or testing without a key never touches the network.
+// One 100s attempt per call (plus the single parse retry) stays inside the routes' 300s limit; the UI offers retry.
 function getClient(): Anthropic {
-  singleton ??= new Anthropic({ timeout: 50_000, maxRetries: 1 });
+  singleton ??= new Anthropic({ timeout: 100_000, maxRetries: 0 });
   return singleton;
 }
 
