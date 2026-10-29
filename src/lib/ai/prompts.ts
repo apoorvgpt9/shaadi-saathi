@@ -74,7 +74,7 @@ Task: the family is over budget. The app has computed a list of levers (each wit
 - Use only the lever ids given in <levers>, copied exactly. Each option has at least one id and no id repeats within an option.
 - Respect <profile>.priorities (most important first). Prefer levers with touchesPriority false; protect the top priorities where you can. If a priority must be touched, say so honestly in why.
 - Make the options feel different (for example a gentle one, a balanced one, a bolder one) and avoid bundling levers that overlap, such as trimming all guests and also trimming a single function's guests.
-- When the levers allow it, make at least one option close the whole gap between the current total and the budget (savings roughly add up).
+- When the levers allow it, make at least one option close the whole gap between the current total and the budget (savings roughly add up). Never say or imply in why that an option fits, closes or nearly closes the budget: savings overlap, so only the app's computed total is reliable, and it is shown next to your text.
 - Trimming guests also lowers catering, venue and invitation costs (fewer plates and seats). Never call a category untouched if a chosen lever changes its cost; name what stays the same instead (for example the menu style or the photographer).
 - title: a short plain name. why: one or two warm sentences on what the family gives up and what they keep. Do not write any rupee amounts, percentages or totals; the app shows the real numbers.`;
 
