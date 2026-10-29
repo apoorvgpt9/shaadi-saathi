@@ -1,8 +1,8 @@
-import { STYLES } from "../types";
-import type { CategoryId, FunctionKind, Lever, Plan, PlanChange } from "../types";
-import { CATEGORY_LABELS, FUNCTION_LABELS, STYLE_LABELS } from "./benchmarks";
-import { computeBudget, effectiveStyle } from "./budget";
-import { applyChanges } from "./changes";
+import { STYLES } from "@/lib/types";
+import type { CategoryId, FunctionKind, Lever, Plan, PlanChange } from "@/lib/types";
+import { CATEGORY_LABELS, FUNCTION_LABELS, STYLE_LABELS } from "@/lib/plan/benchmarks";
+import { computeBudget, effectiveStyle } from "@/lib/plan/budget";
+import { applyChanges } from "@/lib/plan/changes";
 
 const TRIM_PER_FUNCTION = 0.2;
 const TRIM_ALL = 0.1;

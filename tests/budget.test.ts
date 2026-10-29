@@ -10,7 +10,7 @@ const line = (plan: Plan, category: CategoryId) => {
 };
 
 describe("computeBudget", () => {
-  it("lands the sanity scenario at about 9.58 lakh, a ratio between 1.15 and 1.25", () => {
+  it("lands the example scenario at about 9.58 lakh, a ratio between 1.15 and 1.25", () => {
     const summary = computeBudget(makePlan());
     expect(summary.total).toBe(958_000);
     expect(summary.ratio).toBeGreaterThan(1.15);

@@ -13,7 +13,8 @@ const oneDecimal = (n: number) => String(Number(n.toFixed(1)));
 
 /** Compact amount for headers, e.g. ₹8L, ₹9.6L, ₹1.2Cr. */
 export function formatLakh(n: number): string {
-  if (n >= CRORE) return `₹${oneDecimal(n / CRORE)}Cr`;
+  // Choose the unit from the rounded lakh value, so ₹99.95L reads ₹1Cr rather than ₹100L.
+  if (n >= CRORE || Number((n / LAKH).toFixed(1)) >= 100) return `₹${oneDecimal(n / CRORE)}Cr`;
   if (n >= LAKH) return `₹${oneDecimal(n / LAKH)}L`;
   return formatINR(n);
 }
@@ -23,11 +24,6 @@ const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 
 export function addDays(iso: string, n: number): string {
   return new Date(toMs(iso) + n * MS_PER_DAY).toISOString().slice(0, 10);
-}
-
-/** Whole days from `a` to `b` (positive when `b` is later). */
-export function daysBetween(a: string, b: string): number {
-  return Math.round((toMs(b) - toMs(a)) / MS_PER_DAY);
 }
 
 /** e.g. "15 Feb 2027". */

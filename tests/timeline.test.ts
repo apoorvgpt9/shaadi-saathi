@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addDays } from "@/lib/format";
+import { setTask } from "@/lib/plan/edits";
 import { nextTasks, scheduleTasks, TASK_TEMPLATES } from "@/lib/plan/timeline";
 import type { Plan, ScheduledTask } from "@/lib/types";
 import { makePlan, TODAY } from "./plan-fixtures";
@@ -97,6 +98,22 @@ describe("scheduleTasks", () => {
     const venue = find(scheduleTasks(plan, TODAY), "book-venue");
     expect(venue.due).toBe(delayedTo);
     expect(venue.flags).not.toContain("urgent");
+  });
+
+  it("flags a delayed task urgent once its new date has passed, unless it is done", () => {
+    const plan = withWeddingIn(300);
+    plan.tasks["book-venue"] = { status: "delayed", delayedTo: addDays(TODAY, -3) };
+    expect(find(scheduleTasks(plan, TODAY), "book-venue").flags).toContain("urgent");
+    plan.tasks["book-venue"] = { status: "delayed", delayedTo: TODAY };
+    expect(find(scheduleTasks(plan, TODAY), "book-venue").flags).not.toContain("urgent");
+    plan.tasks["book-venue"] = { status: "done", delayedTo: null };
+    expect(find(scheduleTasks(plan, TODAY), "book-venue").flags).toEqual([]);
+  });
+
+  it("delaying a prerequisite flags its dependents as at risk", () => {
+    const delayed = setTask(makePlan(), "book-venue", "delayed", "2027-01-20");
+    const flagged = scheduleTasks(delayed, TODAY).find((t) => t.id === "book-caterer");
+    expect(flagged?.flags).toContain("at_risk");
   });
 
   it("omits tasks for functions the plan does not have", () => {

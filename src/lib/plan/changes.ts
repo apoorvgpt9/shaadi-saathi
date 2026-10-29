@@ -1,29 +1,16 @@
-import { addDays, formatDate } from "../format";
-import { Plan } from "../types";
-import type {
-  BudgetSummary,
-  CategoryId,
-  ChangeSummary,
-  FunctionKind,
-  PlanChange,
-  ScheduledTask,
-  TaskFlag,
-  WeddingFunction,
-} from "../types";
-import { FUNCTION_LABELS } from "./benchmarks";
-import { computeBudget } from "./budget";
-import { scheduleTasks, TASK_TEMPLATES } from "./timeline";
-
-const MIN_GUESTS = 1;
-const MAX_GUESTS = 5000;
-const MAX_NOTES = 20;
+import { addDays } from "@/lib/format";
+import { LIMITS, Plan } from "@/lib/types";
+import type { FunctionKind, PlanChange, WeddingFunction } from "@/lib/types";
+import { FUNCTION_LABELS } from "@/lib/plan/benchmarks";
+import { setTask } from "@/lib/plan/edits";
+import { TASK_TEMPLATES } from "@/lib/plan/timeline";
 
 type Outcome = { plan: Plan } | { ignored: string };
 type ChangeOf<T extends PlanChange["type"]> = Extract<PlanChange, { type: T }>;
 
 const ok = (plan: Plan): Outcome => ({ plan });
 const ignore = (reason: string): Outcome => ({ ignored: reason });
-const clampGuests = (n: number) => Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, Math.round(n)));
+const clampGuests = (n: number) => Math.min(LIMITS.guests.max, Math.max(LIMITS.guests.min, Math.round(n)));
 const hasFunction = (plan: Plan, kind: FunctionKind) => plan.profile.functions.some((f) => f.kind === kind);
 
 function withFunctions(plan: Plan, update: (f: WeddingFunction) => WeddingFunction): Plan {
@@ -72,14 +59,13 @@ function setStyle(plan: Plan, { style, category }: ChangeOf<"set_style">): Outco
 function setTaskStatus(plan: Plan, { taskId, status, delayedTo }: ChangeOf<"set_task_status">): Outcome {
   if (!TASK_TEMPLATES.some((t) => t.id === taskId)) return ignore(`Unknown task "${taskId}"`);
   if (status === "delayed" && !delayedTo) return ignore("A delayed task needs a new date");
-  const state = { status, delayedTo: status === "delayed" ? delayedTo : null };
-  return ok({ ...plan, tasks: { ...plan.tasks, [taskId]: state } });
+  return ok(setTask(plan, taskId, status, delayedTo));
 }
 
 function addNote(plan: Plan, { note }: ChangeOf<"add_note">): Outcome {
   const { notes } = plan.profile;
   if (notes.some((n) => n.toLowerCase() === note.toLowerCase())) return ok(plan);
-  if (notes.length >= MAX_NOTES) return ignore("Too many notes already, so the new note was not added");
+  if (notes.length >= LIMITS.notes) return ignore("Too many notes already, so the new note was not added");
   return ok({ ...plan, profile: { ...plan.profile, notes: [...notes, note] } });
 }
 
@@ -123,49 +109,4 @@ export function applyChanges(plan: Plan, changes: PlanChange[]): { plan: Plan; i
     else ignored.push(`A "${change.type}" change would make the plan invalid, so it was skipped`);
   }
   return { plan: current, ignored };
-}
-
-const weddingDate = (plan: Plan) => plan.profile.functions.find((f) => f.kind === "wedding")?.date ?? "";
-
-/** Titles of tasks that carry `flag` after the change but did not before. */
-function newlyFlagged(before: ScheduledTask[], after: ScheduledTask[], flag: TaskFlag): string[] {
-  const hadFlag = new Set(before.filter((t) => t.flags.includes(flag)).map((t) => t.id));
-  return after.filter((t) => t.flags.includes(flag) && !hadFlag.has(t.id)).map((t) => t.title);
-}
-
-function changeNotes(before: Plan, after: Plan, afterBudget: BudgetSummary): string[] {
-  const notes: string[] = [];
-  const { guests } = after.profile;
-  if (weddingDate(before) !== weddingDate(after)) {
-    notes.push(`Wedding moved from ${formatDate(weddingDate(before))} to ${formatDate(weddingDate(after))}`);
-  }
-  if (guests > before.profile.guests) {
-    const isBooked = (category: CategoryId) =>
-      afterBudget.lines.some((l) => l.category === category && l.status !== "estimate");
-    if (isBooked("venue")) notes.push(`Check your venue holds ${guests} guests`);
-    if (isBooked("catering")) notes.push("Send your caterer the new headcount");
-  }
-  return notes;
-}
-
-/** What a change did: changed budget lines, totals, newly flagged tasks and follow-up notes. */
-export function summarizeChange(before: Plan, after: Plan, today: string): ChangeSummary {
-  const budgetBefore = computeBudget(before);
-  const budgetAfter = computeBudget(after);
-  const tasksBefore = scheduleTasks(before, today);
-  const tasksAfter = scheduleTasks(after, today);
-  const lines = budgetAfter.lines
-    .map((line, i) => ({ category: line.category, before: budgetBefore.lines[i].amount, after: line.amount }))
-    .filter((line) => line.before !== line.after);
-  return {
-    lines,
-    totalBefore: budgetBefore.total,
-    totalAfter: budgetAfter.total,
-    budgetBefore: budgetBefore.budget,
-    budgetAfter: budgetAfter.budget,
-    newlyUrgent: newlyFlagged(tasksBefore, tasksAfter, "urgent"),
-    newlyAtRisk: newlyFlagged(tasksBefore, tasksAfter, "at_risk"),
-    newlyClashing: newlyFlagged(tasksBefore, tasksAfter, "clash"),
-    notes: changeNotes(before, after, budgetAfter),
-  };
 }

@@ -1,14 +1,14 @@
 // Manual smoke test for the AI routes. Needs a running server with a real key:
 //   npm run dev            (with ANTHROPIC_API_KEY in .env.local)
 //   node scripts/smoke.mjs [baseUrl]      default http://localhost:3000
-// It makes real API calls (about 7), so it is not part of `npm test`.
+// It makes real API calls (6, one per route), so it is not part of `npm test`.
 
 const base = process.argv[2] ?? "http://localhost:3000";
 const day = 86_400_000;
 const iso = (offsetDays) => new Date(Date.now() + offsetDays * day).toISOString().slice(0, 10);
 const today = iso(0);
 
-// The explainer scenario: Tier-2 city, 200 guests, 8 lakh, about four months away, mehendi the day before.
+// The example scenario: Tier-2 city, 200 guests, 8 lakh, about four months away, mehendi the day before.
 const profile = {
   city: "Jaipur",
   cityTier: "tier2",
@@ -46,10 +46,10 @@ const checks = [
     profile,
     total: 958000,
     levers: [
-      { id: "trim-nonwedding-20", label: "Trim guests at every non-wedding function by 20%", saving: 30000, touchesPriority: false },
-      { id: "trim-all-10", label: "Trim all guests by 10%", saving: 70000, touchesPriority: false },
-      { id: "decor-simple", label: "Step decor down to Simple", saving: 90000, touchesPriority: false },
-      { id: "catering-simple", label: "Step catering down to Simple", saving: 120000, touchesPriority: true },
+      { id: "trim-guests-mehendi", label: "Trim Mehendi guests by 20% (120 to 96)", saving: 30000, touchesPriority: false },
+      { id: "trim-guests-all", label: "Trim every guest list by 10% (200 to 180 at the wedding)", saving: 70000, touchesPriority: false },
+      { id: "step-down-decor", label: "Step Decor down from Classic to Simple", saving: 90000, touchesPriority: false },
+      { id: "step-down-catering", label: "Step Catering down from Classic to Simple", saving: 120000, touchesPriority: true },
     ],
   }, (r) => r.options?.length > 0 && r.options.every((o) => o.leverIds.length > 0)],
 ];

@@ -6,6 +6,7 @@ import { AiOutputError, RefusalError, type AiResult, type Meta, type RouteName }
 const WINDOW_MS = 10 * 60_000;
 const LIMIT = 40;
 const MAX_BODY_CHARS = 100_000;
+const MAX_TRACKED_IPS = 5000;
 // Auth, permission, payment, rate limit and overload all mean "AI is not available right now".
 const UNAVAILABLE_STATUSES = new Set([401, 402, 403, 429, 503, 529]);
 
@@ -15,17 +16,23 @@ const hits = new Map<string, number[]>();
 /** Thrown by a route's `run` when the request parses but is still not acceptable. */
 export class InvalidInputError extends Error {}
 
+// Vercel overwrites both headers with the real client address (checked on the live site, 30 Oct), so clients cannot spoof them.
+function clientIp(request: Request): string {
+  return request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 function rateLimited(request: Request, now: number): boolean {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+  const ip = clientIp(request);
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   if (recent.length >= LIMIT) {
     hits.set(ip, recent);
     return true;
   }
   hits.set(ip, [...recent, now]);
-  if (hits.size > 5000) {
+  if (hits.size > MAX_TRACKED_IPS) {
     for (const [key, times] of hits) if (now - (times.at(-1) ?? 0) >= WINDOW_MS) hits.delete(key);
+    // shortcut: a flood of fresh keys resets every counter to keep memory bounded; use a shared store if abuse appears
+    if (hits.size > MAX_TRACKED_IPS) hits.clear();
   }
   return false;
 }
@@ -76,7 +83,9 @@ export async function handleAi<Req, Res>(
     if (rateLimited(request, started)) {
       return fail(429, "rate_limited", "Too many requests. Please wait a few minutes and try again.");
     }
-    const raw = await request.text();
+    // Refuse a declared oversize body before buffering it; a chunked body is still checked after reading.
+    const declared = Number(request.headers.get("content-length"));
+    const raw = declared > MAX_BODY_CHARS ? "" : await request.text();
     let json: unknown;
     try {
       json = raw.length <= MAX_BODY_CHARS ? JSON.parse(raw) : undefined;

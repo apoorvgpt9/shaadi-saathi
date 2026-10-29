@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { api, describeFailure, todayIso } from "@/lib/api";
 import { computeBudget } from "@/lib/plan/budget";
-import { applyChanges, summarizeChange } from "@/lib/plan/changes";
+import { applyChanges } from "@/lib/plan/changes";
+import { summarizeChange } from "@/lib/plan/summary";
 import { nextTasks, scheduleTasks } from "@/lib/plan/timeline";
 import type { PlanState, usePlan } from "@/lib/store";
 import type { Plan } from "@/lib/types";
@@ -15,7 +16,7 @@ import { TimelineTab } from "@/components/TimelineTab";
 import { VendorsTab } from "@/components/VendorsTab";
 import { Workspace } from "@/components/Workspace";
 import { AiGate, type AiStatus } from "@/components/ui/AiGate";
-import { setTask } from "@/components/edits";
+import { setTask } from "@/lib/plan/edits";
 
 interface Props {
   plan: Plan;

@@ -1,4 +1,4 @@
-import type { CategoryId, CityTier, FunctionKind, Style } from "../types";
+import type { CategoryId, CityTier, FunctionKind, Style } from "@/lib/types";
 
 // Labelled assumptions: Tier-2 base values in rupees, October 2026. Not quotes from any vendor.
 

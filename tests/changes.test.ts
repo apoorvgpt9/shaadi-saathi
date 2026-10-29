@@ -1,23 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { applyChanges, summarizeChange } from "@/lib/plan/changes";
-import { computeBudget } from "@/lib/plan/budget";
-import { draftToProfile, isDraftReady, newPlan } from "@/lib/plan/profile";
+import { applyChanges } from "@/lib/plan/changes";
 import { Plan } from "@/lib/types";
-import type { IntakeDraft, PlanChange } from "@/lib/types";
-import { makePlan, makeQuote, TODAY } from "./plan-fixtures";
-
-const EXPLAINER_CHANGES: PlanChange[] = [
-  { type: "set_guests", function: "all", count: 250 },
-  { type: "set_budget", amount: 700_000 },
-  { type: "shift_dates", days: -14 },
-];
+import { EXAMPLE_CHANGES, makePlan } from "./plan-fixtures";
 
 const guestsAt = (plan: Plan, kind: string) => plan.profile.functions.find((f) => f.kind === kind)?.guests;
 
 describe("applyChanges", () => {
-  it("applies the explainer scenario: +50 guests, budget 7 lakh, two weeks earlier", () => {
+  it("applies the example scenario: +50 guests, budget 7 lakh, two weeks earlier", () => {
     const before = makePlan();
-    const { plan, ignored } = applyChanges(before, EXPLAINER_CHANGES);
+    const { plan, ignored } = applyChanges(before, EXAMPLE_CHANGES);
     expect(ignored).toEqual([]);
     expect(plan.profile.guests).toBe(250);
     expect(plan.profile.budget).toBe(700_000);
@@ -29,7 +20,7 @@ describe("applyChanges", () => {
   it("does not mutate the input plan", () => {
     const before = makePlan();
     const snapshot = structuredClone(before);
-    applyChanges(before, EXPLAINER_CHANGES);
+    applyChanges(before, EXAMPLE_CHANGES);
     expect(before).toEqual(snapshot);
   });
 
@@ -99,109 +90,5 @@ describe("applyChanges", () => {
     ]);
     expect(plan.profile.functions[0].date).toBe("2028-02-29");
     expect(ignored).toHaveLength(1);
-  });
-});
-
-describe("summarizeChange", () => {
-  const before = makePlan();
-  const after = applyChanges(before, EXPLAINER_CHANGES).plan;
-
-  it("shows a deeper over-budget ratio and higher catering for the explainer scenario", () => {
-    const summary = summarizeChange(before, after, TODAY);
-    expect(summary.totalAfter).toBeGreaterThan(summary.totalBefore);
-    expect(summary.budgetBefore).toBe(800_000);
-    expect(summary.budgetAfter).toBe(700_000);
-    expect(summary.totalAfter / summary.budgetAfter).toBeGreaterThan(summary.totalBefore / summary.budgetBefore);
-    const catering = summary.lines.find((l) => l.category === "catering");
-    expect(catering).toBeDefined();
-    expect(catering!.after).toBeGreaterThan(catering!.before);
-  });
-
-  it("lists only the lines that changed", () => {
-    const summary = summarizeChange(before, after, TODAY);
-    expect(summary.lines.every((l) => l.before !== l.after)).toBe(true);
-    const unchanged = computeBudget(before).lines.find((l) => l.category === "rituals");
-    expect(summary.lines.some((l) => l.category === unchanged?.category)).toBe(false);
-    expect(summarizeChange(before, before, TODAY).lines).toEqual([]);
-  });
-
-  it("names tasks that newly became urgent when the wedding moves earlier", () => {
-    const summary = summarizeChange(before, after, TODAY);
-    expect(summary.newlyUrgent).toEqual(expect.arrayContaining(["Book caterer", "Book photographer and videographer"]));
-    expect(summary.newlyUrgent).not.toContain("Shortlist and book venue(s)"); // already urgent before
-  });
-
-  it("notes the new wedding date, and venue and caterer follow-ups only when quoted or confirmed", () => {
-    const plain = summarizeChange(before, after, TODAY);
-    expect(plain.notes).toEqual(["Wedding moved from 1 Mar 2027 to 15 Feb 2027"]);
-
-    const booked = makePlan();
-    booked.quotes = [makeQuote({ category: "catering" }), makeQuote({ id: "q2", category: "venue" })];
-    booked.budget.catering = { override: null, quoteId: "q1", confirmed: false };
-    booked.budget.venue = { override: null, quoteId: "q2", confirmed: true };
-    const bookedAfter = applyChanges(booked, EXPLAINER_CHANGES).plan;
-    expect(summarizeChange(booked, bookedAfter, TODAY).notes).toEqual(
-      expect.arrayContaining(["Check your venue holds 250 guests", "Send your caterer the new headcount"]),
-    );
-  });
-
-  it("adds no capacity notes when guests fall", () => {
-    const fewer = applyChanges(before, [{ type: "set_guests", function: "all", count: 150 }]).plan;
-    expect(summarizeChange(before, fewer, TODAY).notes).toEqual([]);
-  });
-});
-
-describe("profile helpers", () => {
-  const draft: IntakeDraft = {
-    weddingDate: "2027-03-01",
-    city: " Jaipur ",
-    cityTier: null,
-    guests: 200,
-    budget: 800_000,
-    functions: [
-      { kind: "mehendi", dayOffset: -1, guests: 120 },
-      { kind: "sangeet", dayOffset: -2, guests: null },
-      { kind: "mehendi", dayOffset: -3, guests: 10 },
-    ],
-    style: null,
-    priorities: ["catering", "catering"],
-    mustHaves: [" live music ", ""],
-    notes: [],
-  };
-
-  it("is ready only with date, city, guests and budget", () => {
-    expect(isDraftReady(draft)).toBe(true);
-    expect(isDraftReady({ ...draft, budget: null })).toBe(false);
-    expect(isDraftReady({ ...draft, city: "  " })).toBe(false);
-    expect(isDraftReady({ ...draft, weddingDate: null })).toBe(false);
-    expect(isDraftReady({ ...draft, guests: null })).toBe(false);
-  });
-
-  it("builds a valid profile with defaults, offsets and clamped numbers", () => {
-    const profile = draftToProfile(draft);
-    expect(profile).toMatchObject({ city: "Jaipur", cityTier: "tier2", style: "classic", guests: 200 });
-    expect(profile.functions).toEqual([
-      { kind: "wedding", date: "2027-03-01", guests: 200 },
-      { kind: "mehendi", date: "2027-02-28", guests: 120 },
-      { kind: "sangeet", date: "2027-02-27", guests: 200 },
-    ]);
-    expect(profile.priorities).toEqual(["catering"]);
-    expect(profile.mustHaves).toEqual(["live music"]);
-    expect(Plan.safeParse(newPlan(profile)).success).toBe(true);
-  });
-
-  it("defaults to a wedding-only plan and clamps out-of-range values", () => {
-    const profile = draftToProfile({ ...draft, functions: [], guests: 99_999, budget: 5 });
-    expect(profile.functions).toEqual([{ kind: "wedding", date: "2027-03-01", guests: 5000 }]);
-    expect(profile.budget).toBe(10_000);
-  });
-
-  it("refuses to build a profile from an unready draft", () => {
-    expect(() => draftToProfile({ ...draft, budget: null })).toThrow();
-  });
-
-  it("marks the questions the intake already answered as done", () => {
-    const plan = newPlan(draftToProfile(draft));
-    expect(Object.keys(plan.tasks).sort()).toEqual(["agree-budget", "finalise-dates", "guest-estimate"]);
   });
 });

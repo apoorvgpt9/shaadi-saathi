@@ -1,7 +1,7 @@
-import { addDays } from "../format";
-import type { CategoryId, FunctionKind, Plan, ScheduledTask, TaskFlag, TaskState } from "../types";
+import { addDays } from "@/lib/format";
+import type { CategoryId, FunctionKind, Plan, ScheduledTask, TaskFlag, TaskState } from "@/lib/types";
 
-export interface TaskTemplate {
+interface TaskTemplate {
   id: string;
   title: string;
   category: CategoryId | null;
@@ -80,7 +80,11 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
     const flags: TaskFlag[] = [];
 
     if (status !== "done") {
-      if (status === "delayed" && delayedTo) due = delayedTo;
+      if (status === "delayed" && delayedTo) {
+        due = delayedTo;
+        // A postponed task whose new date has also passed is overdue.
+        if (delayedTo < today) flags.push("urgent");
+      }
       const rank = urgentRank.get(template.id);
       if (rank !== undefined) {
         due = addDays(today, Math.min(MAX_URGENT_STAGGER_DAYS, Math.floor(rank / URGENT_TASKS_PER_DAY)));

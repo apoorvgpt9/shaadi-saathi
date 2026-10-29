@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     if (result.data.quote.total <= 0) {
       throw new AiOutputError("I could not find a total price in that quote. Check the text and try again.");
     }
-    return result;
+    // The request's category decides which budget line the quote belongs to, whatever the model returned.
+    return { ...result, data: { quote: { ...result.data.quote, category: input.category } } };
   });
 }

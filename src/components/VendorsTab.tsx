@@ -5,7 +5,7 @@ import { api, describeFailure } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
 import type { BudgetSummary, CategoryId, Plan, VendorChecklist } from "@/lib/types";
-import { patchEntry, removeQuote } from "@/components/edits";
+import { patchEntry, removeQuote } from "@/lib/plan/edits";
 import { QuoteCompare } from "@/components/QuoteCompare";
 import { Button } from "@/components/ui/Button";
 
