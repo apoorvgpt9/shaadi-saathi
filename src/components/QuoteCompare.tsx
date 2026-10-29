@@ -14,7 +14,7 @@ interface Props {
 
 const list = (items: string[]) =>
   items.length ? (
-    <ul className="list-disc space-y-1 pl-4 wrap-anywhere">
+    <ul className="list-disc space-y-1 pl-4 wrap-break-word">
       {items.map((t) => (
         <li key={t}>{t}</li>
       ))}
@@ -33,19 +33,20 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
         <table className="w-full min-w-[40rem] text-left text-sm">
           <thead>
             <tr className="border-b border-line text-muted">
-              {["Vendor", "Total", "Per guest", "Covers", "Extra charges", "Still unclear", ""].map((h, i) => (
+              {["Vendor", "Total", "Per guest", "Covers", "Extra charges", ""].map((h, i) => (
                 <th key={i} scope="col" className="py-2 pr-4 font-medium">
                   {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-line align-top">
-            {quotes.map((q) => {
-              const short = q.guestsCovered !== null && q.guestsCovered < needed;
-              return (
-                <tr key={q.id}>
-                  <th scope="row" className="py-3 pr-4 font-medium wrap-anywhere">
+          {quotes.map((q) => {
+            const short = q.guestsCovered !== null && q.guestsCovered < needed;
+            return (
+              // One tbody per quote keeps its open questions grouped under it, full width instead of a narrow column.
+              <tbody key={q.id} className="border-b border-line align-top">
+                <tr>
+                  <th scope="row" className="py-3 pr-4 font-medium wrap-break-word">
                     {q.vendorName || "Unnamed vendor"}
                     {usedId === q.id && (
                       <span className="mt-1 block">
@@ -78,7 +79,6 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                       q.extraCharges.map((c) => (c.amount === null ? c.item : `${c.item}: ${formatINR(c.amount)}`)),
                     )}
                   </td>
-                  <td className="py-3 pr-4">{list(q.openQuestions)}</td>
                   <td className="py-3">
                     <div className="flex flex-col gap-1">
                       <Button className="min-h-9" disabled={usedId === q.id} onClick={() => onUse(q.id)}>
@@ -90,9 +90,15 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                     </div>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
+                <tr>
+                  <td colSpan={6} className="pb-4 pr-4">
+                    <p className="eyebrow">Still unclear</p>
+                    <div className="mt-1">{list(q.openQuestions)}</div>
+                  </td>
+                </tr>
+              </tbody>
+            );
+          })}
         </table>
       </div>
     </div>
