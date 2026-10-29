@@ -1,7 +1,8 @@
+import type { CSSProperties } from "react";
 import type { BudgetSummary } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/icons";
-import { lakh } from "@/components/present";
+import { formatLakh as lakh } from "@/lib/format";
 
 /**
  * Estimated total against budget. One bar, one axis: the part within budget is marigold, the overage is maroon,
@@ -41,28 +42,15 @@ export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
           </p>
         </div>
       </div>
-
       <div role="img" aria-label={description} className="relative mt-6">
-        <div className="grow-x flex h-2 gap-0.5 overflow-hidden rounded-[4px] bg-sand">
-          <div className="rounded-[4px] bg-marigold" style={{ flexBasis: `${within}%` }} />
+        <div style={{ "--from": "scaleX(0.85)" } as CSSProperties} className="reveal flex h-2 origin-left gap-0.5 overflow-hidden rounded-[4px] bg-sand">
+          <div className="rounded-[4px] bg-marigold ring-1 ring-inset ring-[#b97a1e]" style={{ flexBasis: `${within}%` }} />
           {over && <div className="rounded-[4px] bg-maroon" style={{ flexBasis: `${100 - within}%` }} />}
         </div>
         {over && (
           <span aria-hidden="true" className="absolute -bottom-1 -top-1 w-0.5 rounded-full bg-ink" style={{ left: `${within}%` }} />
         )}
       </div>
-      <p aria-hidden="true" className="mt-3 flex gap-4 text-xs text-muted">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-[2px] bg-marigold" />
-          Within budget
-        </span>
-        {over && (
-          <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-[2px] bg-maroon" />
-            Over budget
-          </span>
-        )}
-      </p>
     </div>
   );
 }

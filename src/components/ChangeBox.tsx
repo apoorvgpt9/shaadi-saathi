@@ -33,23 +33,14 @@ export function ChangeBox({ onSubmit }: { onSubmit: (text: string) => Promise<Ch
       }}
       className="card p-5 sm:p-6"
     >
-      <label htmlFor="change-input" className="font-serif text-xl tracking-tight">
-        What changed?
-      </label>
+      <label htmlFor="change-input" className="font-serif text-xl tracking-tight">What changed?</label>
       <p id="change-hint" className="mt-1 text-sm text-muted">
         Say it the way you would to a family member. I will show what moves before anything is saved.
       </p>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <textarea
-          id="change-input"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={MAX_LENGTH}
-          rows={3}
-          aria-describedby="change-hint"
-          placeholder="50 more guests, budget now 7 lakh, wedding two weeks earlier"
-          className="min-h-14 flex-1 resize-none rounded-md border border-line bg-canvas px-3 py-2.5 text-[15px] placeholder:text-muted/70"
-        />
+        <textarea id="change-input" value={text} onChange={(e) => setText(e.target.value)} maxLength={MAX_LENGTH} rows={3}
+          aria-describedby="change-hint" placeholder="50 more guests, budget now 7 lakh, wedding two weeks earlier"
+          className="min-h-14 flex-1 resize-none rounded-md border border-line bg-canvas px-3 py-2.5 text-[15px] placeholder:text-muted/70" />
         <Button type="submit" variant="primary" disabled={busy || !text.trim()} className="sm:w-44">
           {busy ? "Working on it" : "Review changes"}
           {!busy && <Icon name="send" className="size-4 rotate-90" />}
