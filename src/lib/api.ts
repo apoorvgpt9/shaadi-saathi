@@ -61,21 +61,17 @@ export const api = {
   tradeoffs: (body: z.infer<typeof TradeoffsRequest>) => post("/api/tradeoffs", body, TradeoffsResponse),
 };
 
+const FAILURE_COPY: Record<ApiFailureCode, { title: string; hint: string }> = {
+  rate_limited: { title: "That is a lot of requests at once", hint: "Give it a few minutes and try again." },
+  refused: { title: "The assistant could not help with that", hint: "Try rewording it, or add the details yourself." },
+  invalid_input: { title: "That message could not be sent", hint: "Shorten it or remove unusual characters, then try again." },
+  network: { title: "You appear to be offline", hint: "Check your connection and retry." },
+  ai_unavailable: { title: "The planning assistant is unavailable right now", hint: "Try again in a moment." },
+  ai_error: { title: "The planning assistant is unavailable right now", hint: "Try again in a moment." },
+};
+
 /** Plain-language copy for a failure, shared by every screen that calls the AI. */
-export function describeFailure(code: ApiFailureCode): { title: string; hint: string } {
-  switch (code) {
-    case "rate_limited":
-      return { title: "That is a lot of requests at once", hint: "Give it a few minutes and try again." };
-    case "refused":
-      return { title: "The assistant could not help with that", hint: "Try rewording it, or add the details yourself." };
-    case "invalid_input":
-      return { title: "That message could not be sent", hint: "Shorten it or remove unusual characters, then try again." };
-    case "network":
-      return { title: "You appear to be offline", hint: "Check your connection and retry." };
-    default:
-      return { title: "The planning assistant is unavailable right now", hint: "Your message is saved. Retry in a moment." };
-  }
-}
+export const describeFailure = (code: ApiFailureCode) => FAILURE_COPY[code];
 
 /** Today's date in the user's own timezone, as YYYY-MM-DD. */
 export const todayIso = (): string => new Date(Date.now()).toLocaleDateString("en-CA");

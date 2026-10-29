@@ -55,12 +55,20 @@ describe("reducer", () => {
     const pending: Pending = {
       before: plan,
       after,
+      ignored: [],
       summary: { lines: [], totalBefore: 0, totalAfter: 0, budgetBefore: 0, budgetAfter: 0, newlyUrgent: [], newlyAtRisk: [], newlyClashing: [], notes: [] },
     };
     const base = reducer(initialState, { type: "start_plan", plan });
     const proposed = reducer(base, { type: "propose", pending });
     expect(reducer(proposed, { type: "accept" })).toMatchObject({ plan: after, pending: null });
     expect(reducer(proposed, { type: "undo" })).toMatchObject({ plan, pending: null });
+  });
+
+  it("update_plan edits the plan in place and is a no-op before a plan exists", () => {
+    const edit = (p: Plan): Plan => ({ ...p, checked: { "venue:needs:0": true } });
+    expect(reducer(initialState, { type: "update_plan", update: edit })).toBe(initialState);
+    const s = reducer(reducer(initialState, { type: "start_plan", plan }), { type: "update_plan", update: edit });
+    expect(s.plan?.checked).toEqual({ "venue:needs:0": true });
   });
 
   it("reset returns to the empty intake state", () => {

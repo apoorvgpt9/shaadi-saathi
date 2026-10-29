@@ -53,10 +53,6 @@ body {
   border-radius: 4px;
 }
 
-::selection {
-  background: rgb(232 163 61 / 0.35);
-}
-
 @utility card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -71,33 +67,17 @@ body {
   color: var(--muted);
 }
 
-@keyframes rise {
+/* Short and never fully transparent, so a screenshot right after load still reads as finished. */
+@keyframes enter {
   from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-
-@keyframes grow {
-  from {
-    transform: scaleX(0);
-  }
-}
-
-@keyframes pulse-dot {
-  50% {
-    opacity: 0.3;
+    opacity: 0.6;
+    transform: var(--from, translateY(6px));
   }
 }
 
 @utility reveal {
-  animation: rise 600ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  animation-delay: calc(var(--i, 0) * 80ms);
-}
-
-@utility grow-x {
-  transform-origin: left;
-  animation: grow 900ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: enter 180ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 20ms);
 }
 
 @media (prefers-reduced-motion: reduce) {

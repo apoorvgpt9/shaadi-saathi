@@ -1,18 +1,14 @@
-import type { IntakeDraft } from "@/lib/types";
-import type { ChatMessage } from "@/lib/store";
+import type { PlanState, usePlan } from "@/lib/store";
 import { IntakeChat } from "@/components/IntakeChat";
 import { ProfilePanel } from "@/components/ProfilePanel";
 
 interface Props {
-  messages: ChatMessage[];
-  draft: IntakeDraft | null;
-  onUserMessage: (m: ChatMessage) => void;
-  onReply: (reply: string, draft: IntakeDraft) => void;
-  onDraftChange: (d: IntakeDraft) => void;
+  state: PlanState;
+  actions: ReturnType<typeof usePlan>["actions"];
   onBuild: () => void;
 }
 
-export function IntakeScreen({ messages, draft, onUserMessage, onReply, onDraftChange, onBuild }: Props) {
+export function IntakeScreen({ state, actions, onBuild }: Props) {
   return (
     <>
       <section className="reveal max-w-4xl pb-10 pt-12 sm:pt-16">
@@ -26,9 +22,9 @@ export function IntakeScreen({ messages, draft, onUserMessage, onReply, onDraftC
         </p>
       </section>
       <div className="grid items-start gap-6 pb-24 lg:grid-cols-[1.2fr_1fr]">
-        <IntakeChat messages={messages} draft={draft} onUserMessage={onUserMessage} onReply={onReply} />
+        <IntakeChat messages={state.messages} draft={state.draft} onUserMessage={actions.sendUser} onReply={actions.receiveReply} />
         <div className="lg:sticky lg:top-6">
-          <ProfilePanel draft={draft} onDraftChange={onDraftChange} onBuild={onBuild} />
+          <ProfilePanel draft={state.draft} onDraftChange={actions.editDraft} onBuild={onBuild} />
         </div>
       </div>
     </>

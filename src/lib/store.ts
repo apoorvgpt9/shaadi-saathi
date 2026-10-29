@@ -11,6 +11,8 @@ export type ChatMessage = z.infer<typeof IntakeRequest>["messages"][number];
 export interface Pending {
   before: Plan;
   after: Plan;
+  /** Reasons the engine skipped some requested changes. */
+  ignored: string[];
   summary: ChangeSummary;
 }
 
@@ -50,6 +52,7 @@ export type PlanAction =
   | { type: "assistant_reply"; reply: string; draft: IntakeDraft }
   | { type: "edit_draft"; draft: IntakeDraft }
   | { type: "start_plan"; plan: Plan }
+  | { type: "update_plan"; update: (plan: Plan) => Plan }
   | { type: "propose"; pending: Pending }
   | { type: "accept" }
   | { type: "undo" }
@@ -69,6 +72,8 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
       return { ...state, draft: action.draft };
     case "start_plan":
       return { ...state, stage: "plan", plan: action.plan, pending: null };
+    case "update_plan":
+      return state.plan ? { ...state, plan: action.update(state.plan) } : state;
     case "propose":
       return { ...state, pending: action.pending };
     case "accept":
@@ -88,11 +93,7 @@ export function usePlan() {
   const [state, dispatch] = useReducer(reducer, initialState, (s) =>
     typeof window === "undefined" ? s : (parseStored(window.localStorage.getItem(STORAGE_KEY)) ?? s),
   );
-  const ready = useSyncExternalStore(
-    subscribeNoop,
-    () => true,
-    () => false,
-  );
+  const ready = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
   const { stage, messages, draft, plan } = state;
   useEffect(() => {
@@ -111,6 +112,7 @@ export function usePlan() {
       receiveReply: (reply: string, d: IntakeDraft) => dispatch({ type: "assistant_reply", reply, draft: d }),
       editDraft: (d: IntakeDraft) => dispatch({ type: "edit_draft", draft: d }),
       startPlan: (p: Plan) => dispatch({ type: "start_plan", plan: p }),
+      updatePlan: (update: (plan: Plan) => Plan) => dispatch({ type: "update_plan", update }),
       propose: (pending: Pending) => dispatch({ type: "propose", pending }),
       accept: () => dispatch({ type: "accept" }),
       undo: () => dispatch({ type: "undo" }),

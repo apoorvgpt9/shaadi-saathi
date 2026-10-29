@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { api, describeFailure, todayIso, type ApiFailureCode } from "@/lib/api";
+import { addDays } from "@/lib/format";
 import type { ChatMessage } from "@/lib/store";
 import type { IntakeDraft } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
@@ -14,7 +15,7 @@ const MAX_LENGTH = 2000;
 
 /** The explainer's scenario, dated four months out so the plan always has urgent and comfortable tasks. */
 function exampleMessage(): string {
-  const date = new Date(Date.parse(todayIso()) + 120 * 86_400_000).toISOString().slice(0, 10);
+  const date = addDays(todayIso(), 120);
   return `We're planning our wedding in Jaipur on ${date}, around 200 guests, budget 8 lakh. Mehendi the day before with about 120 people. Food matters most to us, then photography.`;
 }
 
@@ -67,14 +68,9 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
   return (
     <section aria-labelledby="chat-title" className="card reveal flex flex-col" style={{ "--i": 1 } as CSSProperties}>
       <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4 sm:px-8">
-        <h2 id="chat-title" className="font-serif text-2xl tracking-tight">
-          Opening questions
-        </h2>
-        <Button onClick={() => send(exampleMessage())} disabled={busy}>
-          Try an example
-        </Button>
+        <h2 id="chat-title" className="font-serif text-2xl tracking-tight">Opening questions</h2>
+        <Button onClick={() => send(exampleMessage())} disabled={busy}>Try an example</Button>
       </div>
-
       <div
         ref={log}
         role="log"
@@ -97,15 +93,10 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
           ),
         )}
         {busy && (
-          <div className="flex items-center gap-3 text-sm text-muted" role="status">
+          <p role="status" className="flex animate-pulse items-center gap-3 text-sm text-muted">
             <Mark className="size-6 shrink-0" />
-            <span aria-hidden="true" className="flex gap-1">
-              {[0, 1, 2].map((n) => (
-                <span key={n} className="size-1.5 rounded-full bg-muted [animation:pulse-dot_1.2s_ease-in-out_infinite]" style={{ animationDelay: `${n * 160}ms` }} />
-              ))}
-            </span>
-            <span className="sr-only">The assistant is replying</span>
-          </div>
+            The assistant is replying
+          </p>
         )}
         {failed && (
           <div role="alert" className="flex gap-3 rounded-lg border border-line bg-tint-yellow p-4 text-tint-yellow-ink">
@@ -113,7 +104,7 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
             <div className="min-w-0 flex-1 text-sm">
               <p className="font-medium">{failed.title}</p>
               <p className="mt-1">
-                {failed.hint} You can also fill in the essentials yourself with Edit on the right, and still build your plan.
+                {failed.hint} Your message is saved. You can also fill in the essentials yourself with Edit on the right, and still build your plan.
               </p>
               {canRetry && (
                 <Button className="mt-3" onClick={() => void ask(messages)}>
@@ -125,7 +116,6 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
           </div>
         )}
       </div>
-
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -133,19 +123,10 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
         }}
         className="flex items-end gap-3 border-t border-line p-4 sm:px-6"
       >
-        <label htmlFor="chat-input" className="sr-only">
-          Your message
-        </label>
-        <textarea
-          id="chat-input"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={onKeyDown}
-          maxLength={MAX_LENGTH}
-          rows={2}
-          placeholder="Shaadi 15 February ko Jaipur mein, 200 log, budget 8 lakh..."
-          className="min-h-14 flex-1 resize-none rounded-md border border-line bg-canvas px-3 py-2.5 text-[15px] placeholder:text-muted/70"
-        />
+        <label htmlFor="chat-input" className="sr-only">Your message</label>
+        <textarea id="chat-input" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKeyDown} maxLength={MAX_LENGTH}
+          rows={2} placeholder="Shaadi 15 February ko Jaipur mein, 200 log, budget 8 lakh..."
+          className="min-h-14 flex-1 resize-none rounded-md border border-line bg-canvas px-3 py-2.5 text-[15px] placeholder:text-muted/70" />
         <Button type="submit" variant="primary" disabled={busy || !text.trim()} aria-label="Send message" className="size-10 shrink-0 px-0">
           <Icon name="send" className="size-5" />
         </Button>
