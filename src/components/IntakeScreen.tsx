@@ -1,10 +1,10 @@
-import type { PlanState, usePlan } from "@/lib/store";
+import type { PlanActions, PlanState } from "@/lib/store";
 import { IntakeChat } from "@/components/IntakeChat";
 import { ProfilePanel } from "@/components/ProfilePanel";
 
 interface Props {
   state: PlanState;
-  actions: ReturnType<typeof usePlan>["actions"];
+  actions: PlanActions;
   onBuild: () => void;
 }
 

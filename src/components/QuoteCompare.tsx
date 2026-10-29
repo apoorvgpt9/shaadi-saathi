@@ -14,7 +14,7 @@ interface Props {
 
 const list = (items: string[]) =>
   items.length ? (
-    <ul className="list-disc space-y-1 pl-4">
+    <ul className="list-disc space-y-1 pl-4 wrap-anywhere">
       {items.map((t) => (
         <li key={t}>{t}</li>
       ))}
@@ -45,7 +45,7 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
               const short = q.guestsCovered !== null && q.guestsCovered < needed;
               return (
                 <tr key={q.id}>
-                  <th scope="row" className="py-3 pr-4 font-medium">
+                  <th scope="row" className="py-3 pr-4 font-medium wrap-anywhere">
                     {q.vendorName || "Unnamed vendor"}
                     {usedId === q.id && (
                       <span className="mt-1 block">

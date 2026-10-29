@@ -9,7 +9,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"], style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
-  title: "ShaadiSaathi — AI wedding planner",
+  title: "ShaadiSaathi: AI wedding planner",
   description:
     "Plan your wedding budget, timeline and vendors with AI. Built for Indian weddings.",
 };

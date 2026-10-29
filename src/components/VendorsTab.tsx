@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { api, describeFailure } from "@/lib/api";
+import { api, failureMessage } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
-import type { BudgetSummary, CategoryId, Plan, VendorChecklist } from "@/lib/types";
+import { LIMITS, type BudgetSummary, type CategoryId, type Plan, type VendorChecklist } from "@/lib/types";
 import { patchEntry, removeQuote } from "@/lib/plan/edits";
 import { QuoteCompare } from "@/components/QuoteCompare";
 import { Button } from "@/components/ui/Button";
+import { TextArea } from "@/components/ui/Field";
+import { Icon } from "@/components/ui/icons";
 
-const MAX_QUOTE = 6000;
 const SECTIONS = [
   { key: "needs", title: "What you need" },
   { key: "questions", title: "Questions to ask" },
@@ -20,6 +21,8 @@ interface Props {
   plan: Plan;
   summary: BudgetSummary;
   onUpdate: (update: (plan: Plan) => Plan) => void;
+  /** Whether the checklists predate the current profile, and how to regenerate them. */
+  refresh: { stale: boolean; busy: boolean; onRefresh: () => void };
 }
 
 function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: Plan; onUpdate: Props["onUpdate"] }) {
@@ -33,26 +36,26 @@ function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: P
     setError(null);
     const res = await api.quote({ text, category, guests: plan.profile.guests });
     setBusy(false);
-    if (!res.ok) return setError(`${describeFailure(res.error.code).title}. Your text is still here.`);
-    onUpdate((p) => ({ ...p, quotes: [...p.quotes, { ...res.data.quote, id: crypto.randomUUID() }].slice(-30) }));
+    if (!res.ok) return setError(failureMessage(res.error, "Your text is still here."));
+    const quote = { ...res.data.quote, id: crypto.randomUUID() }; // Outside the updater: React may run updaters twice.
+    onUpdate((p) => ({ ...p, quotes: [...p.quotes, quote].slice(-LIMITS.quotes) }));
     setText("");
   }
 
   return (
     <details className="mt-6 border-t border-line pt-4">
-      <summary className="cursor-pointer text-sm font-medium text-maroon">Paste a quote</summary>
+      <summary className="cursor-pointer py-1 text-sm font-medium text-maroon">Paste a quote</summary>
       <div className="mt-3">
         <label htmlFor={id} className="text-sm text-muted">Paste the vendor&apos;s message or quote as text</label>
-        <textarea id={id} value={text} onChange={(e) => setText(e.target.value)} maxLength={MAX_QUOTE} rows={5}
-          className="mt-1 block w-full rounded-md border border-line bg-canvas px-3 py-2.5 text-sm" />
+        <TextArea id={id} value={text} onChange={(e) => setText(e.target.value)} maxLength={LIMITS.quoteChars} rows={5} className="mt-1 block w-full" />
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <Button variant="primary" disabled={busy || text.trim().length < 20} onClick={() => void extract()}>
+          <Button variant="primary" disabled={busy || text.trim().length < LIMITS.quoteMinChars} onClick={() => void extract()}>
             {busy ? "Reading the quote" : "Extract details"}
           </Button>
           <span className="text-xs text-muted tabular-nums">
-            {text.length.toLocaleString("en-IN")} / {MAX_QUOTE.toLocaleString("en-IN")}
+            {text.length.toLocaleString("en-IN")} / {LIMITS.quoteChars.toLocaleString("en-IN")}
           </span>
-          <span aria-live="polite" className="text-sm text-tint-red-ink">
+          <span aria-live="polite" className="text-sm text-tint-red-ink wrap-anywhere">
             {error}
           </span>
         </div>
@@ -76,7 +79,7 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
                     <input type="checkbox" checked={!!plan.checked[k]}
                       onChange={() => onUpdate((p) => ({ ...p, checked: { ...p.checked, [k]: !p.checked[k] } }))}
                       className="mt-1 size-4 shrink-0 accent-maroon" />
-                    <span className={plan.checked[k] ? "text-muted line-through" : ""}>{item}</span>
+                    <span className={`wrap-anywhere ${plan.checked[k] ? "text-muted line-through" : ""}`}>{item}</span>
                   </label>
                 </li>
               );
@@ -88,10 +91,19 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
   );
 }
 
-export function VendorsTab({ plan, summary, onUpdate }: Props) {
+export function VendorsTab({ plan, summary, onUpdate, refresh }: Props) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">Quote details are extracted from the text you paste. Confirm with the vendor before booking.</p>
+      {refresh.stale && (
+        <div className="card flex flex-wrap items-center justify-between gap-3 border-tint-yellow-ink/30 bg-tint-yellow p-4 text-sm text-tint-yellow-ink">
+          <p className="min-w-0 flex-1">Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.</p>
+          <Button disabled={refresh.busy} onClick={refresh.onRefresh}>
+            <Icon name="retry" />
+            {refresh.busy ? "Refreshing" : "Refresh checklists"}
+          </Button>
+        </div>
+      )}
       {plan.vendors.map((v) => {
         const quotes = plan.quotes.filter((q) => q.category === v.category);
         const line = summary.lines.find((l) => l.category === v.category);

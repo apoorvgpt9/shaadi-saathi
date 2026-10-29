@@ -31,3 +31,29 @@ export function formatDate(iso: string): string {
   const [year, month, day] = iso.split("-").map(Number);
   return `${day} ${MONTHS[month - 1]} ${year}`;
 }
+
+/** Share of the budget used, as a whole percent. Over budget it rounds up, so it never reads 100% while still over. */
+export function pct(total: number, budget: number): number {
+  const share = (total * 100) / budget;
+  return total > budget ? Math.ceil(share) : Math.round(share);
+}
+
+/** A rupee difference with an explicit sign, e.g. +₹4,000. */
+export function signed(n: number): string {
+  return `${n > 0 ? "+" : n < 0 ? "-" : ""}${formatINR(Math.abs(n))}`;
+}
+
+/** "1 guest", "250 guests". */
+export function plural(n: number, word: string): string {
+  return `${n.toLocaleString("en-IN")} ${word}${n === 1 ? "" : "s"}`;
+}
+
+/** Items grouped by the YYYY-MM of their `due` date, in first-seen order. */
+export function groupByMonth<T extends { due: string }>(items: T[]): [month: string, items: T[]][] {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const month = item.due.slice(0, 7);
+    groups.set(month, [...(groups.get(month) ?? []), item]);
+  }
+  return [...groups];
+}

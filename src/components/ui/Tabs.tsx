@@ -2,13 +2,16 @@
 
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
-export interface TabItem {
+interface TabItem {
   id: string;
   label: string;
   panel: ReactNode;
 }
 
-/** WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and selection together. */
+/**
+ * WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and selection together.
+ * Every panel stays mounted (hidden when inactive), so typed text and in-flight requests survive a tab switch.
+ */
 export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
   const [active, setActive] = useState(tabs[0].id);
   const base = useId();
@@ -61,7 +64,7 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
           tabIndex={0}
           className="pt-6"
         >
-          {t.id === active && t.panel}
+          {t.panel}
         </div>
       ))}
     </div>

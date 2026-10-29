@@ -2,18 +2,18 @@ import type { CSSProperties } from "react";
 import type { BudgetSummary } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/icons";
-import { formatLakh as lakh } from "@/lib/format";
+import { formatLakh as lakh, pct } from "@/lib/format";
 
 /**
  * Estimated total against budget. One bar, one axis: the part within budget is marigold, the overage is maroon,
  * and a tick marks the budget. State is also stated in words, so the bar never carries it alone.
  */
 export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
-  const { total, budget, ratio } = summary;
+  const { total, budget } = summary;
   const over = total > budget;
   const scale = Math.max(total, budget) || 1;
   const within = (Math.min(total, budget) / scale) * 100;
-  const percent = Math.round(ratio * 100);
+  const percent = pct(total, budget);
   const description = `Estimated ${lakh(total)} against a budget of ${lakh(budget)}, ${percent}% of budget`;
 
   return (
@@ -44,7 +44,7 @@ export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
       </div>
       <div role="img" aria-label={description} className="relative mt-6">
         <div style={{ "--from": "scaleX(0.85)" } as CSSProperties} className="reveal flex h-2 origin-left gap-0.5 overflow-hidden rounded-[4px] bg-sand">
-          <div className="rounded-[4px] bg-marigold ring-1 ring-inset ring-[#b97a1e]" style={{ flexBasis: `${within}%` }} />
+          <div className="rounded-[4px] bg-marigold ring-1 ring-inset ring-marigold-deep" style={{ flexBasis: `${within}%` }} />
           {over && <div className="rounded-[4px] bg-maroon" style={{ flexBasis: `${100 - within}%` }} />}
         </div>
         {over && (

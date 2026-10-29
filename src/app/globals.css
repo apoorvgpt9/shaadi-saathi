@@ -9,6 +9,7 @@
   --maroon: #7a1f2b;
   --maroon-deep: #5c1620;
   --marigold: #e8a33d;
+  --marigold-deep: #b97a1e;
   --sand: #f4eee4;
 }
 
@@ -21,6 +22,7 @@
   --color-maroon: var(--maroon);
   --color-maroon-deep: var(--maroon-deep);
   --color-marigold: var(--marigold);
+  --color-marigold-deep: var(--marigold-deep);
   --color-sand: var(--sand);
   /* Muted pastel pairs for badges; always paired with a text label. */
   --color-tint-red: #fdebec;
@@ -61,7 +63,7 @@ body {
 
 @utility eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);

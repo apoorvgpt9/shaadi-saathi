@@ -32,7 +32,7 @@ export function NextTasks({ tasks }: { tasks: ScheduledTask[] }) {
                 {i + 1}
               </span>
               <div className="min-w-0">
-                <p className="font-medium leading-snug">{t.title}</p>
+                <p className="font-medium leading-snug wrap-anywhere">{t.title}</p>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
                   <Icon name="clock" className="size-3.5" />
                   Due {formatDate(t.due)}
