@@ -1,5 +1,7 @@
 # ShaadiSaathi: a GenAI wedding planning assistant
 
+[![CI](https://github.com/apoorvgpt9/shaadi-saathi/actions/workflows/ci.yml/badge.svg)](https://github.com/apoorvgpt9/shaadi-saathi/actions/workflows/ci.yml)
+
 ShaadiSaathi helps an Indian family organise their wedding: the **budget**, the **timeline**, **vendor checklists** and **personalized ideas** for every function (haldi, mehendi, sangeet, wedding, reception). It is built for execution, not inspiration. It asks before it assumes, shows the consequences of every decision, is honest about which numbers are estimates, and revises the plan when life changes.
 
 **Live demo:** <https://shaadi-saathi-omega.vercel.app>
@@ -92,13 +94,14 @@ npm test              # unit and route tests (no network; the Claude client is m
 npm run test:coverage # the same tests with a V8 coverage report
 npm run lint
 npm run typecheck
+npm run format:check  # Prettier; npm run format to fix
 npm run build
 node scripts/smoke.mjs http://localhost:3000   # optional: real end-to-end calls against a running server
 ```
 
 ## Quality, security and accessibility
 
-- **Testing:** Vitest covers the engine (budget maths, scheduling, change application, levers), the AI routes (validation, rate limiting, error mapping, tool-call parsing), the client store and the API client.
+- **Testing:** Vitest covers the engine (budget maths, scheduling, change application, levers), the AI routes (validation, rate limiting, error mapping, tool-call parsing), the client store and the API client. GitHub Actions runs the format check, lint, typecheck, tests with coverage and the production build on every push.
 - **Security:**
   - The API key stays on the server.
   - Every request body is validated with zod and size-capped.
