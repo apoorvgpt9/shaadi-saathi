@@ -1,0 +1,20 @@
+# Local-only project memory and agent instructions (not for the repo / evaluator)
+.planning/
+CLAUDE.md
+.claude/
+
+# Dependencies and build output
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets and local env
+.env*
+!.env.example
+
+# Platform
+.vercel/
+.DS_Store
