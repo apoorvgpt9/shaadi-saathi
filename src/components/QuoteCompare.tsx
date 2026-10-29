@@ -82,7 +82,7 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                   <td className="py-3">
                     <div className="flex flex-col gap-1">
                       <Button className="min-h-9" disabled={usedId === q.id} onClick={() => onUse(q.id)}>
-                        Use this quote
+                        {usedId === q.id ? "In use" : "Use this quote"}
                       </Button>
                       <Button variant="ghost" className="min-h-9" onClick={() => onRemove(q.id)}>
                         Remove
