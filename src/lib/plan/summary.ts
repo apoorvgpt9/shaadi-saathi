@@ -32,9 +32,12 @@ export function summarizeChange(before: Plan, after: Plan, today: string): Chang
   const budgetAfter = computeBudget(after);
   const tasksBefore = scheduleTasks(before, today);
   const tasksAfter = scheduleTasks(after, today);
-  const lines = budgetAfter.lines
-    .map((line, i) => ({ category: line.category, before: budgetBefore.lines[i].amount, after: line.amount }))
-    .filter((line) => line.before !== line.after);
+  const lines = budgetAfter.lines.flatMap((line, i) => {
+    const before = budgetBefore.lines[i]?.amount;
+    return before === undefined || before === line.amount
+      ? []
+      : [{ category: line.category, before, after: line.amount }];
+  });
   return {
     lines,
     totalBefore: budgetBefore.total,

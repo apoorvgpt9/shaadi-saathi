@@ -36,7 +36,10 @@ function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: P
     setError(null);
     const res = await api.quote({ text, category, guests: plan.profile.guests });
     setBusy(false);
-    if (!res.ok) return setError(failureMessage(res.error, "Your text is still here."));
+    if (!res.ok) {
+      setError(failureMessage(res.error, "Your text is still here."));
+      return;
+    }
     const quote = { ...res.data.quote, id: crypto.randomUUID() }; // Outside the updater: React may run updaters twice.
     onUpdate((p) => ({ ...p, quotes: [...p.quotes, quote].slice(-LIMITS.quotes) }));
     setText("");

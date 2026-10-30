@@ -36,9 +36,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
+  // Next awaits this, so it stays a promise even though nothing here is async.
+  headers: () => Promise.resolve([{ source: "/:path*", headers: securityHeaders }]),
 };
 
 export default nextConfig;

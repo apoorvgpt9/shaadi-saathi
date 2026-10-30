@@ -13,7 +13,7 @@ interface TabItem {
  * Every panel stays mounted (hidden when inactive), so typed text and in-flight requests survive a tab switch.
  */
 export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
-  const [active, setActive] = useState(tabs[0].id);
+  const [active, setActive] = useState(tabs[0]?.id);
   const base = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -27,7 +27,7 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
     }[e.key];
     if (next === undefined) return;
     e.preventDefault();
-    setActive(tabs[next].id);
+    setActive(tabs[next]?.id);
     refs.current[next]?.focus();
   }
 

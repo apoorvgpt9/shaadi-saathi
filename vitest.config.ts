@@ -8,6 +8,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    coverage: { include: ["src/lib/**", "src/app/api/**"] },
+    coverage: {
+      include: ["src/lib/**", "src/app/api/**"],
+      thresholds: { statements: 98, branches: 95, functions: 97, lines: 99 },
+    },
   },
 });

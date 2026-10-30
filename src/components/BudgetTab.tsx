@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { LIMITS, type BudgetLine, type BudgetSummary, type Plan, type PriceStatus } from "@/lib/types";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
@@ -30,7 +30,7 @@ function Line({ line, plan, onUpdate }: { line: BudgetLine; plan: Plan; onUpdate
   const entry = plan.budget[category];
   const label = CATEGORY_LABELS[category];
 
-  function save(e: FormEvent<HTMLFormElement>) {
+  function save(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const n = Number(new FormData(e.currentTarget).get("amount"));
     // An empty or invalid field returns the line to its benchmark estimate.

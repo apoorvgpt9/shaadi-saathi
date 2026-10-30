@@ -18,7 +18,9 @@ export class InvalidInputError extends Error {}
 
 // Vercel overwrites both headers with the real client address (checked on the live site, 30 Oct), so clients cannot spoof them.
 function clientIp(request: Request): string {
-  return request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const candidates = [request.headers.get("x-real-ip"), request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()];
+  // Empty values count as missing, hence find() rather than ??.
+  return candidates.find((ip) => ip) ?? "unknown";
 }
 
 function rateLimited(request: Request, now: number): boolean {
@@ -46,7 +48,7 @@ function classify(err: unknown): { status: number; code: ApiErrorCode; message: 
   if (
     err instanceof Anthropic.APIConnectionError ||
     (err instanceof Anthropic.APIError &&
-      (UNAVAILABLE_STATUSES.has(err.status ?? 0) ||
+      (UNAVAILABLE_STATUSES.has(Number(err.status)) ||
         // Exhausted credit arrives as a 400 invalid_request_error.
         (err.status === 400 && /credit balance/i.test(err.message))))
   ) {

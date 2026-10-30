@@ -52,6 +52,16 @@ export function ChangeSummaryPanel({
     };
   }, []);
 
+  // Native listener: a click on the scrim lands on the dialog itself, which jsx-a11y does not accept an onClick on.
+  useEffect(() => {
+    const el = dialog.current;
+    const onScrimClick = (e: MouseEvent) => {
+      if (e.target === el) onUndo();
+    };
+    el?.addEventListener("click", onScrimClick);
+    return () => el?.removeEventListener("click", onScrimClick);
+  }, [onUndo]);
+
   return (
     <dialog
       ref={dialog}
@@ -60,20 +70,24 @@ export function ChangeSummaryPanel({
         e.preventDefault();
         onUndo();
       }}
-      onClick={(e) => e.target === e.currentTarget && onUndo()}
       onKeyDown={(e) => {
         // Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap at the ends here.
         const items = [...e.currentTarget.querySelectorAll<HTMLElement>("button, [tabindex='0']")];
         const edge = items[e.shiftKey ? 0 : items.length - 1];
         if (e.key === "Tab" && document.activeElement === edge) {
           e.preventDefault();
-          items[e.shiftKey ? items.length - 1 : 0].focus();
+          items[e.shiftKey ? items.length - 1 : 0]?.focus();
         }
       }}
       className="card reveal m-0 ml-auto h-full max-h-none w-full max-w-md rounded-none border-y-0 border-r-0 p-0 backdrop:bg-ink/30 [--from:translateX(24px)]"
     >
       <div className="flex h-full flex-col">
-        <div tabIndex={0} className="flex-1 space-y-6 overflow-y-auto p-6 sm:p-8">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Proposed changes"
+          className="flex-1 space-y-6 overflow-y-auto p-6 sm:p-8"
+        >
           <div>
             <p className="eyebrow">Review before saving</p>
             <h2

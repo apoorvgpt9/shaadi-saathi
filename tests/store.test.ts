@@ -41,7 +41,7 @@ describe("reducer", () => {
 
   it("falls back to a placeholder when the model replies with an empty string", () => {
     const s = reducer(initialState, { type: "assistant_reply", reply: "", draft });
-    expect(s.messages[0].content).toBe("Noted.");
+    expect(s.messages[0]?.content).toBe("Noted.");
   });
 
   it("propose computes the change from the latest plan, and undo discards it", () => {
@@ -110,7 +110,7 @@ describe("reducer", () => {
 
   it("keeps an over-long assistant reply within the message limit", () => {
     const s = reducer(initialState, { type: "assistant_reply", reply: `  ${"x".repeat(3000)}`, draft });
-    expect(s.messages[0].content).toHaveLength(2000);
+    expect(s.messages[0]?.content).toHaveLength(2000);
   });
 });
 

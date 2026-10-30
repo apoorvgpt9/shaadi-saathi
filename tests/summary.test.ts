@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { computeBudget } from "@/lib/plan/budget";
 import { applyChanges } from "@/lib/plan/changes";
 import { summarizeChange } from "@/lib/plan/summary";
@@ -15,8 +15,8 @@ describe("summarizeChange", () => {
     expect(summary.budgetAfter).toBe(700_000);
     expect(summary.totalAfter / summary.budgetAfter).toBeGreaterThan(summary.totalBefore / summary.budgetBefore);
     const catering = summary.lines.find((l) => l.category === "catering");
-    expect(catering).toBeDefined();
-    expect(catering!.after).toBeGreaterThan(catering!.before);
+    assert(catering);
+    expect(catering.after).toBeGreaterThan(catering.before);
   });
 
   it("lists only the lines that changed", () => {

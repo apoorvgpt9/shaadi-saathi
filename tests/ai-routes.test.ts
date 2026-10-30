@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { callTools, generate, RefusalError } from "@/lib/ai/client";
 import { CHANGE_TOOLS } from "@/lib/ai/tools";
 import { POST as change } from "@/app/api/change/route";
@@ -19,6 +20,21 @@ vi.mock("@/lib/ai/client", async (importOriginal) => ({
 
 const generateMock = vi.mocked(generate);
 const callToolsMock = vi.mocked(callTools);
+// Every field any route returns, so assertions read the body without `any`. Unknown keys are kept for toEqual.
+const Body = z
+  .looseObject({
+    error: z.object({ code: z.string(), message: z.string() }),
+    draft: z.object({ city: z.string().nullable() }),
+    reply: z.string().nullable(),
+    changes: z.array(z.unknown()),
+    quote: z.object({ total: z.number(), category: z.string() }),
+    options: z.array(z.unknown()),
+    ideas: z.array(z.object({ kind: z.string() })),
+  })
+  .partial();
+async function json(res: Response) {
+  return Body.parse(await res.json());
+}
 const meta = { model: "test-model", inputTokens: 10, outputTokens: 5 };
 
 let nextIp = 0;
@@ -76,7 +92,7 @@ describe("shared handler", () => {
       for (const body of ["", "{not json", "[]", {}]) {
         const res = await post(handler, body);
         expect(res.status).toBe(400);
-        expect((await res.json()).error.code).toBe("invalid_input");
+        expect((await json(res)).error?.code).toBe("invalid_input");
       }
       expect(generateMock).not.toHaveBeenCalled();
       expect(callToolsMock).not.toHaveBeenCalled();
@@ -93,7 +109,7 @@ describe("shared handler", () => {
     for (let i = 0; i < 40; i++) expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
     const blocked = await post(vendors, validBodies.vendors, "9.9.9.9");
     expect(blocked.status).toBe(429);
-    expect((await blocked.json()).error.code).toBe("rate_limited");
+    expect((await json(blocked)).error?.code).toBe("rate_limited");
     expect((await post(vendors, validBodies.vendors, "8.8.8.8")).status).toBe(200);
   });
 
@@ -134,9 +150,9 @@ describe("shared handler", () => {
     );
     const res = await post(vendors, validBodies.vendors);
     expect(res.status).toBe(503);
-    const body = await res.json();
-    expect(body.error.code).toBe("ai_unavailable");
-    expect(body.error.message).not.toContain("upstream says no");
+    const body = await json(res);
+    expect(body.error?.code).toBe("ai_unavailable");
+    expect(body.error?.message).not.toContain("upstream says no");
   });
 
   it("maps exhausted credit (400) and connection failures to 503", async () => {
@@ -157,12 +173,12 @@ describe("shared handler", () => {
     generateMock.mockRejectedValueOnce(new RefusalError("declined"));
     const refused = await post(vendors, validBodies.vendors);
     expect(refused.status).toBe(422);
-    expect((await refused.json()).error.code).toBe("refused");
+    expect((await json(refused)).error?.code).toBe("refused");
 
     generateMock.mockRejectedValueOnce(new TypeError("boom"));
     const broken = await post(vendors, validBodies.vendors);
     expect(broken.status).toBe(502);
-    expect((await broken.json()).error.code).toBe("ai_error");
+    expect((await json(broken)).error?.code).toBe("ai_error");
   });
 
   it("returns 502 when the model output breaks the response contract", async () => {
@@ -173,7 +189,8 @@ describe("shared handler", () => {
   it("logs one JSON line without user content", async () => {
     generateMock.mockResolvedValue({ data: { vendors: [] }, meta });
     await post(vendors, validBodies.vendors);
-    const line = JSON.parse(vi.mocked(console.log).mock.calls[0][0] as string);
+    const logged: unknown = vi.mocked(console.log).mock.calls[0]?.[0];
+    const line: unknown = JSON.parse(String(logged));
     expect(line).toMatchObject({
       route: "vendors",
       status: 200,
@@ -207,14 +224,14 @@ describe("intake", () => {
     generateMock.mockResolvedValue({ data: { reply: "Lovely. Any must-haves?", draft }, meta });
     const res = await post(intake, validBodies.intake);
     expect(res.status).toBe(200);
-    expect((await res.json()).draft.city).toBe("Jaipur");
+    expect((await json(res)).draft?.city).toBe("Jaipur");
   });
 
   it("trims the reply, caps its length, and falls back when it is blank", async () => {
     const draft = { ...EMPTY_DRAFT };
     const ask = async (reply: string) => {
       generateMock.mockResolvedValueOnce({ data: { reply, draft }, meta });
-      return (await (await post(intake, validBodies.intake)).json()).reply as string;
+      return (await json(await post(intake, validBodies.intake))).reply ?? "";
     };
     expect(await ask("  Lovely.  ")).toBe("Lovely.");
     expect(await ask("x".repeat(3000))).toHaveLength(2000);
@@ -240,7 +257,7 @@ describe("change", () => {
     });
     const res = await post(change, validBodies.change);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
+    expect(await json(res)).toEqual({
       changes: [
         { type: "set_guests", function: "all", count: 250 },
         { type: "set_budget", amount: 700000 },
@@ -258,13 +275,13 @@ describe("change", () => {
       },
       meta,
     });
-    const body = await (await post(change, validBodies.change)).json();
+    const body = await json(await post(change, validBodies.change));
     expect(body.changes).toEqual([{ type: "set_budget", amount: 500000 }]);
   });
 
   it("returns text alone as a clarifying question", async () => {
     callToolsMock.mockResolvedValue({ data: { calls: [], text: "How many more guests?" }, meta });
-    expect(await (await post(change, validBodies.change)).json()).toEqual({
+    expect(await json(await post(change, validBodies.change))).toEqual({
       changes: [],
       reply: "How many more guests?",
     });
@@ -272,7 +289,7 @@ describe("change", () => {
 
   it("asks the user to rephrase when there is nothing to apply and nothing said", async () => {
     callToolsMock.mockResolvedValue({ data: { calls: [{ name: "set_budget", input: {} }], text: "" }, meta });
-    const body = await (await post(change, validBodies.change)).json();
+    const body = await json(await post(change, validBodies.change));
     expect(body.changes).toEqual([]);
     expect(body.reply).toMatch(/say it/i);
   });
@@ -319,20 +336,20 @@ describe("quote", () => {
     generateMock.mockResolvedValue({ data: extracted, meta });
     const res = await post(quote, validBodies.quote);
     expect(res.status).toBe(200);
-    expect((await res.json()).quote.total).toBe(240000);
+    expect((await json(res)).quote?.total).toBe(240000);
   });
 
   it("files the quote under the requested category, whatever the model returned", async () => {
     generateMock.mockResolvedValue({ data: { quote: { ...extracted.quote, category: "venue" } }, meta });
     const res = await post(quote, validBodies.quote);
-    expect((await res.json()).quote.category).toBe("catering");
+    expect((await json(res)).quote?.category).toBe("catering");
   });
 
   it("refuses a quote with no total instead of returning zero", async () => {
     generateMock.mockResolvedValue({ data: { quote: { ...extracted.quote, total: 0 } }, meta });
     const res = await post(quote, validBodies.quote);
     expect(res.status).toBe(502);
-    expect((await res.json()).error.message).toMatch(/total price/);
+    expect((await json(res)).error?.message).toMatch(/total price/);
   });
 
   it("rejects extraction output that fails the schema", async () => {
@@ -359,9 +376,7 @@ describe("tradeoffs", () => {
     });
     const res = await post(tradeoffs, validBodies.tradeoffs);
     expect(res.status).toBe(200);
-    expect((await res.json()).options).toEqual([
-      { title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." },
-    ]);
+    expect((await json(res)).options).toEqual([{ title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." }]);
   });
 
   it("fails cleanly when no option survives", async () => {
@@ -392,6 +407,6 @@ describe("ideas", () => {
       function: "mehendi",
       feedback: "suitable for kids and elders",
     });
-    expect((await res.json()).ideas.map((i: { kind: string }) => i.kind)).toEqual(["mehendi"]);
+    expect((await json(res)).ideas?.map((i) => i.kind)).toEqual(["mehendi"]);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { api, failureMessage } from "@/lib/api";
 import { FUNCTION_LABELS } from "@/lib/plan/benchmarks";
 import { LIMITS, type FunctionKind, type Idea, type Plan } from "@/lib/types";
@@ -44,10 +44,11 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
     return true;
   }
 
-  async function refresh(e: FormEvent<HTMLFormElement>) {
+  async function refresh(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const feedback = String(new FormData(form).get("feedback") ?? "").trim();
+    const entry = new FormData(form).get("feedback");
+    const feedback = (typeof entry === "string" ? entry : "").trim();
     if (feedback && (await request(feedback))) form.reset();
   }
 

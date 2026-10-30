@@ -41,7 +41,7 @@ describe("generate", () => {
     const parse = spyParse().mockResolvedValue(reply({ parsed_output: { answer: "ok" } }));
     const result = await generate("vendors", Schema, call);
     expect(result.data).toEqual({ answer: "ok" });
-    const params = parse.mock.calls[0][0];
+    const params = parse.mock.calls[0]?.[0];
     expect(params).toMatchObject({
       thinking: { type: "adaptive" },
       output_config: { effort: "medium" },
@@ -55,7 +55,7 @@ describe("generate", () => {
     vi.stubEnv("ANTHROPIC_MODEL", "claude-haiku-5-5");
     const parse = spyParse().mockResolvedValue(reply({ parsed_output: { answer: "ok" } }));
     await generate("intake", Schema, call);
-    expect(parse.mock.calls[0][0]).not.toHaveProperty("fallbacks");
+    expect(parse.mock.calls[0]?.[0]).not.toHaveProperty("fallbacks");
   });
 
   it("retries once when the output does not parse, then succeeds, summing tokens", async () => {
@@ -99,7 +99,7 @@ describe("callTools", () => {
     );
     const { data } = await callTools("change", [], call);
     expect(data).toEqual({ calls: [{ name: "set_budget", input: { amount: 700000 } }], text: "Done." });
-    expect(create.mock.calls[0][0]).toMatchObject({
+    expect(create.mock.calls[0]?.[0]).toMatchObject({
       tool_choice: { type: "auto" },
       output_config: { effort: "medium" },
     });

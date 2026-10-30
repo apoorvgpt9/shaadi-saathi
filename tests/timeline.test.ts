@@ -138,7 +138,7 @@ describe("nextTasks", () => {
     const next = nextTasks(scheduleTasks(makePlan(), TODAY));
     expect(next).toHaveLength(3);
     // finalise-dates, agree-budget and guest-estimate are done at intake, so book-venue is ready.
-    expect(next[0].id).toBe("book-venue");
+    expect(next[0]?.id).toBe("book-venue");
     // book-caterer is due soon too but is blocked until the venue is done.
     expect(next.map((t) => t.id)).not.toContain("book-caterer");
   });

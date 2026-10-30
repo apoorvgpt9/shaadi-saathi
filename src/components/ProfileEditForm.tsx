@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { todayIso } from "@/lib/api";
 import { IsoDate, LIMITS, type IntakeDraft } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
@@ -16,11 +16,12 @@ interface Props {
 export function ProfileEditForm({ draft, onSave, onCancel }: Props) {
   const [today] = useState(todayIso);
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  function submit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const date = IsoDate.safeParse(f.get("date"));
-    const city = String(f.get("city") ?? "").trim();
+    const cityEntry = f.get("city");
+    const city = (typeof cityEntry === "string" ? cityEntry : "").trim();
     const int = (k: string) => (f.get(k) ? Math.trunc(Number(f.get(k))) : null);
     onSave({
       ...draft,

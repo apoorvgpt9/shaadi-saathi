@@ -28,8 +28,8 @@ export function addDays(iso: string, n: number): string {
 
 /** e.g. "15 Feb 2027". */
 export function formatDate(iso: string): string {
-  const [year, month, day] = iso.split("-").map(Number);
-  return `${day} ${MONTHS[month - 1]} ${year}`;
+  const date = new Date(toMs(iso));
+  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()] ?? ""} ${date.getUTCFullYear()}`;
 }
 
 /** Share of the budget used, as a whole percent. Over budget it rounds up, so it never reads 100% while still over. */

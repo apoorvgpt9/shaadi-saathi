@@ -27,22 +27,27 @@ interface Props {
 export function TradeoffPanel({ plan, total, budget, onChoose }: Props) {
   const [state, setState] = useState<State>({ kind: "idle" });
   const options = state.kind === "done" ? state.options : null;
-  const previews = useMemo(() => options?.map((o) => previewOption(plan, o.ids)), [plan, options]);
+  const previews = useMemo(
+    () => options?.map((option) => ({ option, preview: previewOption(plan, option.ids) })),
+    [plan, options],
+  );
 
   async function ask() {
     const levers = listLevers(plan);
-    if (levers.length === 0)
-      return setState({
-        kind: "error",
-        message: "There is nothing left to trim automatically. Try editing lines yourself.",
-      });
+    if (levers.length === 0) {
+      setState({ kind: "error", message: "There is nothing left to trim automatically. Try editing lines yourself." });
+      return;
+    }
     setState({ kind: "loading" });
     const res = await api.tradeoffs({
       profile: plan.profile,
       total,
       levers: levers.map(({ id, label, saving, touchesPriority }) => ({ id, label, saving, touchesPriority })),
     });
-    if (!res.ok) return setState({ kind: "error", message: failureMessage(res.error) });
+    if (!res.ok) {
+      setState({ kind: "error", message: failureMessage(res.error) });
+      return;
+    }
     const usable = usableOptions(res.data.options, levers);
     setState(
       usable.length
@@ -67,18 +72,18 @@ export function TradeoffPanel({ plan, total, budget, onChoose }: Props) {
       <div aria-live="polite">
         {state.kind === "error" && <p className="mt-3 text-sm text-tint-red-ink">{state.message}</p>}
       </div>
-      {options && previews && (
+      {previews && (
         <ul className="mt-5 grid gap-4 md:grid-cols-3">
-          {options.map((o, i) => (
+          {previews.map(({ option: o, preview }) => (
             <li key={o.title} className="card flex flex-col p-5">
               <h3 className="font-medium leading-snug wrap-anywhere">{o.title}</h3>
               <p className="mt-2 flex-1 text-sm text-muted wrap-anywhere">{o.why}</p>
               <p className="mt-4 text-sm tabular-nums">
-                Saves <strong>{formatINR(previews[i].saving)}</strong>
+                Saves <strong>{formatINR(preview.saving)}</strong>
               </p>
               <p className="mt-1">
-                <Badge tone={previews[i].within ? "green" : "yellow"}>
-                  {previews[i].within ? "Within budget" : "Still over"} · {previews[i].percent}%
+                <Badge tone={preview.within ? "green" : "yellow"}>
+                  {preview.within ? "Within budget" : "Still over"} · {preview.percent}%
                 </Badge>
               </p>
               <Button className="mt-4" onClick={() => onChoose((p) => ({ plan: applyLevers(p, o.ids), ignored: [] }))}>

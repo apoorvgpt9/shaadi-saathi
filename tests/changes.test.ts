@@ -88,7 +88,7 @@ describe("applyChanges", () => {
       { type: "shift_dates", days: 365 },
       { type: "set_function_date", function: "wedding", date: "not-a-date" },
     ]);
-    expect(plan.profile.functions[0].date).toBe("2028-02-29");
+    expect(plan.profile.functions[0]?.date).toBe("2028-02-29");
     expect(ignored).toHaveLength(1);
   });
 });

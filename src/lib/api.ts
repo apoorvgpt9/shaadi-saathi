@@ -43,17 +43,15 @@ export function cancelRequests() {
 }
 
 /** POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal` cancels it. */
-export async function post<Req, Res>(
+export async function post<Res>(
   path: string,
-  body: Req,
+  body: unknown,
   schema: z.ZodType<Res>,
   signal: AbortSignal = scope.signal,
 ): Promise<ApiResult<Res>> {
   const request = new AbortController();
-  let timedOut = false;
   const timer = setTimeout(() => {
-    timedOut = true;
-    request.abort();
+    request.abort("timeout");
   }, TIMEOUT_MS);
   if (signal.aborted) request.abort();
   else signal.addEventListener("abort", () => request.abort(), { once: true });
@@ -72,7 +70,7 @@ export async function post<Req, Res>(
     const parsed = schema.safeParse(json);
     return parsed.success ? { ok: true, data: parsed.data } : fail("ai_error");
   } catch {
-    return fail(timedOut ? "timeout" : signal.aborted ? "aborted" : "network");
+    return fail(request.signal.reason === "timeout" ? "timeout" : signal.aborted ? "aborted" : "network");
   } finally {
     clearTimeout(timer);
   }

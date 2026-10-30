@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, assert, describe, expect, it, vi } from "vitest";
 import { api, cancelRequests, describeFailure, failureMessage, post } from "@/lib/api";
 import { VendorsResponse, type Profile } from "@/lib/types";
 
@@ -52,19 +52,22 @@ describe("api client", () => {
   it("treats an unexpected success shape as ai_error", async () => {
     vi.stubGlobal("fetch", reply(200, { nope: true }));
     const res = await api.ideas({ profile, function: null, feedback: null, previous: [] });
-    expect(res.ok === false && res.error.code).toBe("ai_error");
+    assert(!res.ok);
+    expect(res.error.code).toBe("ai_error");
   });
 
   it("treats an unparseable error body as ai_error", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("<html>", { status: 500 })));
     const res = await api.vendors({ profile });
-    expect(res.ok === false && res.error.code).toBe("ai_error");
+    assert(!res.ok);
+    expect(res.error.code).toBe("ai_error");
   });
 
   it("never throws when the network fails", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
     const res = await api.vendors({ profile });
-    expect(res.ok === false && res.error.code).toBe("network");
+    assert(!res.ok);
+    expect(res.error.code).toBe("network");
   });
 
   it("reports a call that takes too long as a timeout, not as being offline", async () => {
@@ -87,7 +90,8 @@ describe("api client", () => {
   it("honours a signal that was already aborted", async () => {
     vi.stubGlobal("fetch", hangingFetch());
     const res = await post("/api/vendors", { profile }, VendorsResponse, AbortSignal.abort());
-    expect(res.ok === false && res.error.code).toBe("aborted");
+    assert(!res.ok);
+    expect(res.error.code).toBe("aborted");
   });
 
   it("has distinct copy for each failure family", () => {

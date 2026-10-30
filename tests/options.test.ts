@@ -10,12 +10,12 @@ const levers = listLevers(overBudget);
 
 describe("usableOptions", () => {
   it("drops unknown lever ids, and options left with none", () => {
-    const [first] = levers;
+    const first = levers[0]?.id ?? "";
     const raw = [
-      { title: "Mixed", why: "a", leverIds: [first.id, "made-up"] },
+      { title: "Mixed", why: "a", leverIds: [first, "made-up"] },
       { title: "Invented", why: "b", leverIds: ["made-up"] },
     ];
-    expect(usableOptions(raw, levers)).toEqual([{ title: "Mixed", why: "a", ids: [first.id] }]);
+    expect(usableOptions(raw, levers)).toEqual([{ title: "Mixed", why: "a", ids: [first] }]);
     expect(usableOptions([], levers)).toEqual([]);
   });
 });
