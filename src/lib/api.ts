@@ -37,6 +37,7 @@ const fail = (code: ApiFailureCode, message = ""): ApiResult<never> => ({ ok: fa
 
 // Every call is tied to this scope. Start over cancels it, so a late answer cannot land on the next plan.
 let scope = new AbortController();
+/** Aborts every in-flight call and starts a fresh scope for the next ones. Safe to call at any time. */
 export function cancelRequests() {
   scope.abort();
   scope = new AbortController();
@@ -76,6 +77,7 @@ export async function post<Res>(
   }
 }
 
+/** One typed caller per AI route; each posts the validated request body and returns a validated result. */
 export const api = {
   intake: (body: z.infer<typeof IntakeRequest>) => post("/api/intake", body, IntakeResponse),
   ideas: (body: z.infer<typeof IdeasRequest>) => post("/api/ideas", body, IdeasResponse),

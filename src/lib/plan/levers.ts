@@ -1,3 +1,4 @@
+// The engine's menu of concrete money-saving changes, each priced by recomputing the budget.
 import { STYLES } from "@/lib/types";
 import type { CategoryId, FunctionKind, Lever, Plan, PlanChange } from "@/lib/types";
 import { CATEGORY_LABELS, FUNCTION_LABELS, STYLE_LABELS } from "@/lib/plan/benchmarks";
@@ -64,7 +65,7 @@ function candidateLevers(plan: Plan): Candidate[] {
 const lowersPriorityStyle = (changes: PlanChange[], priorities: CategoryId[]) =>
   changes.some((c) => c.type === "set_style" && c.category !== null && priorities.includes(c.category));
 
-/** Concrete ways to save money, each with its engine-computed saving, biggest first. */
+/** Concrete ways to save money, each with its engine-computed saving, biggest first. Levers that save nothing are omitted. */
 export function listLevers(plan: Plan): Lever[] {
   const totalBefore = computeBudget(plan).total;
   return candidateLevers(plan)

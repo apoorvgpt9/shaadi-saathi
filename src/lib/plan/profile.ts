@@ -1,3 +1,4 @@
+// Turns the intake draft into a validated Profile and a fresh Plan.
 import { addDays } from "@/lib/format";
 import { LIMITS } from "@/lib/types";
 import type { IntakeDraft, Plan, Profile, WeddingFunction } from "@/lib/types";
@@ -37,7 +38,7 @@ function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
   ];
 }
 
-/** Turns a ready draft into a full profile, applying defaults and clamping to the schema ranges. */
+/** Turns a ready draft into a full profile, applying defaults and clamping to the schema ranges. Throws if the draft is not ready. */
 export function draftToProfile(draft: IntakeDraft): Profile {
   if (!isDraftReady(draft)) throw new Error("Draft needs a date, city, guest count and budget before planning");
   const guests = clamp(draft.guests, LIMITS.guests.min, LIMITS.guests.max);
@@ -55,6 +56,7 @@ export function draftToProfile(draft: IntakeDraft): Profile {
   };
 }
 
+/** An empty plan around `profile`, with the tasks the opening questions already settle marked done. */
 export function newPlan(profile: Profile): Plan {
   return {
     version: 1,

@@ -63,6 +63,7 @@ export type PlanAction =
   | { type: "undo" }
   | { type: "reset" };
 
+/** Pure state transition for every PlanAction; actions that need a plan or a pending change leave the state unchanged when there is none. */
 export function reducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case "hydrate":

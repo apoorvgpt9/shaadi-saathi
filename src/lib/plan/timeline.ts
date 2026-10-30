@@ -1,3 +1,4 @@
+// The task schedule: dated, dependency-ordered, flagged tasks derived from the plan's function dates.
 import { addDays } from "@/lib/format";
 import type { CategoryId, FunctionKind, Plan, ScheduledTask, TaskFlag, TaskState } from "@/lib/types";
 
@@ -70,7 +71,12 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   task("emergency-kit", "Pack emergency kit, cash envelopes and shagun", null, 2, []),
 ];
 
-/** Dated, flagged tasks for the plan's functions, soonest first. */
+/**
+ * Dated, flagged tasks for the plan's functions, soonest first.
+ * Pure: "today" is injected, so the same plan and date always give the same schedule.
+ * Flags: urgent (overdue, re-staggered over the coming days), at_risk (pushed back by a delayed or at-risk
+ * prerequisite), clash (due on or after its function).
+ */
 export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
   const functionDates = new Map(plan.profile.functions.map((f) => [f.kind, f.date]));
   const entries = TASK_TEMPLATES.flatMap((template) => {
@@ -126,7 +132,7 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
   return [...scheduled.values()].sort((a, b) => a.due.localeCompare(b.due));
 }
 
-/** The next few open tasks: ready ones (all prerequisites done) first, topped up with blocked ones. */
+/** The next `count` open tasks: ready ones (all prerequisites done) first, topped up with blocked ones. Keeps input order. */
 export function nextTasks(tasks: ScheduledTask[], count = 3): ScheduledTask[] {
   const open = tasks.filter((t) => t.status !== "done");
   const openIds = new Set(open.map((t) => t.id));

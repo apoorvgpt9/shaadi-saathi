@@ -1,3 +1,4 @@
+// The budget engine: benchmark estimates per category, overlaid with the user's quotes, overrides and confirmations.
 import { formatINR } from "@/lib/format";
 import { CATEGORY_IDS } from "@/lib/types";
 import type { BudgetLine, BudgetSummary, CategoryId, Plan, PriceStatus, Profile, Style } from "@/lib/types";
@@ -24,6 +25,7 @@ const roundToStep = (n: number) => Math.round(n / ROUNDING_STEP) * ROUNDING_STEP
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
+/** The style in force for a category: its own override if set, otherwise the profile's style. */
 export function effectiveStyle(profile: Profile, category: CategoryId): Style {
   return profile.categoryStyles[category] ?? profile.style;
 }
@@ -108,6 +110,10 @@ function resolveLine(plan: Plan, category: CategoryId, estimate: Estimate): Budg
   return { category, amount, estimate: estimate.amount, status, source };
 }
 
+/**
+ * The full budget: one line per category plus a contingency line, rounded to ROUNDING_STEP rupees.
+ * Pure and deterministic; every figure is computed here, never by the AI.
+ */
 export function computeBudget(plan: Plan): BudgetSummary {
   const benchmarked = CATEGORY_IDS.filter((c): c is BenchmarkCategory => c !== "contingency").map((category) =>
     resolveLine(plan, category, estimateCategory(category, plan.profile)),

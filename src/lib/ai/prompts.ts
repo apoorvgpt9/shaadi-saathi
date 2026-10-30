@@ -1,3 +1,4 @@
+// System prompts and user-turn builders for each AI route; the only place prompt text lives.
 import type Anthropic from "@anthropic-ai/sdk";
 import type { z } from "zod";
 import type {
@@ -86,6 +87,7 @@ function tag(name: string, content: unknown): string {
 
 const user = (...parts: string[]): Message[] => [{ role: "user", content: parts.join("\n\n") }];
 
+/** The intake conversation, with the draft and today's date up front and every user turn tagged as untrusted data. */
 export function intakeMessages({ messages, draft, today }: Input<typeof IntakeRequest>): Message[] {
   const context = tag("context", { today, draftSoFar: draft });
   return [
@@ -97,8 +99,10 @@ export function intakeMessages({ messages, draft, today }: Input<typeof IntakeRe
   ];
 }
 
+/** The vendors request: the profile as tagged data. */
 export const vendorsMessages = ({ profile }: Input<typeof VendorsRequest>) => user(tag("profile", profile));
 
+/** The ideas request for one function, or all of them when `function` is null, with optional feedback and prior ideas. */
 export function ideasMessages({ profile, function: kind, feedback, previous }: Input<typeof IdeasRequest>) {
   const functions = kind ? [kind] : profile.functions.map((f) => f.kind);
   return user(
@@ -109,11 +113,14 @@ export function ideasMessages({ profile, function: kind, feedback, previous }: I
   );
 }
 
+/** The change request: the user's message plus profile and task list, all tagged as data. */
 export const changeMessages = ({ message, profile, tasks, today }: Input<typeof ChangeRequest>) =>
   user(tag("context", { today }), tag("profile", profile), tag("tasks", tasks), tag("user_message", message));
 
+/** The quote-reading request: the pasted quote text, tagged as data, with its category and guest count. */
 export const quoteMessages = ({ text, category, guests }: Input<typeof QuoteRequest>) =>
   user(`Category: ${category}.`, tag("guests", String(guests)), tag("quote_text", text));
 
+/** The trade-offs request: profile, current total and the engine's levers; options may only name those lever ids. */
 export const tradeoffsMessages = ({ profile, total, levers }: Input<typeof TradeoffsRequest>) =>
   user(tag("profile", profile), tag("current_total_rupees", String(total)), tag("levers", levers));

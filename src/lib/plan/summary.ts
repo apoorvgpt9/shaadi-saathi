@@ -1,3 +1,4 @@
+// Describes what a plan change did (budget, schedule, follow-ups) by diffing two plans.
 import { formatDate } from "@/lib/format";
 import { computeBudget } from "@/lib/plan/budget";
 import { scheduleTasks } from "@/lib/plan/timeline";
@@ -26,7 +27,10 @@ function changeNotes(before: Plan, after: Plan, afterBudget: BudgetSummary): str
   return notes;
 }
 
-/** What a change did: changed budget lines, totals, newly flagged tasks and follow-up notes. */
+/**
+ * What a change did: changed budget lines, totals, newly flagged tasks and follow-up notes.
+ * Pure; both schedules are computed against the injected `today`.
+ */
 export function summarizeChange(before: Plan, after: Plan, today: string): ChangeSummary {
   const budgetBefore = computeBudget(before);
   const budgetAfter = computeBudget(after);

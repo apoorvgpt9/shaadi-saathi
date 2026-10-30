@@ -22,6 +22,7 @@ export function formatLakh(n: number): string {
 // Dates are ISO strings (YYYY-MM-DD) handled in UTC so the user's timezone never shifts a day.
 const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 
+/** Shifts a YYYY-MM-DD date by `n` days (negative for earlier); pure, with no timezone or DST drift. */
 export function addDays(iso: string, n: number): string {
   return new Date(toMs(iso) + n * MS_PER_DAY).toISOString().slice(0, 10);
 }

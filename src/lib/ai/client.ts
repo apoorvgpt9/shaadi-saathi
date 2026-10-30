@@ -1,3 +1,4 @@
+// The single gateway to the Claude API: model choice, structured output, tool calls and usage metadata.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
@@ -42,6 +43,7 @@ function getClient(): Anthropic {
   return singleton;
 }
 
+/** The model id for a route: its own ANTHROPIC_MODEL_<ROUTE> override, else ANTHROPIC_MODEL, else the default. */
 export function modelFor(route: RouteName): string {
   return process.env[`ANTHROPIC_MODEL_${route.toUpperCase()}`] ?? process.env.ANTHROPIC_MODEL ?? "claude-opus-5-5";
 }
@@ -73,7 +75,10 @@ function meta(model: string, usage: Anthropic.Beta.BetaUsage[]): Meta {
   };
 }
 
-/** Structured output validated against a zod schema; one retry when the model's output does not parse. */
+/**
+ * Structured output validated against a zod schema; one retry when the model's output does not parse.
+ * Throws RefusalError, AiOutputError or the SDK's own errors, which the route handler maps to API codes.
+ */
 export async function generate<S extends z.ZodType>(
   route: RouteName,
   schema: S,
@@ -102,7 +107,7 @@ export async function generate<S extends z.ZodType>(
   }
 }
 
-/** One tool-calling turn with `tool_choice: auto`. Returns every tool call plus any text. */
+/** One tool-calling turn with `tool_choice: auto`. Returns every tool call plus any text; the calls are unvalidated. */
 export async function callTools(
   route: RouteName,
   tools: Anthropic.Beta.BetaTool[],

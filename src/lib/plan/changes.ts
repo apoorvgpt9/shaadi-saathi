@@ -1,3 +1,4 @@
+// Applies the AI's structured PlanChange edits to a plan, validating each result.
 import { addDays } from "@/lib/format";
 import { LIMITS, Plan } from "@/lib/types";
 import type { FunctionKind, PlanChange, WeddingFunction } from "@/lib/types";
@@ -104,7 +105,11 @@ function applyOne(plan: Plan, change: PlanChange): Outcome {
   }
 }
 
-/** Applies changes in order to a copy of the plan. Changes that do not fit are reported, never thrown. */
+/**
+ * Applies changes in order to a copy of the plan; the input is never mutated.
+ * A change that does not fit, or would leave the plan failing its schema, is skipped and reported in `ignored`.
+ * Never throws.
+ */
 export function applyChanges(plan: Plan, changes: PlanChange[]): { plan: Plan; ignored: string[] } {
   let current = plan;
   const ignored: string[] = [];

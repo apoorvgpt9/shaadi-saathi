@@ -1,3 +1,4 @@
+// Validates the AI's trade-off options against the engine's levers and previews their effect.
 import { pct } from "@/lib/format";
 import { computeBudget } from "@/lib/plan/budget";
 import { applyLevers } from "@/lib/plan/levers";
@@ -22,7 +23,7 @@ export function usableOptions(
   });
 }
 
-/** What choosing an option would do to the plan as it stands now. */
+/** What choosing an option would do to the plan as it stands now: money saved, % of budget used, and whether it fits. Pure. */
 export function previewOption(plan: Plan, ids: string[]) {
   const now = computeBudget(plan);
   const next = computeBudget(applyLevers(plan, ids));

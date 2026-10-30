@@ -1,3 +1,4 @@
+// The shared POST handler for every AI route: rate limiting, validation, error mapping and logging.
 import Anthropic from "@anthropic-ai/sdk";
 import type { z } from "zod";
 import type { ApiError, ApiErrorCode } from "@/lib/types";
@@ -10,7 +11,8 @@ const MAX_TRACKED_IPS = 5000;
 // Auth, permission, payment, rate limit and overload all mean "AI is not available right now".
 const UNAVAILABLE_STATUSES = new Set([401, 402, 403, 429, 503, 529]);
 
-// shortcut: per-instance memory; use a shared store (e.g. Upstash) if abuse appears
+// Limit: per-instance memory, so counts reset on a cold start and are not shared between instances.
+// Upgrade path: a shared store such as Upstash.
 const hits = new Map<string, number[]>();
 
 /** Thrown by a route's `run` when the request parses but is still not acceptable. */
@@ -33,12 +35,14 @@ function rateLimited(request: Request, now: number): boolean {
   hits.set(ip, [...recent, now]);
   if (hits.size > MAX_TRACKED_IPS) {
     for (const [key, times] of hits) if (now - (times.at(-1) ?? 0) >= WINDOW_MS) hits.delete(key);
-    // shortcut: a flood of fresh keys resets every counter to keep memory bounded; use a shared store if abuse appears
+    // Limit: a flood of fresh keys resets every counter, which trades accuracy for bounded memory.
+    // Upgrade path: a shared store such as Upstash.
     if (hits.size > MAX_TRACKED_IPS) hits.clear();
   }
   return false;
 }
 
+// Maps any thrown error to an HTTP status, API code and user-safe message; SDK error text is never passed through.
 function classify(err: unknown): { status: number; code: ApiErrorCode; message: string } {
   if (err instanceof InvalidInputError) return { status: 400, code: "invalid_input", message: err.message };
   if (err instanceof RefusalError) {
