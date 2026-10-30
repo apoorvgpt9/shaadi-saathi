@@ -104,6 +104,8 @@ export function BudgetTab({ plan, summary, onUpdate, onPropose }: Props) {
       {summary.ratio > 1 && (
         <TradeoffPanel plan={plan} total={summary.total} budget={summary.budget} onChoose={onPropose} />
       )}
+      {/* Keeps the outline h1 > h2 > h3 when no trade-off panel (h2) sits above the lines. */}
+      <h2 className="sr-only">Budget by category</h2>
       <ul className="card divide-y divide-line px-6 sm:px-8">
         {summary.lines.map((line) => (
           <Line key={line.category} line={line} plan={plan} onUpdate={onUpdate} />

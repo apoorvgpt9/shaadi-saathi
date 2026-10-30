@@ -39,6 +39,7 @@ function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }) {
             <span className="sr-only">New date for {task.title}</span>
             <input
               type="date"
+              name={`delay-${task.id}`}
               defaultValue={task.due}
               onChange={(e) => e.target.value && onSet(task.id, "delayed", e.target.value)}
               className="min-h-9 rounded-md border border-line bg-surface px-2 text-sm"

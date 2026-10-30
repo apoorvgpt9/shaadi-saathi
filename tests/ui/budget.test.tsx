@@ -59,6 +59,17 @@ describe("BudgetTab", () => {
     await expectAccessible(container);
   });
 
+  it("keeps the heading outline valid under the page title when no trade-off panel is shown", async () => {
+    const { container } = render(
+      <>
+        <h1>Jaipur · 26 Feb 2027 · 200 guests</h1>
+        <BudgetHarness initial={WITHIN} />
+      </>,
+    );
+    expect(screen.getByRole("heading", { level: 2, name: "Budget by category" })).toBeInTheDocument();
+    await expectAccessible(container);
+  });
+
   it("shows Quoted for a line that uses a quote and Confirmed once the user confirms it", async () => {
     const plan: Plan = {
       ...WITHIN,

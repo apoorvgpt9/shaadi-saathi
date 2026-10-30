@@ -94,6 +94,7 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
                   <label className="flex cursor-pointer items-start gap-2.5 text-sm">
                     <input
                       type="checkbox"
+                      name={k}
                       checked={!!plan.checked[k]}
                       onChange={() => onUpdate((p) => ({ ...p, checked: { ...p.checked, [k]: !p.checked[k] } }))}
                       className="mt-1 size-4 shrink-0 accent-maroon"
