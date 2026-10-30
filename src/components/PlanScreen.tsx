@@ -33,7 +33,10 @@ interface Props {
   };
 }
 
-/** Connects the engine, the AI routes and the store to the workspace and its tabs. */
+/**
+ * The workspace for a built plan: derives the budget and schedule from it, turns a typed change
+ * into a proposal through the AI, and hands each tab its slice of the plan.
+ */
 export function PlanScreen({ plan, pending, actions, extras }: Props): ReactElement {
   const [today] = useState(todayIso);
   const [changeText, setChangeText] = useState("");

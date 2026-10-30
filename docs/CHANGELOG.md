@@ -15,7 +15,7 @@ All notable changes to ShaadiSaathi. The format follows [Keep a Changelog](https
 
 - The shared route handler, `handleAi`, is now a short function over the new modules; behaviour, status codes and messages are unchanged.
 - Every source file starts with a one-line header stating its responsibility, and exported components and engine functions carry JSDoc, with `@example` blocks on the engine.
-- Engine and library code reads plainly: braced branches, named intermediate values, one-idea functions.
+- Engine and library code reads plainly: braced branches (enforced by the `curly` lint rule), named intermediate values, one-idea functions.
 - Components are typed with explicit return types, and the type casts around CSS custom properties are gone, replaced by the `cssVars` helper.
 - `"use client"` is declared only at the client root and the error boundary; imported components become client code automatically.
 - Prettier print width is 100.
@@ -35,7 +35,7 @@ All notable changes to ShaadiSaathi. The format follows [Keep a Changelog](https
 ### Changed
 
 - The shared contract is split from one large file into schema modules (limits, domain, plan, views, api) behind the [`src/lib/types.ts`](../src/lib/types.ts) barrel.
-- Contract JSDoc and module headers were added, and the rate limiter's design is documented neutrally.
+- Contract JSDoc and module headers were added.
 
 ### Fixed
 

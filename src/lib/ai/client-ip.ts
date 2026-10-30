@@ -1,4 +1,6 @@
 // Identifies the calling client from proxy headers, for rate limiting.
+// The host (Vercel) overwrites both headers with the real client address, so clients cannot spoof
+// them; behind a proxy that appends to them instead, they would need to be read differently.
 
 /**
  * The caller's address: `x-real-ip`, else the first `x-forwarded-for` entry, else "unknown". Empty

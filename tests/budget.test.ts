@@ -5,7 +5,9 @@ import { makePlan, makeQuote } from "./plan-fixtures";
 
 const line = (plan: Plan, category: CategoryId) => {
   const found = computeBudget(plan).lines.find((l) => l.category === category);
-  if (!found) throw new Error(`no ${category} line`);
+  if (!found) {
+    throw new Error(`no ${category} line`);
+  }
   return found;
 };
 

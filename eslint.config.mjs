@@ -104,6 +104,10 @@ const eslintConfig = defineConfig([
     files: ["**/*.{js,mjs}"],
     extends: [tseslint.configs.disableTypeChecked],
   },
+  {
+    // Every branch and loop body is braced, so adding a line never changes the control flow.
+    rules: { curly: ["error", "all"] },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

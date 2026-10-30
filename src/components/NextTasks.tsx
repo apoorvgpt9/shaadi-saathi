@@ -24,7 +24,7 @@ export function Flags({ flags }: { flags: TaskFlag[] }): ReactElement {
   );
 }
 
-/** The sidebar card of the first three tasks that can be started now. */
+/** The sidebar card: the first three of the given tasks, which come ready-to-start first. */
 export function NextTasks({ tasks }: { tasks: ScheduledTask[] }): ReactElement {
   return (
     <aside aria-labelledby="next-title" className="card p-6">

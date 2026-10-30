@@ -86,7 +86,7 @@ export type PlanAction =
   | { type: "reset" };
 
 /** Records the assistant's reply and its updated draft; a blank reply reads "Noted.". */
-function receiveReply(state: PlanState, reply: string, draft: IntakeDraft): PlanState {
+function withReply(state: PlanState, reply: string, draft: IntakeDraft): PlanState {
   const content = reply.trim().slice(0, LIMITS.messageChars) || "Noted.";
   const message: ChatMessage = { role: "assistant", content };
   return { ...state, draft, messages: [...state.messages, message] };
@@ -96,7 +96,7 @@ function receiveReply(state: PlanState, reply: string, draft: IntakeDraft): Plan
  * Builds the pending change from the latest plan, not the one the request started from, so edits
  * made meanwhile are kept.
  */
-function propose(state: PlanState, build: Proposal, today: string): PlanState {
+function withProposal(state: PlanState, build: Proposal, today: string): PlanState {
   if (!state.plan) {
     return state;
   }
@@ -109,7 +109,7 @@ function propose(state: PlanState, build: Proposal, today: string): PlanState {
  * Re-applies the pending change to the plan as it is now: vendors, ideas and edits that landed
  * behind the dialog survive.
  */
-function accept(state: PlanState): PlanState {
+function withPendingApplied(state: PlanState): PlanState {
   if (!state.pending || !state.plan) {
     return state;
   }
@@ -128,7 +128,7 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
     case "user_message":
       return { ...state, messages: [...state.messages, action.message] };
     case "assistant_reply":
-      return receiveReply(state, action.reply, action.draft);
+      return withReply(state, action.reply, action.draft);
     case "edit_draft":
       return { ...state, draft: action.draft };
     case "start_plan":
@@ -136,9 +136,9 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
     case "update_plan":
       return state.plan ? { ...state, plan: action.update(state.plan) } : state;
     case "propose":
-      return propose(state, action.build, action.today);
+      return withProposal(state, action.build, action.today);
     case "accept":
-      return accept(state);
+      return withPendingApplied(state);
     case "undo":
       return { ...state, pending: null };
     case "reset":

@@ -63,8 +63,9 @@ function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
  * // a mehendi at dayOffset -1 for a wedding on 2027-03-01 is dated "2027-02-28"
  */
 export function draftToProfile(draft: IntakeDraft): Profile {
-  if (!isDraftReady(draft))
+  if (!isDraftReady(draft)) {
     throw new Error("Draft needs a date, city, guest count and budget before planning");
+  }
   const guests = clamp(draft.guests, LIMITS.guests.min, LIMITS.guests.max);
   return {
     city: draft.city.trim().slice(0, LIMITS.cityChars),

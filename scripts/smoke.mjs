@@ -111,7 +111,9 @@ for (const [route, body, ok] of checks) {
     });
     const json = await res.json();
     const pass = res.status === 200 && ok(json);
-    if (!pass) failed++;
+    if (!pass) {
+      failed++;
+    }
     console.log(
       `${pass ? "PASS" : "FAIL"} ${route} ${res.status} ${Date.now() - started}ms${pass ? "" : ` ${JSON.stringify(json).slice(0, 300)}`}`,
     );

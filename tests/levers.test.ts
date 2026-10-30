@@ -8,7 +8,9 @@ describe("listLevers", () => {
   const levers = listLevers(plan);
   const lever = (id: string) => {
     const found = levers.find((l) => l.id === id);
-    if (!found) throw new Error(`no lever ${id}`);
+    if (!found) {
+      throw new Error(`no lever ${id}`);
+    }
     return found;
   };
 

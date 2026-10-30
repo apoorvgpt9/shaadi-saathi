@@ -23,8 +23,11 @@ const hangingFetch = () =>
     (_url: string, init: RequestInit) =>
       new Promise<Response>((_resolve, reject) => {
         const abort = () => reject(new DOMException("aborted", "AbortError"));
-        if (init.signal?.aborted) abort();
-        else init.signal?.addEventListener("abort", abort);
+        if (init.signal?.aborted) {
+          abort();
+        } else {
+          init.signal?.addEventListener("abort", abort);
+        }
       }),
   );
 

@@ -6,7 +6,7 @@ import type { Pending } from "@/lib/store";
 import type { ChangeSummary } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
-/** A titled bullet list of notes; renders nothing when there are none. */
+/** A titled bullet list (task titles, notes or skipped changes); renders nothing when empty. */
 function Group({ title, items }: { title: string; items: string[] }): ReactElement | null {
   if (items.length === 0) {
     return null;

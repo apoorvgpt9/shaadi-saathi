@@ -22,7 +22,7 @@ const monthOf = (iso: string) =>
 
 interface Props {
   tasks: ScheduledTask[];
-  /** Sets a task's status; `delayedTo` is the new due date, or null to keep it. */
+  /** Sets a task's status; `delayedTo` is the new due date, kept only for "delayed". */
   onSet: (id: string, status: TaskStatus, delayedTo: string | null) => void;
 }
 
@@ -55,8 +55,8 @@ function DelayedDate({
 }
 
 /**
- * The To do / Done / Delayed segmented control; choosing a different status moves the due date 14
- * days on.
+ * The To do / Done / Delayed segmented control. Choosing Delayed moves the due date 14 days on;
+ * To do and Done keep the scheduled date.
  */
 function StatusToggle({
   task,

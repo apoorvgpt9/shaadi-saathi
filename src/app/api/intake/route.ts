@@ -12,8 +12,9 @@ const EMPTY_REPLY = "Thanks, noted. Tell me more about the wedding whenever you 
 export async function POST(request: Request) {
   return handleAi(request, "intake", IntakeRequest, IntakeResponse, async (input) => {
     // The model must answer a user turn; a trailing assistant turn would be treated as a prefill.
-    if (input.messages.at(-1)?.role !== "user")
+    if (input.messages.at(-1)?.role !== "user") {
       throw new InvalidInputError("The last message must be from the user.");
+    }
     const result = await generate("intake", IntakeResponse, {
       system: INTAKE_SYSTEM,
       messages: intakeMessages(input),

@@ -1,4 +1,6 @@
 // A sliding-window rate limiter keyed by string; counts are kept per server instance.
+// shortcut: counts reset on a cold start and are not shared between instances; move them to a
+// shared store (such as Redis) if exact limits across instances are needed.
 
 interface RateLimiterOptions {
   /** Requests allowed per key inside one window. */
@@ -24,7 +26,7 @@ export function createRateLimiter({
   limit,
   windowMs,
   maxTracked,
-  now = Date.now,
+  now = () => Date.now(),
 }: RateLimiterOptions): RateLimiter {
   const hitsByKey = new Map<string, number[]>();
 

@@ -1,6 +1,6 @@
-// Every size limit in the contract, as one constant.
+// Size limits shared by the schemas, the engine and the UI.
 
-/** Every size limit in the contract, so schemas, engine and UI never disagree. */
+/** Every size limit in the contract, as one constant, so schemas, engine and UI never disagree. */
 export const LIMITS = {
   guests: { min: 1, max: 5000 },
   budget: { min: 10_000, max: 1_000_000_000 },

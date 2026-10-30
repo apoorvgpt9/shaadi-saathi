@@ -156,7 +156,7 @@ node scripts/smoke.mjs http://localhost:3000   # optional: real calls to every r
 | Command | What it enforces | Threshold or flag |
 |---|---|---|
 | `npm run format:check` | Prettier over `src`, `tests`, `scripts` and root `*.ts`/`*.mjs` | print width 100 |
-| `npm run lint` | typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, `jsx-a11y`, `react-hooks`, Next.js core web vitals, and the layering rule: the engine and the server-side AI layer may not import each other, the UI, the store or the browser API client (`no-restricted-imports`) | any finding fails |
+| `npm run lint` | typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, `jsx-a11y`, `react-hooks`, `curly`, Next.js core web vitals, and the layering rule: the engine and the server-side AI layer may not import each other, the UI, the store or the browser API client (`no-restricted-imports`) | any finding fails |
 | `npm run typecheck` | `next typegen && tsc --noEmit` | `strict`, `noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`, `noFallthroughCasesInSwitch` |
 | `npm run test:coverage` | Vitest over `src/**` (node and jsdom projects, axe in the UI suite) | statements 99%, branches 96%, functions 99%, lines 99% |
 | `npm run build` | Production build | build errors fail |

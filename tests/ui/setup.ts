@@ -15,17 +15,23 @@ HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogEleme
   document.addEventListener(
     "keydown",
     (e) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape") {
+        return;
+      }
       const cancel = new Event("cancel", { cancelable: true });
       this.dispatchEvent(cancel);
-      if (!cancel.defaultPrevented) this.close();
+      if (!cancel.defaultPrevented) {
+        this.close();
+      }
     },
     { signal: controller.signal },
   );
 };
 
 HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
-  if (!this.hasAttribute("open")) return;
+  if (!this.hasAttribute("open")) {
+    return;
+  }
   this.removeAttribute("open");
   escapeListeners.get(this)?.abort();
   this.dispatchEvent(new Event("close"));

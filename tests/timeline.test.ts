@@ -15,7 +15,9 @@ const withWeddingIn = (days: number, plan: Plan = makePlan()): Plan => ({
 
 const find = (tasks: ScheduledTask[], id: string) => {
   const found = tasks.find((t) => t.id === id);
-  if (!found) throw new Error(`no task ${id}`);
+  if (!found) {
+    throw new Error(`no task ${id}`);
+  }
   return found;
 };
 

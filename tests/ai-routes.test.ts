@@ -128,8 +128,9 @@ describe("shared handler", () => {
 
   it("returns 429 after 40 requests from one IP, but not for another IP", async () => {
     generateMock.mockResolvedValue({ data: { vendors: [] }, meta });
-    for (let i = 0; i < 40; i++)
+    for (let i = 0; i < 40; i++) {
       expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
+    }
     const blocked = await post(vendors, validBodies.vendors, "9.9.9.9");
     expect(blocked.status).toBe(429);
     expect((await json(blocked)).error?.code).toBe("rate_limited");
@@ -160,14 +161,20 @@ describe("shared handler", () => {
   });
 
   it("shares one bucket when no client address header is present", async () => {
-    for (let i = 0; i < 40; i++) await postWith(vendors, {}, {});
+    for (let i = 0; i < 40; i++) {
+      await postWith(vendors, {}, {});
+    }
     expect((await postWith(vendors, {}, {})).status).toBe(429);
   });
 
   it("resets the counters if a flood of distinct addresses fills the map", async () => {
-    for (let i = 0; i < 40; i++) await post(vendors, {}, "6.6.6.6");
+    for (let i = 0; i < 40; i++) {
+      await post(vendors, {}, "6.6.6.6");
+    }
     expect((await post(vendors, {}, "6.6.6.6")).status).toBe(429);
-    for (let i = 0; i < 5001; i++) await post(vendors, {}, `flood-${i}`);
+    for (let i = 0; i < 5001; i++) {
+      await post(vendors, {}, `flood-${i}`);
+    }
     expect((await post(vendors, {}, "6.6.6.6")).status).toBe(400);
   });
 
