@@ -6,11 +6,23 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   test: {
-    environment: "node",
-    include: ["tests/**/*.test.ts"],
     coverage: {
-      include: ["src/lib/**", "src/app/api/**"],
-      thresholds: { statements: 98, branches: 95, functions: 97, lines: 99 },
+      include: ["src/**"],
+      // The root layout loads next/font, which only exists inside the Next build; it has no logic to test.
+      exclude: ["src/app/layout.tsx"],
+      thresholds: { statements: 99, branches: 96, functions: 99, lines: 99 },
     },
+    projects: [
+      { extends: true, test: { name: "unit", environment: "node", include: ["tests/*.test.ts"] } },
+      {
+        extends: true,
+        test: {
+          name: "ui",
+          environment: "jsdom",
+          include: ["tests/ui/**/*.test.tsx"],
+          setupFiles: ["tests/ui/setup.ts"],
+        },
+      },
+    ],
   },
 });
