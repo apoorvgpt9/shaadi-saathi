@@ -39,6 +39,68 @@ const eslintConfig = defineConfig([
     rules: { "no-console": "off" },
   },
   {
+    // Layering: the engine is pure and browser-safe, so it may not reach the UI, the store, the
+    // network layer or the AI layer, and it may not read the clock or storage.
+    files: ["src/lib/plan/**/*.ts", "src/lib/format.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            { name: "react", message: "The engine has no UI dependencies." },
+            { name: "react-dom", message: "The engine has no UI dependencies." },
+            { name: "next", message: "The engine has no framework dependencies." },
+            { name: "@/lib/api", message: "The engine does no I/O." },
+            { name: "@/lib/store", message: "State depends on the engine, not the reverse." },
+          ],
+          patterns: [
+            { group: ["next/*"], message: "The engine has no framework dependencies." },
+            { group: ["@/lib/ai", "@/lib/ai/*"], message: "The engine never calls the AI layer." },
+            { group: ["@/components/*"], message: "The engine never imports UI." },
+          ],
+        },
+      ],
+      "no-restricted-globals": [
+        "error",
+        { name: "localStorage", message: "Persistence belongs to usePlan, not the engine." },
+        { name: "fetch", message: "The engine does no I/O." },
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "Date", property: "now", message: "Take `today` as a parameter." },
+        { object: "window", property: "localStorage", message: "The engine does not persist." },
+        { object: "process", property: "env", message: "The engine reads no environment." },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+          message: "Take `today` as a parameter instead of reading the clock.",
+        },
+      ],
+    },
+  },
+  {
+    // Layering: the server's AI layer and route handlers are stateless and never import the
+    // engine, the client store, the browser API client or UI.
+    files: ["src/lib/ai/**/*.ts", "src/app/api/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            { name: "@/lib/store", message: "Routes are stateless." },
+            { name: "@/lib/api", message: "That is the browser's client for these routes." },
+          ],
+          patterns: [
+            { group: ["@/lib/plan", "@/lib/plan/*"], message: "Routes never run the engine." },
+            { group: ["@/components/*"], message: "Server code never imports UI." },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["**/*.{js,mjs}"],
     extends: [tseslint.configs.disableTypeChecked],
   },

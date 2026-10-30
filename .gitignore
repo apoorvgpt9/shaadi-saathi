@@ -1,4 +1,4 @@
-# Local-only project memory and agent instructions (not for the repo / evaluator)
+# Local tooling and notes
 .planning/
 CLAUDE.md
 .claude/
@@ -13,7 +13,6 @@ next-env.d.ts
 
 # Secrets and local env
 .env*
-!.env.example
 
 # Platform
 .vercel/

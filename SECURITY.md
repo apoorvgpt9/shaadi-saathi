@@ -7,7 +7,7 @@ Please report vulnerabilities privately through GitHub private vulnerability rep
 ## Key handling
 
 - `ANTHROPIC_API_KEY` is read server-side only, from environment variables. It is never sent to the browser or committed to the repository.
-- Only `.env.example` (no secrets) is tracked; every other `.env*` file is gitignored.
+- No `.env*` file is tracked; all of them are gitignored.
 
 ## User data
 
@@ -18,7 +18,7 @@ Please report vulnerabilities privately through GitHub private vulnerability rep
 ## Protections in place
 
 - Every request body is validated with zod and size-capped; invalid input returns `400`.
-- AI routes are rate-limited per client IP (40 requests per 10 minutes). The IP comes from `x-real-ip`, then the first `x-forwarded-for` entry. On Vercel the platform overwrites both headers, so clients cannot spoof them; behind a proxy that appends to them the limit could be bypassed. The counters live in each server instance's memory, so the limit is approximate on serverless.
+- AI routes are rate-limited to 40 requests per client per 10 minutes. The client is identified from `x-real-ip`, then the first `x-forwarded-for` entry. The app is hosted on Vercel, whose platform sets both headers on every incoming request and replaces any value the client sent, so the values are the caller's address. Counts live in each server instance's memory, so the limit applies per instance; a shared store would make it global.
 - Request bodies over 100,000 characters are rejected, and a declared `content-length` over that size is refused before the body is read.
 - User messages and pasted vendor quotes are passed to the model as tagged, untrusted data that the model is told never to follow as instructions. Model output is re-validated against strict schemas before use.
 - Security headers on every response: Content-Security-Policy, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` and `Permissions-Policy`.
