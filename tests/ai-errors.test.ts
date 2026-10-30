@@ -5,7 +5,8 @@ import { AiOutputError, InvalidInputError, RefusalError, toApiFailure } from "@/
 const UNAVAILABLE = {
   status: 503,
   code: "ai_unavailable",
-  message: "The AI assistant is unavailable right now. Your plan still works; please try again shortly.",
+  message:
+    "The AI assistant is unavailable right now. Your plan still works; please try again shortly.",
 };
 const GENERIC = {
   status: 502,
@@ -14,13 +15,21 @@ const GENERIC = {
 };
 
 function apiError(status: number, message?: string) {
-  const body = message ? { type: "error", error: { type: "invalid_request_error", message } } : { type: "error" };
+  const body = message
+    ? { type: "error", error: { type: "invalid_request_error", message } }
+    : { type: "error" };
   return Anthropic.APIError.generate(status, body, message, new Headers());
 }
 
 describe("toApiFailure", () => {
   it.each([
-    ["invalid input keeps its message", new InvalidInputError("Bad turn."), 400, "invalid_input", "Bad turn."],
+    [
+      "invalid input keeps its message",
+      new InvalidInputError("Bad turn."),
+      400,
+      "invalid_input",
+      "Bad turn.",
+    ],
     [
       "a refusal gets the fixed rephrase message",
       new RefusalError("raw model text"),
@@ -28,17 +37,28 @@ describe("toApiFailure", () => {
       "refused",
       "I can't help with that request. Try rephrasing it.",
     ],
-    ["an output error keeps its message", new AiOutputError("Cut off."), 502, "ai_error", "Cut off."],
+    [
+      "an output error keeps its message",
+      new AiOutputError("Cut off."),
+      502,
+      "ai_error",
+      "Cut off.",
+    ],
   ])("%s", (_name, err, status, code, message) => {
     expect(toApiFailure(err)).toEqual({ status, code, message });
   });
 
-  it.each([401, 402, 403, 429, 503, 529])("maps Anthropic status %i to ai_unavailable", (status) => {
-    expect(toApiFailure(apiError(status, "secret upstream text"))).toEqual(UNAVAILABLE);
-  });
+  it.each([401, 402, 403, 429, 503, 529])(
+    "maps Anthropic status %i to ai_unavailable",
+    (status) => {
+      expect(toApiFailure(apiError(status, "secret upstream text"))).toEqual(UNAVAILABLE);
+    },
+  );
 
   it("maps a connection failure to ai_unavailable", () => {
-    expect(toApiFailure(new Anthropic.APIConnectionError({ message: "offline" }))).toEqual(UNAVAILABLE);
+    expect(toApiFailure(new Anthropic.APIConnectionError({ message: "offline" }))).toEqual(
+      UNAVAILABLE,
+    );
   });
 
   it("maps exhausted credit (400) to ai_unavailable", () => {

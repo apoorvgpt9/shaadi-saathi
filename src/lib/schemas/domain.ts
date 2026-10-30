@@ -63,7 +63,11 @@ export const IntakeDraft = z.object({
   budget: z.number().int().nullable(),
   /** dayOffset is relative to the wedding day, e.g. mehendi the day before = -1. */
   functions: z.array(
-    z.object({ kind: FunctionKind, dayOffset: z.number().int(), guests: z.number().int().nullable() }),
+    z.object({
+      kind: FunctionKind,
+      dayOffset: z.number().int(),
+      guests: z.number().int().nullable(),
+    }),
   ),
   style: Style.nullable(),
   priorities: z.array(CategoryId),

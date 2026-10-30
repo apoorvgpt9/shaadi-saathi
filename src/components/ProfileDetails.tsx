@@ -1,7 +1,12 @@
 // Read-only profile rows: the four essentials, then the optional extras.
 import type { ReactElement, ReactNode } from "react";
 import { formatDate, formatINR, plural } from "@/lib/format";
-import { CATEGORY_LABELS, CITY_TIER_LABELS, FUNCTION_LABELS, STYLE_LABELS } from "@/lib/plan/benchmarks";
+import {
+  CATEGORY_LABELS,
+  CITY_TIER_LABELS,
+  FUNCTION_LABELS,
+  STYLE_LABELS,
+} from "@/lib/plan/benchmarks";
 import type { IntakeDraft } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 
@@ -9,13 +14,25 @@ const offsetText = (n: number) =>
   n === 0 ? "wedding day" : `${plural(Math.abs(n), "day")} ${n < 0 ? "before" : "after"}`;
 
 /** One label and value line; a missing value shows a "Needed" badge when the field is required. */
-function Row({ label, value, required }: { label: string; value: ReactNode; required?: boolean }): ReactElement {
+function Row({
+  label,
+  value,
+  required,
+}: {
+  label: string;
+  value: ReactNode;
+  required?: boolean;
+}): ReactElement {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-0">
       <dt className="text-sm text-muted">{label}</dt>
       <dd className="min-w-0 text-right text-sm font-medium tabular-nums wrap-anywhere">
         {value ??
-          (required ? <Badge tone="yellow">Needed</Badge> : <span className="font-normal text-muted">Not yet</span>)}
+          (required ? (
+            <Badge tone="yellow">Needed</Badge>
+          ) : (
+            <span className="font-normal text-muted">Not yet</span>
+          ))}
       </dd>
     </div>
   );
@@ -53,7 +70,10 @@ export function Essentials({ draft: d }: { draft: IntakeDraft }): ReactElement {
       />
       <Row label="Guests" required value={d.guests?.toLocaleString("en-IN")} />
       <Row label="Budget" required value={d.budget && formatINR(d.budget)} />
-      <Row label="Style" value={STYLE_LABELS[d.style ?? "classic"] + (d.style ? "" : " (default)")} />
+      <Row
+        label="Style"
+        value={STYLE_LABELS[d.style ?? "classic"] + (d.style ? "" : " (default)")}
+      />
     </dl>
   );
 }
@@ -63,7 +83,11 @@ export function Extras({ draft: d }: { draft: IntakeDraft }): ReactElement {
   const notes = [...d.mustHaves, ...d.notes];
   return (
     <div className="mt-6 space-y-5 border-t border-line pt-6 text-sm">
-      <Section title="Functions" empty="Wedding day only, unless you mention others." items={d.functions}>
+      <Section
+        title="Functions"
+        empty="Wedding day only, unless you mention others."
+        items={d.functions}
+      >
         <ul className="mt-2 space-y-1.5">
           {d.functions.map((f) => (
             <li key={f.kind} className="flex justify-between gap-4">

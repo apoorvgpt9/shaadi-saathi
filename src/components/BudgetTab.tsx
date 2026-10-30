@@ -1,6 +1,13 @@
 // The Budget tab: one editable line per category, plus the trade-off helper when over budget.
 import { useState, type ReactElement, type SubmitEvent } from "react";
-import { LIMITS, type BudgetLine, type BudgetSummary, type CategoryId, type Plan, type PriceStatus } from "@/lib/types";
+import {
+  LIMITS,
+  type BudgetLine,
+  type BudgetSummary,
+  type CategoryId,
+  type Plan,
+  type PriceStatus,
+} from "@/lib/types";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
 import { patchEntry } from "@/lib/plan/edits";
@@ -34,11 +41,18 @@ interface LineEditorProps {
 }
 
 /** The inline amount form for one budget line. An empty or invalid amount returns the line to its estimate. */
-function LineEditor({ category, label, startingAmount, onUpdate, onDone }: LineEditorProps): ReactElement {
+function LineEditor({
+  category,
+  label,
+  startingAmount,
+  onUpdate,
+  onDone,
+}: LineEditorProps): ReactElement {
   function save(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const n = Number(new FormData(e.currentTarget).get("amount"));
-    const override = Number.isFinite(n) && n > 0 ? Math.min(LIMITS.budget.max, Math.trunc(n)) : null;
+    const override =
+      Number.isFinite(n) && n > 0 ? Math.min(LIMITS.budget.max, Math.trunc(n)) : null;
     onUpdate((p) => patchEntry(p, category, { override }));
     onDone();
   }
@@ -73,10 +87,21 @@ interface LineActionsProps {
 }
 
 /** The two quiet actions under a budget line: edit its amount, or toggle it confirmed. */
-function LineActions({ category, label, confirmed, onEdit, onUpdate }: LineActionsProps): ReactElement {
+function LineActions({
+  category,
+  label,
+  confirmed,
+  onEdit,
+  onUpdate,
+}: LineActionsProps): ReactElement {
   return (
     <div className="-ml-3 flex gap-1 text-sm">
-      <Button variant="ghost" className="min-h-9 px-3" onClick={onEdit} aria-label={`Edit amount for ${label}`}>
+      <Button
+        variant="ghost"
+        className="min-h-9 px-3"
+        onClick={onEdit}
+        aria-label={`Edit amount for ${label}`}
+      >
         Edit amount
       </Button>
       <Button
@@ -92,7 +117,15 @@ function LineActions({ category, label, confirmed, onEdit, onUpdate }: LineActio
 }
 
 /** One budget category: its label, status and amount, then either the edit form or the actions. */
-function Line({ line, plan, onUpdate }: { line: BudgetLine; plan: Plan; onUpdate: Props["onUpdate"] }): ReactElement {
+function Line({
+  line,
+  plan,
+  onUpdate,
+}: {
+  line: BudgetLine;
+  plan: Plan;
+  onUpdate: Props["onUpdate"];
+}): ReactElement {
   const [editing, setEditing] = useState(false);
   const { category } = line;
   const entry = plan.budget[category];
@@ -141,7 +174,12 @@ export function BudgetTab({ plan, summary, onUpdate, onPropose }: Props): ReactE
   return (
     <div className="space-y-6">
       {summary.ratio > 1 && (
-        <TradeoffPanel plan={plan} total={summary.total} budget={summary.budget} onChoose={onPropose} />
+        <TradeoffPanel
+          plan={plan}
+          total={summary.total}
+          budget={summary.budget}
+          onChoose={onPropose}
+        />
       )}
       {/* Keeps the outline h1 > h2 > h3 when no trade-off panel (h2) sits above the lines. */}
       <h2 className="sr-only">Budget by category</h2>

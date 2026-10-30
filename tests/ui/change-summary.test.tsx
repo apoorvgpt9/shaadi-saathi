@@ -28,7 +28,9 @@ function pendingFor(ignored: string[] = []): Pending {
 
 describe("ChangeSummaryPanel", () => {
   it("opens as a labelled dialog and moves focus to its heading", async () => {
-    const { container } = render(<ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />);
+    const { container } = render(
+      <ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />,
+    );
     const dialog = screen.getByRole("dialog", { name: "What changed" });
     expect(dialog).toBeVisible();
     expect(screen.getByRole("heading", { name: "What changed" })).toHaveFocus();
@@ -36,7 +38,9 @@ describe("ChangeSummaryPanel", () => {
   });
 
   it("summarises the totals, the budget change and each moved line", async () => {
-    const { container } = render(<ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />);
+    const { container } = render(
+      <ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />,
+    );
     expect(screen.getByText("Budget now ₹7,00,000")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Budget lines" })).toBeInTheDocument();
     expect(screen.getByText("Estimated total")).toBeInTheDocument();
@@ -53,7 +57,9 @@ describe("ChangeSummaryPanel", () => {
       newlyClashing: ["Mehendi falls after the wedding"],
       notes: ["Send your caterer the new headcount"],
     };
-    const { container } = render(<ChangeSummaryPanel pending={pending} onAccept={vi.fn()} onUndo={vi.fn()} />);
+    const { container } = render(
+      <ChangeSummaryPanel pending={pending} onAccept={vi.fn()} onUndo={vi.fn()} />,
+    );
 
     for (const [title, item] of [
       ["Newly urgent", "Book venue"],
@@ -70,7 +76,13 @@ describe("ChangeSummaryPanel", () => {
 
   it("leaves out the lists that are empty", () => {
     const pending = pendingFor();
-    pending.summary = { ...pending.summary, newlyUrgent: [], newlyAtRisk: [], newlyClashing: [], notes: [] };
+    pending.summary = {
+      ...pending.summary,
+      newlyUrgent: [],
+      newlyAtRisk: [],
+      newlyClashing: [],
+      notes: [],
+    };
     render(<ChangeSummaryPanel pending={pending} onAccept={vi.fn()} onUndo={vi.fn()} />);
     expect(screen.queryByRole("heading", { name: "Newly urgent" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Not applied" })).not.toBeInTheDocument();
@@ -129,7 +141,9 @@ describe("ChangeSummaryPanel", () => {
     const opener = document.createElement("button");
     document.body.append(opener);
     opener.focus();
-    const { unmount } = render(<ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />);
+    const { unmount } = render(
+      <ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />,
+    );
     expect(opener).not.toHaveFocus();
 
     unmount();
@@ -142,7 +156,9 @@ describe("ChangeSummaryPanel", () => {
     const field = document.createElement("textarea");
     field.id = "change-input";
     document.body.append(field);
-    const { unmount } = render(<ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />);
+    const { unmount } = render(
+      <ChangeSummaryPanel pending={pendingFor()} onAccept={vi.fn()} onUndo={vi.fn()} />,
+    );
 
     unmount();
 
@@ -152,20 +168,30 @@ describe("ChangeSummaryPanel", () => {
 });
 
 describe("ChangeBox", () => {
-  const renderBox = (onSubmit: (text: string) => Promise<ChangeOutcome>, text = "50 more guests") => {
+  const renderBox = (
+    onSubmit: (text: string) => Promise<ChangeOutcome>,
+    text = "50 more guests",
+  ) => {
     const onTextChange = vi.fn();
-    return { onTextChange, ...render(<ChangeBox text={text} onTextChange={onTextChange} onSubmit={onSubmit} />) };
+    return {
+      onTextChange,
+      ...render(<ChangeBox text={text} onTextChange={onTextChange} onSubmit={onSubmit} />),
+    };
   };
 
   it("keeps Review changes disabled until there is text", async () => {
     const { container } = renderBox(vi.fn(), "  ");
     expect(screen.getByRole("button", { name: "Review changes" })).toBeDisabled();
-    expect(screen.getByLabelText("What changed?")).toHaveAccessibleDescription(/Say it the way you would/);
+    expect(screen.getByLabelText("What changed?")).toHaveAccessibleDescription(
+      /Say it the way you would/,
+    );
     await expectAccessible(container);
   });
 
   it("submits the trimmed request", async () => {
-    const onSubmit = vi.fn<(text: string) => Promise<ChangeOutcome>>().mockResolvedValue({ kind: "applied" });
+    const onSubmit = vi
+      .fn<(text: string) => Promise<ChangeOutcome>>()
+      .mockResolvedValue({ kind: "applied" });
     const user = userEvent.setup();
     renderBox(onSubmit, "  50 more guests ");
     await user.click(screen.getByRole("button", { name: "Review changes" }));
@@ -174,7 +200,9 @@ describe("ChangeBox", () => {
 
   it("reports what the user typed to its owner", () => {
     const { onTextChange } = renderBox(vi.fn(), "");
-    fireEvent.change(screen.getByLabelText("What changed?"), { target: { value: "budget 7 lakh" } });
+    fireEvent.change(screen.getByLabelText("What changed?"), {
+      target: { value: "budget 7 lakh" },
+    });
     expect(onTextChange).toHaveBeenCalledWith("budget 7 lakh");
   });
 

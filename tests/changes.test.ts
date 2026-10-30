@@ -3,7 +3,8 @@ import { applyChanges } from "@/lib/plan/changes";
 import { Plan } from "@/lib/types";
 import { EXAMPLE_CHANGES, makePlan } from "./plan-fixtures";
 
-const guestsAt = (plan: Plan, kind: string) => plan.profile.functions.find((f) => f.kind === kind)?.guests;
+const guestsAt = (plan: Plan, kind: string) =>
+  plan.profile.functions.find((f) => f.kind === kind)?.guests;
 
 describe("applyChanges", () => {
   it("applies the example scenario: +50 guests, budget 7 lakh, two weeks earlier", () => {
@@ -25,22 +26,30 @@ describe("applyChanges", () => {
   });
 
   it("sets wedding guests without touching other functions", () => {
-    const { plan } = applyChanges(makePlan(), [{ type: "set_guests", function: "wedding", count: 300 }]);
+    const { plan } = applyChanges(makePlan(), [
+      { type: "set_guests", function: "wedding", count: 300 },
+    ]);
     expect(plan.profile.guests).toBe(300);
     expect(guestsAt(plan, "wedding")).toBe(300);
     expect(guestsAt(plan, "mehendi")).toBe(120);
   });
 
   it("sets a global style, or one category's style", () => {
-    const global = applyChanges(makePlan(), [{ type: "set_style", style: "premium", category: null }]).plan;
+    const global = applyChanges(makePlan(), [
+      { type: "set_style", style: "premium", category: null },
+    ]).plan;
     expect(global.profile.style).toBe("premium");
-    const one = applyChanges(makePlan(), [{ type: "set_style", style: "simple", category: "decor" }]).plan;
+    const one = applyChanges(makePlan(), [
+      { type: "set_style", style: "simple", category: "decor" },
+    ]).plan;
     expect(one.profile.style).toBe("classic");
     expect(one.profile.categoryStyles.decor).toBe("simple");
   });
 
   it("ignores removing the wedding, with a reason", () => {
-    const { plan, ignored } = applyChanges(makePlan(), [{ type: "remove_function", function: "wedding" }]);
+    const { plan, ignored } = applyChanges(makePlan(), [
+      { type: "remove_function", function: "wedding" },
+    ]);
     expect(plan.profile.functions).toHaveLength(2);
     expect(ignored).toHaveLength(1);
     expect(ignored[0]).toMatch(/wedding/i);

@@ -52,12 +52,20 @@ export async function handleAi<Req, Res>(
 
   try {
     if (aiRateLimiter.isLimited(clientIp(request))) {
-      return fail(429, "rate_limited", "Too many requests. Please wait a few minutes and try again.");
+      return fail(
+        429,
+        "rate_limited",
+        "Too many requests. Please wait a few minutes and try again.",
+      );
     }
 
     const input = requestSchema.safeParse(await readJsonBody(request));
     if (!input.success) {
-      return fail(400, "invalid_input", "That request was not valid. Please check it and try again.");
+      return fail(
+        400,
+        "invalid_input",
+        "That request was not valid. Please check it and try again.",
+      );
     }
 
     const result = await run(input.data);

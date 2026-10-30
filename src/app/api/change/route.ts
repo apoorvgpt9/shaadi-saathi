@@ -11,7 +11,10 @@ const NOT_SURE = "I wasn't sure what to change. Could you say it a little differ
 
 export async function POST(request: Request) {
   return handleAi(request, "change", ChangeRequest, ChangeResponse, async (input) => {
-    const result = await callTools("change", CHANGE_TOOLS, { system: CHANGE_SYSTEM, messages: changeMessages(input) });
+    const result = await callTools("change", CHANGE_TOOLS, {
+      system: CHANGE_SYSTEM,
+      messages: changeMessages(input),
+    });
     // The tool name is the variant's `type`; anything that fails the contract is dropped, never applied.
     const changes = result.data.calls.flatMap((call) => {
       const parsed = PlanChange.safeParse(Object.assign({}, call.input, { type: call.name }));

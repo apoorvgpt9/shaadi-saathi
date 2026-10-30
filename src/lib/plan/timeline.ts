@@ -1,6 +1,13 @@
 // The task schedule: dated, dependency-ordered, flagged tasks derived from the plan's function dates.
 import { addDays } from "@/lib/format";
-import type { CategoryId, FunctionKind, Plan, ScheduledTask, TaskFlag, TaskState } from "@/lib/types";
+import type {
+  CategoryId,
+  FunctionKind,
+  Plan,
+  ScheduledTask,
+  TaskFlag,
+  TaskState,
+} from "@/lib/types";
 
 interface TaskTemplate {
   id: string;
@@ -33,9 +40,14 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   task("finalise-dates", "Fix dates and muhurat with family", null, 180, []),
   task("agree-budget", "Agree total budget and top priorities", null, 175, []),
   task("guest-estimate", "Draft guest estimate per function", null, 170, ["agree-budget"]),
-  task("book-venue", "Shortlist and book venue(s)", "venue", 150, ["finalise-dates", "guest-estimate"]),
+  task("book-venue", "Shortlist and book venue(s)", "venue", 150, [
+    "finalise-dates",
+    "guest-estimate",
+  ]),
   task("book-caterer", "Book caterer", "catering", 120, ["book-venue"]),
-  task("book-photographer", "Book photographer and videographer", "photography", 120, ["finalise-dates"]),
+  task("book-photographer", "Book photographer and videographer", "photography", 120, [
+    "finalise-dates",
+  ]),
   task("book-decorator", "Book decorator", "decor", 100, ["book-venue"]),
   task("book-pandit", "Book pandit for the ceremonies", "rituals", 90, ["finalise-dates"]),
   task("book-makeup", "Book bridal makeup artist", "makeup", 90, ["finalise-dates"]),
@@ -43,9 +55,17 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   task("book-mehendi-artist", "Book mehendi artist", "makeup", 60, ["finalise-dates"], "mehendi"),
   task("book-entertainment", "Book DJ, band or dhol", "entertainment", 75, ["book-venue"]),
   task("finalise-guest-list", "Finalise the guest list", null, 75, ["guest-estimate"]),
-  task("order-invitations", "Design and print invitations", "invitations", 60, ["finalise-guest-list", "book-venue"]),
-  task("guest-stay", "Block rooms for outstation guests", null, 60, ["finalise-guest-list", "book-venue"]),
-  task("book-transport", "Arrange transport for baraat and guests", "transport", 45, ["book-venue"]),
+  task("order-invitations", "Design and print invitations", "invitations", 60, [
+    "finalise-guest-list",
+    "book-venue",
+  ]),
+  task("guest-stay", "Block rooms for outstation guests", null, 60, [
+    "finalise-guest-list",
+    "book-venue",
+  ]),
+  task("book-transport", "Arrange transport for baraat and guests", "transport", 45, [
+    "book-venue",
+  ]),
   task("menu-tasting", "Menu tasting and final menu", "catering", 45, ["book-caterer"]),
   task("finalise-decor", "Finalise decor theme and mock-up", "decor", 40, ["book-decorator"]),
   task("send-invitations", "Send invitations", "invitations", 40, ["order-invitations"]),
@@ -68,7 +88,9 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
     "book-photographer",
   ]),
   task("haldi-prep", "Arrange haldi items and seating", "rituals", 7, [], "haldi"),
-  task("day-of-plan", "Prepare day-of schedule and assign family coordinators", null, 7, ["vendor-contracts"]),
+  task("day-of-plan", "Prepare day-of schedule and assign family coordinators", null, 7, [
+    "vendor-contracts",
+  ]),
   task("vendor-final-calls", "Final confirmation call with every vendor", null, 3, ["day-of-plan"]),
   task("emergency-kit", "Pack emergency kit, cash envelopes and shagun", null, 2, []),
 ];
@@ -92,7 +114,9 @@ function entriesFor(plan: Plan): Entry[] {
       return [];
     }
     const { status, delayedTo } = plan.tasks[template.id] ?? OPEN_TASK;
-    return [{ template, anchorDate, ideal: addDays(anchorDate, -template.leadDays), status, delayedTo }];
+    return [
+      { template, anchorDate, ideal: addDays(anchorDate, -template.leadDays), status, delayedTo },
+    ];
   });
 }
 
@@ -195,7 +219,9 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
     const { id, title, category, anchor, dependsOn } = entry.template;
     const { status } = entry;
     const isOpen = status !== "done";
-    const { due, flags } = isOpen ? dueAndFlags(entry, today, urgentRank, scheduled) : { due: entry.ideal, flags: [] };
+    const { due, flags } = isOpen
+      ? dueAndFlags(entry, today, urgentRank, scheduled)
+      : { due: entry.ideal, flags: [] };
     scheduled.set(id, { id, title, category, anchor, dependsOn, due, status, flags });
   }
   return [...scheduled.values()].sort((a, b) => a.due.localeCompare(b.due));

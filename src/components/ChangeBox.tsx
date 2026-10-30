@@ -32,7 +32,10 @@ export function ChangeBox({ text, onTextChange, onSubmit }: Props): ReactElement
     const outcome = await onSubmit(trimmed);
     setBusy(false);
     if (outcome.kind !== "applied") {
-      setNote({ tone: outcome.kind, text: outcome.kind === "question" ? outcome.text : outcome.message });
+      setNote({
+        tone: outcome.kind,
+        text: outcome.kind === "question" ? outcome.text : outcome.message,
+      });
     }
   }
 
@@ -48,7 +51,8 @@ export function ChangeBox({ text, onTextChange, onSubmit }: Props): ReactElement
         What changed?
       </label>
       <p id="change-hint" className="mt-1 text-sm text-muted">
-        Say it the way you would to a family member. I will show what moves before anything is saved.
+        Say it the way you would to a family member. I will show what moves before anything is
+        saved.
       </p>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
         <TextArea

@@ -1,5 +1,9 @@
 // Display formatting (rupees, dates, plurals) and UTC date arithmetic shared by the engine and the UI.
-const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+const INR = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
 const MS_PER_DAY = 86_400_000;
 const LAKH = 100_000;
 const CRORE = 10_000_000;

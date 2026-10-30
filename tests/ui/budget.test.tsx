@@ -24,9 +24,17 @@ afterEach(() => {
 });
 
 /** Holds the plan so edits flow back into the tab like they do in the app. */
-function BudgetHarness({ initial, onPropose = vi.fn() }: { initial: Plan; onPropose?: (build: Proposal) => void }) {
+function BudgetHarness({
+  initial,
+  onPropose = vi.fn(),
+}: {
+  initial: Plan;
+  onPropose?: (build: Proposal) => void;
+}) {
   const [plan, setPlan] = useState(initial);
-  return <BudgetTab plan={plan} summary={computeBudget(plan)} onUpdate={setPlan} onPropose={onPropose} />;
+  return (
+    <BudgetTab plan={plan} summary={computeBudget(plan)} onUpdate={setPlan} onPropose={onPropose} />
+  );
 }
 
 function line(name: string): HTMLElement {
@@ -39,7 +47,9 @@ describe("BudgetMeter", () => {
   it("says in words when the plan is over budget", async () => {
     const { container } = render(<BudgetMeter summary={computeBudget(OVER)} />);
     expect(screen.getByText("20% over · ₹1.6L")).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAccessibleName("Estimated ₹9.6L against a budget of ₹8L, 120% of budget");
+    expect(screen.getByRole("img")).toHaveAccessibleName(
+      "Estimated ₹9.6L against a budget of ₹8L, 120% of budget",
+    );
     await expectAccessible(container);
   });
 
@@ -66,7 +76,9 @@ describe("BudgetTab", () => {
         <BudgetHarness initial={WITHIN} />
       </>,
     );
-    expect(screen.getByRole("heading", { level: 2, name: "Budget by category" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Budget by category" }),
+    ).toBeInTheDocument();
     await expectAccessible(container);
   });
 
@@ -81,7 +93,9 @@ describe("BudgetTab", () => {
     };
     const { container } = render(<BudgetHarness initial={plan} />);
     expect(within(line("Catering")).getByText("Quoted")).toBeInTheDocument();
-    expect(within(line("Catering")).getByText("Quote from Sharma Caterers: ₹3,00,000")).toBeInTheDocument();
+    expect(
+      within(line("Catering")).getByText("Quote from Sharma Caterers: ₹3,00,000"),
+    ).toBeInTheDocument();
     expect(within(line("Venue")).getByText("Confirmed")).toBeInTheDocument();
     await expectAccessible(container);
   });
@@ -103,7 +117,10 @@ describe("BudgetTab", () => {
 
   it("returns a line to its estimate when the override is saved blank", async () => {
     const user = userEvent.setup();
-    const plan: Plan = { ...WITHIN, budget: { venue: { override: 150_000, quoteId: null, confirmed: false } } };
+    const plan: Plan = {
+      ...WITHIN,
+      budget: { venue: { override: 150_000, quoteId: null, confirmed: false } },
+    };
     render(<BudgetHarness initial={plan} />);
 
     await user.click(screen.getByRole("button", { name: "Edit amount for Venue" }));
@@ -147,12 +164,16 @@ describe("BudgetTab", () => {
   it("offers the trade-off helper only when the plan is over budget", async () => {
     const { container, unmount } = render(<BudgetHarness initial={OVER} />);
     expect(screen.getByRole("heading", { name: "20% over budget" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Help me get back under budget" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Help me get back under budget" }),
+    ).toBeInTheDocument();
     await expectAccessible(container);
     unmount();
 
     render(<BudgetHarness initial={WITHIN} />);
-    expect(screen.queryByRole("button", { name: "Help me get back under budget" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Help me get back under budget" }),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -160,7 +181,9 @@ describe("TradeoffPanel", () => {
   const levers = listLevers(OVER);
   const total = computeBudget(OVER).total;
   const renderPanel = (onChoose: (build: Proposal) => void = vi.fn()) =>
-    render(<TradeoffPanel plan={OVER} total={total} budget={OVER.profile.budget} onChoose={onChoose} />);
+    render(
+      <TradeoffPanel plan={OVER} total={total} budget={OVER.profile.budget} onChoose={onChoose} />,
+    );
 
   const askFor = (...options: { title: string; leverIds: string[]; why: string }[]) =>
     vi.spyOn(api, "tradeoffs").mockResolvedValue(ok({ options }));
@@ -168,8 +191,16 @@ describe("TradeoffPanel", () => {
   it("shows each option with the engine's saving and a Within or Still over badge", async () => {
     // Skipping the mehendi saves 1.93 lakh, enough to fit; one catering step-down alone is not.
     askFor(
-      { title: "Drop the mehendi", leverIds: ["skip-mehendi"], why: "Fewest guests of any function." },
-      { title: "Simpler food", leverIds: ["step-down-catering"], why: "Food is your top priority, so use sparingly." },
+      {
+        title: "Drop the mehendi",
+        leverIds: ["skip-mehendi"],
+        why: "Fewest guests of any function.",
+      },
+      {
+        title: "Simpler food",
+        leverIds: ["step-down-catering"],
+        why: "Food is your top priority, so use sparingly.",
+      },
     );
     const user = userEvent.setup();
     const { container } = renderPanel();
@@ -188,7 +219,11 @@ describe("TradeoffPanel", () => {
   });
 
   it("sends the engine's levers to the AI and proposes the chosen option's edit", async () => {
-    const tradeoffs = askFor({ title: "Drop the mehendi", leverIds: ["skip-mehendi"], why: "Smallest function." });
+    const tradeoffs = askFor({
+      title: "Drop the mehendi",
+      leverIds: ["skip-mehendi"],
+      why: "Smallest function.",
+    });
     const onChoose = vi.fn<(build: Proposal) => void>();
     const user = userEvent.setup();
     renderPanel(onChoose);
@@ -225,7 +260,14 @@ describe("TradeoffPanel", () => {
     });
     const tradeoffs = vi.spyOn(api, "tradeoffs");
     const user = userEvent.setup();
-    render(<TradeoffPanel plan={lean} total={computeBudget(lean).total} budget={10_000} onChoose={vi.fn()} />);
+    render(
+      <TradeoffPanel
+        plan={lean}
+        total={computeBudget(lean).total}
+        budget={10_000}
+        onChoose={vi.fn()}
+      />,
+    );
 
     await user.click(screen.getByRole("button", { name: "Help me get back under budget" }));
 

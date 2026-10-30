@@ -70,10 +70,9 @@ describe("TimelineTab", () => {
     await user.click(within(statusGroup("Book caterer")).getByRole("button", { name: "Done" }));
 
     expect(onSet).toHaveBeenCalledWith("book-caterer", "done", "2026-11-15");
-    expect(within(statusGroup("Book caterer")).getByRole("button", { name: "Done" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(
+      within(statusGroup("Book caterer")).getByRole("button", { name: "Done" }),
+    ).toHaveAttribute("aria-pressed", "true");
     const row = statusGroup("Book caterer").closest("li");
     assert(row !== null);
     expect(within(row).getByText("Done", { selector: "span" })).toBeInTheDocument();
@@ -102,10 +101,9 @@ describe("TimelineTab", () => {
     await user.clear(date);
     await user.type(date, "2026-12-20");
     expect(screen.getByLabelText("New date for Book caterer")).toBeInTheDocument();
-    expect(within(statusGroup("Book caterer")).getByRole("button", { name: "Delayed" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(
+      within(statusGroup("Book caterer")).getByRole("button", { name: "Delayed" }),
+    ).toHaveAttribute("aria-pressed", "true");
 
     await user.click(within(statusGroup("Book caterer")).getByRole("button", { name: "To do" }));
     expect(screen.queryByLabelText("New date for Book caterer")).not.toBeInTheDocument();
@@ -126,7 +124,9 @@ describe("NextTasks", () => {
   });
 
   it("shows at most three tasks", () => {
-    const many: ScheduledTask[] = scheduleTasks(makePlan(), TODAY).filter((t) => t.status === "todo");
+    const many: ScheduledTask[] = scheduleTasks(makePlan(), TODAY).filter(
+      (t) => t.status === "todo",
+    );
     render(<NextTasks tasks={many} />);
     expect(screen.getAllByRole("listitem")).toHaveLength(3);
   });

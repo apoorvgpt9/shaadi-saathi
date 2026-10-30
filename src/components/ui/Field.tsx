@@ -19,7 +19,10 @@ export function Field({
 }
 
 /** A bare styled textarea: the caller supplies its own label. */
-export function TextArea({ className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>): ReactElement {
+export function TextArea({
+  className = "",
+  ...rest
+}: TextareaHTMLAttributes<HTMLTextAreaElement>): ReactElement {
   return (
     <textarea
       {...rest}

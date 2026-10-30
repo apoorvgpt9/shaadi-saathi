@@ -40,11 +40,19 @@ const meta = { model: "test-model", inputTokens: 10, outputTokens: 5 };
 
 let nextIp = 0;
 /** Each request gets its own IP unless one is given, so the rate limiter never leaks between tests. */
-function post(handler: (r: Request) => Promise<Response>, body: unknown, ip = `10.0.0.${++nextIp}`) {
+function post(
+  handler: (r: Request) => Promise<Response>,
+  body: unknown,
+  ip = `10.0.0.${++nextIp}`,
+) {
   return postWith(handler, body, { "x-forwarded-for": `${ip}, 1.1.1.1` });
 }
 
-function postWith(handler: (r: Request) => Promise<Response>, body: unknown, headers: Record<string, string>) {
+function postWith(
+  handler: (r: Request) => Promise<Response>,
+  body: unknown,
+  headers: Record<string, string>,
+) {
   return handler(
     new Request("http://localhost/api/x", {
       method: "POST",
@@ -55,15 +63,25 @@ function postWith(handler: (r: Request) => Promise<Response>, body: unknown, hea
 }
 
 const validBodies = {
-  intake: { messages: [{ role: "user", content: "Wedding in Jaipur" }], draft: null, today: "2026-10-29" },
+  intake: {
+    messages: [{ role: "user", content: "Wedding in Jaipur" }],
+    draft: null,
+    today: "2026-10-29",
+  },
   ideas: { profile, function: null, feedback: null, previous: [] },
   vendors: { profile },
   change: { message: "50 more guests", profile, tasks: [], today: "2026-10-29" },
-  quote: { text: "Catering package for 200 guests, total Rs 2,40,000 plus GST.", category: "catering", guests: 200 },
+  quote: {
+    text: "Catering package for 200 guests, total Rs 2,40,000 plus GST.",
+    category: "catering",
+    guests: 200,
+  },
   tradeoffs: {
     profile,
     total: 960000,
-    levers: [{ id: "trim-all-10", label: "Trim all guests by 10%", saving: 50000, touchesPriority: false }],
+    levers: [
+      { id: "trim-all-10", label: "Trim all guests by 10%", saving: 50000, touchesPriority: false },
+    ],
   },
 };
 const EMPTY_DRAFT = {
@@ -107,7 +125,8 @@ describe("shared handler", () => {
 
   it("returns 429 after 40 requests from one IP, but not for another IP", async () => {
     generateMock.mockResolvedValue({ data: { vendors: [] }, meta });
-    for (let i = 0; i < 40; i++) expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
+    for (let i = 0; i < 40; i++)
+      expect((await post(vendors, validBodies.vendors, "9.9.9.9")).status).toBe(200);
     const blocked = await post(vendors, validBodies.vendors, "9.9.9.9");
     expect(blocked.status).toBe(429);
     expect((await json(blocked)).error?.code).toBe("rate_limited");
@@ -129,7 +148,11 @@ describe("shared handler", () => {
     for (let i = 0; i < 40; i++) {
       await postWith(vendors, {}, { "x-real-ip": "7.7.7.7", "x-forwarded-for": `spoofed-${i}` });
     }
-    const blocked = await postWith(vendors, {}, { "x-real-ip": "7.7.7.7", "x-forwarded-for": "fresh" });
+    const blocked = await postWith(
+      vendors,
+      {},
+      { "x-real-ip": "7.7.7.7", "x-forwarded-for": "fresh" },
+    );
     expect(blocked.status).toBe(429);
   });
 
@@ -145,22 +168,28 @@ describe("shared handler", () => {
     expect((await post(vendors, {}, "6.6.6.6")).status).toBe(400);
   });
 
-  it.each([401, 403, 429, 529])("maps Anthropic status %i to 503 ai_unavailable", async (status) => {
-    generateMock.mockRejectedValue(
-      Anthropic.APIError.generate(status, { type: "error" }, "upstream says no", new Headers()),
-    );
-    const res = await post(vendors, validBodies.vendors);
-    expect(res.status).toBe(503);
-    const body = await json(res);
-    expect(body.error?.code).toBe("ai_unavailable");
-    expect(body.error?.message).not.toContain("upstream says no");
-  });
+  it.each([401, 403, 429, 529])(
+    "maps Anthropic status %i to 503 ai_unavailable",
+    async (status) => {
+      generateMock.mockRejectedValue(
+        Anthropic.APIError.generate(status, { type: "error" }, "upstream says no", new Headers()),
+      );
+      const res = await post(vendors, validBodies.vendors);
+      expect(res.status).toBe(503);
+      const body = await json(res);
+      expect(body.error?.code).toBe("ai_unavailable");
+      expect(body.error?.message).not.toContain("upstream says no");
+    },
+  );
 
   it("maps exhausted credit (400) and connection failures to 503", async () => {
     generateMock.mockRejectedValueOnce(
       Anthropic.APIError.generate(
         400,
-        { type: "error", error: { type: "invalid_request_error", message: "Your credit balance is too low" } },
+        {
+          type: "error",
+          error: { type: "invalid_request_error", message: "Your credit balance is too low" },
+        },
         undefined,
         new Headers(),
       ),
@@ -271,7 +300,12 @@ describe("change", () => {
   it("cannot be tricked into a different variant by a `type` inside the tool input", async () => {
     callToolsMock.mockResolvedValue({
       data: {
-        calls: [{ name: "set_budget", input: { type: "remove_function", function: "wedding", amount: 500000 } }],
+        calls: [
+          {
+            name: "set_budget",
+            input: { type: "remove_function", function: "wedding", amount: 500000 },
+          },
+        ],
         text: "",
       },
       meta,
@@ -289,7 +323,10 @@ describe("change", () => {
   });
 
   it("asks the user to rephrase when there is nothing to apply and nothing said", async () => {
-    callToolsMock.mockResolvedValue({ data: { calls: [{ name: "set_budget", input: {} }], text: "" }, meta });
+    callToolsMock.mockResolvedValue({
+      data: { calls: [{ name: "set_budget", input: {} }], text: "" },
+      meta,
+    });
     const body = await json(await post(change, validBodies.change));
     expect(body.changes).toEqual([]);
     expect(body.reply).toMatch(/say it/i);
@@ -341,7 +378,10 @@ describe("quote", () => {
   });
 
   it("files the quote under the requested category, whatever the model returned", async () => {
-    generateMock.mockResolvedValue({ data: { quote: { ...extracted.quote, category: "venue" } }, meta });
+    generateMock.mockResolvedValue({
+      data: { quote: { ...extracted.quote, category: "venue" } },
+      meta,
+    });
     const res = await post(quote, validBodies.quote);
     expect((await json(res)).quote?.category).toBe("catering");
   });
@@ -369,7 +409,11 @@ describe("tradeoffs", () => {
     generateMock.mockResolvedValue({
       data: {
         options: [
-          { title: "Gentle", leverIds: ["trim-all-10", "invented", "trim-all-10"], why: "Keeps the food." },
+          {
+            title: "Gentle",
+            leverIds: ["trim-all-10", "invented", "trim-all-10"],
+            why: "Keeps the food.",
+          },
           { title: "Made up", leverIds: ["invented"], why: "Nope." },
         ],
       },
@@ -377,11 +421,16 @@ describe("tradeoffs", () => {
     });
     const res = await post(tradeoffs, validBodies.tradeoffs);
     expect(res.status).toBe(200);
-    expect((await json(res)).options).toEqual([{ title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." }]);
+    expect((await json(res)).options).toEqual([
+      { title: "Gentle", leverIds: ["trim-all-10"], why: "Keeps the food." },
+    ]);
   });
 
   it("fails cleanly when no option survives", async () => {
-    generateMock.mockResolvedValue({ data: { options: [{ title: "X", leverIds: ["invented"], why: "Y" }] }, meta });
+    generateMock.mockResolvedValue({
+      data: { options: [{ title: "X", leverIds: ["invented"], why: "Y" }] },
+      meta,
+    });
     expect((await post(tradeoffs, validBodies.tradeoffs)).status).toBe(502);
   });
 });

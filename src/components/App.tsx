@@ -43,7 +43,11 @@ export function App(): ReactElement {
       ]);
       if (vendors?.ok) {
         // Ticks are stored by item position, so they only stay valid for the checklists they were made against.
-        updatePlan((p) => ({ ...p, vendors: vendors.data.vendors, checked: refreshVendors ? {} : p.checked }));
+        updatePlan((p) => ({
+          ...p,
+          vendors: vendors.data.vendors,
+          checked: refreshVendors ? {} : p.checked,
+        }));
         setVendorsFor(profileKey);
       }
       if (ideas?.ok) {
@@ -84,7 +88,9 @@ export function App(): ReactElement {
 
   return (
     <>
-      <SiteHeader>{state.messages.length > 0 ? <StartOver onConfirm={reset} /> : undefined}</SiteHeader>
+      <SiteHeader>
+        {state.messages.length > 0 ? <StartOver onConfirm={reset} /> : undefined}
+      </SiteHeader>
       <main id="main" className="mx-auto w-full max-w-6xl px-5 sm:px-8">
         <IntakeScreen state={state} actions={appActions} onBuild={buildPlan} />
       </main>

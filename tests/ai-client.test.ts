@@ -99,7 +99,10 @@ describe("callTools", () => {
       }),
     );
     const { data } = await callTools("change", [], call);
-    expect(data).toEqual({ calls: [{ name: "set_budget", input: { amount: 700000 } }], text: "Done." });
+    expect(data).toEqual({
+      calls: [{ name: "set_budget", input: { amount: 700000 } }],
+      text: "Done.",
+    });
     expect(create.mock.calls[0]?.[0]).toMatchObject({
       tool_choice: { type: "auto" },
       output_config: { effort: "medium" },

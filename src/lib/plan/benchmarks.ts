@@ -25,8 +25,16 @@ export const FUNCTION_LABELS: Record<FunctionKind, string> = {
   reception: "Reception",
 };
 
-export const STYLE_LABELS: Record<Style, string> = { simple: "Simple", classic: "Classic", premium: "Premium" };
-export const CITY_TIER_LABELS: Record<CityTier, string> = { metro: "Metro", tier2: "Tier-2", town: "Town" };
+export const STYLE_LABELS: Record<Style, string> = {
+  simple: "Simple",
+  classic: "Classic",
+  premium: "Premium",
+};
+export const CITY_TIER_LABELS: Record<CityTier, string> = {
+  metro: "Metro",
+  tier2: "Tier-2",
+  town: "Town",
+};
 
 export const TIER_MULTIPLIER: Record<CityTier, number> = { metro: 1.5, tier2: 1, town: 0.7 };
 export const CONTINGENCY_RATE = 0.07;
@@ -57,7 +65,11 @@ export type CostModel = ModelBase &
     | { kind: "per_guest_per_function"; rates: Rates; weight: WeightKind; unit: string }
     | { kind: "per_function"; rates: Rates; weight: WeightKind }
     | { kind: "photography"; rates: Rates }
-    | { kind: "flat"; rates: Rates; addOn?: { function: FunctionKind; label: string; rates: Rates } }
+    | {
+        kind: "flat";
+        rates: Rates;
+        addOn?: { function: FunctionKind; label: string; rates: Rates };
+      }
     | { kind: "per_wedding_guest"; rates: Rates }
   );
 
@@ -82,7 +94,11 @@ export const BENCHMARKS: Record<Exclude<CategoryId, "contingency">, CostModel> =
     weight: "size",
     rates: { simple: 30_000, classic: 75_000, premium: 200_000 },
   },
-  photography: { kind: "photography", tiered: true, rates: { simple: 40_000, classic: 100_000, premium: 250_000 } },
+  photography: {
+    kind: "photography",
+    tiered: true,
+    rates: { simple: 40_000, classic: 100_000, premium: 250_000 },
+  },
   attire: {
     kind: "flat",
     tiered: true,
@@ -105,7 +121,19 @@ export const BENCHMARKS: Record<Exclude<CategoryId, "contingency">, CostModel> =
     weight: "entertainment",
     rates: { simple: 15_000, classic: 40_000, premium: 120_000 },
   },
-  rituals: { kind: "flat", tiered: false, rates: { simple: 11_000, classic: 21_000, premium: 51_000 } },
-  invitations: { kind: "per_wedding_guest", tiered: true, rates: { simple: 60, classic: 150, premium: 400 } },
-  transport: { kind: "flat", tiered: true, rates: { simple: 15_000, classic: 40_000, premium: 100_000 } },
+  rituals: {
+    kind: "flat",
+    tiered: false,
+    rates: { simple: 11_000, classic: 21_000, premium: 51_000 },
+  },
+  invitations: {
+    kind: "per_wedding_guest",
+    tiered: true,
+    rates: { simple: 60, classic: 150, premium: 400 },
+  },
+  transport: {
+    kind: "flat",
+    tiered: true,
+    rates: { simple: 15_000, classic: 40_000, premium: 100_000 },
+  },
 };

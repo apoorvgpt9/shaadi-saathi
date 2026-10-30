@@ -27,9 +27,15 @@ describe("listLevers", () => {
   });
 
   it("offers each lever family for this plan", () => {
-    expect(lever("trim-guests-mehendi").changes).toEqual([{ type: "set_guests", function: "mehendi", count: 96 }]);
-    expect(lever("trim-guests-all").changes).toEqual([{ type: "set_guests", function: "all", count: 180 }]);
-    expect(lever("step-down-decor").changes).toEqual([{ type: "set_style", style: "simple", category: "decor" }]);
+    expect(lever("trim-guests-mehendi").changes).toEqual([
+      { type: "set_guests", function: "mehendi", count: 96 },
+    ]);
+    expect(lever("trim-guests-all").changes).toEqual([
+      { type: "set_guests", function: "all", count: 180 },
+    ]);
+    expect(lever("step-down-decor").changes).toEqual([
+      { type: "set_style", style: "simple", category: "decor" },
+    ]);
     expect(lever("skip-mehendi").saving).toBeGreaterThan(lever("trim-guests-mehendi").saving);
     expect(levers.some((l) => l.id === "trim-guests-wedding")).toBe(false);
     expect(levers.some((l) => l.id === "skip-wedding")).toBe(false);

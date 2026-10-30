@@ -35,7 +35,9 @@ describe("computeBudget", () => {
     const tier2 = computeBudget(makePlan());
     const metro = computeBudget(makePlan({ cityTier: "metro" }));
     const town = computeBudget(makePlan({ cityTier: "town" }));
-    expect(line(makePlan({ cityTier: "metro" }), "catering").amount).toBe(1.5 * line(makePlan(), "catering").amount);
+    expect(line(makePlan({ cityTier: "metro" }), "catering").amount).toBe(
+      1.5 * line(makePlan(), "catering").amount,
+    );
     expect(line(makePlan({ cityTier: "town" }), "transport").amount).toBe(28_000);
     for (const summary of [metro, town]) {
       expect(summary.lines.find((l) => l.category === "rituals")?.amount).toBe(21_000);
@@ -59,7 +61,9 @@ describe("computeBudget", () => {
     const plan = makePlan();
     plan.budget.catering = { override: 400_000, quoteId: null, confirmed: false };
     const summary = computeBudget(plan);
-    const others = summary.lines.filter((l) => l.category !== "contingency").reduce((s, l) => s + l.amount, 0);
+    const others = summary.lines
+      .filter((l) => l.category !== "contingency")
+      .reduce((s, l) => s + l.amount, 0);
     expect(line(plan, "contingency").amount).toBe(Math.round((others * 0.07) / 1000) * 1000);
     expect(line(plan, "contingency").source).toMatch(/^7% of all other lines/);
   });
@@ -68,7 +72,11 @@ describe("computeBudget", () => {
     const plan = makePlan();
     const benchmark = line(plan, "catering").estimate;
     plan.budget.catering = { override: 300_000, quoteId: null, confirmed: false };
-    expect(line(plan, "catering")).toMatchObject({ amount: 300_000, status: "estimate", estimate: benchmark });
+    expect(line(plan, "catering")).toMatchObject({
+      amount: 300_000,
+      status: "estimate",
+      estimate: benchmark,
+    });
   });
 
   it("uses a matching quote as quoted, and confirmed when confirmed", () => {

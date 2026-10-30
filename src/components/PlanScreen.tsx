@@ -56,7 +56,8 @@ export function PlanScreen({ plan, pending, actions, extras }: Props): ReactElem
         ? { kind: "question", text: reply }
         : {
             kind: "error",
-            message: "I could not find a change in that. Try saying what moved, such as guests, budget or dates.",
+            message:
+              "I could not find a change in that. Try saying what moved, such as guests, budget or dates.",
           };
     }
     propose((p) => applyChanges(p, changes));
@@ -72,7 +73,14 @@ export function PlanScreen({ plan, pending, actions, extras }: Props): ReactElem
         changeBox={<ChangeBox text={changeText} onTextChange={setChangeText} onSubmit={onChange} />}
         onReset={actions.reset}
         panels={{
-          budget: <BudgetTab plan={plan} summary={summary} onUpdate={actions.updatePlan} onPropose={propose} />,
+          budget: (
+            <BudgetTab
+              plan={plan}
+              summary={summary}
+              onUpdate={actions.updatePlan}
+              onPropose={propose}
+            />
+          ),
           timeline: (
             <TimelineTab
               tasks={tasks}

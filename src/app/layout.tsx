@@ -8,7 +8,11 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"], style: ["normal", "italic"] });
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
 
 export const metadata: Metadata = {
   title: "ShaadiSaathi: AI wedding planner",
@@ -23,7 +27,10 @@ export const viewport: Viewport = {
 /** Wraps every page in the document shell, with a skip link as the first focusable element. */
 export default function RootLayout({ children }: LayoutProps<"/">): ReactElement {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col font-sans">
         <a
           href="#main"

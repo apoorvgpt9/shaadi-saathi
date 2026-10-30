@@ -11,7 +11,13 @@ const PATHS = {
 } as const;
 
 /** One of the app's line icons, sized by `className`. Hidden from assistive tech, so pair it with visible text. */
-export function Icon({ name, className = "size-4" }: { name: keyof typeof PATHS; className?: string }): ReactElement {
+export function Icon({
+  name,
+  className = "size-4",
+}: {
+  name: keyof typeof PATHS;
+  className?: string;
+}): ReactElement {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -31,7 +37,13 @@ export function Icon({ name, className = "size-4" }: { name: keyof typeof PATHS;
 /** Two interlocking rings: the app mark. */
 export function Mark({ className = "size-7" }: { className?: string }): ReactElement {
   return (
-    <svg viewBox="0 0 32 32" fill="none" strokeWidth="2.25" aria-hidden="true" className={className}>
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      strokeWidth="2.25"
+      aria-hidden="true"
+      className={className}
+    >
       <circle cx="12.5" cy="16" r="8" stroke="var(--maroon)" />
       <circle cx="19.5" cy="16" r="8" stroke="var(--marigold)" />
     </svg>

@@ -72,7 +72,11 @@ export function ProfilePanel({ draft, onDraftChange, onBuild }: Props): ReactEle
   const ready = isDraftReady(d) && !past;
 
   return (
-    <section aria-labelledby="profile-title" className="card reveal p-6 sm:p-8" style={cssVars({ "--i": 2 })}>
+    <section
+      aria-labelledby="profile-title"
+      className="card reveal p-6 sm:p-8"
+      style={cssVars({ "--i": 2 })}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="eyebrow">Live summary</p>
@@ -101,7 +105,13 @@ export function ProfilePanel({ draft, onDraftChange, onBuild }: Props): ReactEle
       )}
       <Extras draft={d} />
       <div className="mt-8 border-t border-line pt-6">
-        <Button variant="primary" className="w-full" disabled={!ready} aria-describedby="build-hint" onClick={onBuild}>
+        <Button
+          variant="primary"
+          className="w-full"
+          disabled={!ready}
+          aria-describedby="build-hint"
+          onClick={onBuild}
+        >
           Build my plan
         </Button>
         <p id="build-hint" className="mt-3 flex items-start gap-2 text-sm text-muted">

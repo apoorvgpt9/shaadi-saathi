@@ -9,7 +9,9 @@ const eslintConfig = defineConfig([
   {
     files: ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}", "*.ts"],
     extends: [tseslint.configs.strictTypeChecked, tseslint.configs.stylisticTypeChecked],
-    languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
     rules: {
       // Numbers in template literals are safe and read better than String(n).
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
@@ -40,7 +42,15 @@ const eslintConfig = defineConfig([
     files: ["**/*.{js,mjs}"],
     extends: [tseslint.configs.disableTypeChecked],
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "coverage/**", ".claude/**", ".planning/**"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "coverage/**",
+    ".claude/**",
+    ".planning/**",
+  ]),
 ]);
 
 export default eslintConfig;

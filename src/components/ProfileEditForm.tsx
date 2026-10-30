@@ -36,8 +36,19 @@ export function ProfileEditForm({ draft, onSave, onCancel }: Props): ReactElemen
 
   return (
     <form onSubmit={submit} className="grid gap-4 py-2">
-      <Field label="Wedding date" name="date" type="date" min={today} defaultValue={draft.weddingDate ?? ""} />
-      <Field label="City" name="city" maxLength={LIMITS.cityChars} defaultValue={draft.city ?? ""} />
+      <Field
+        label="Wedding date"
+        name="date"
+        type="date"
+        min={today}
+        defaultValue={draft.weddingDate ?? ""}
+      />
+      <Field
+        label="City"
+        name="city"
+        maxLength={LIMITS.cityChars}
+        defaultValue={draft.city ?? ""}
+      />
       <div className="grid grid-cols-2 gap-3">
         <Field
           label="Guests"

@@ -62,12 +62,15 @@ export function ChatLog({ messages, busy, notice, onRetry }: Props): ReactElemen
         </p>
       )}
       {notice && !busy && (
-        <div role="alert" className="flex gap-3 rounded-lg border border-line bg-tint-yellow p-4 text-tint-yellow-ink">
+        <div
+          role="alert"
+          className="flex gap-3 rounded-lg border border-line bg-tint-yellow p-4 text-tint-yellow-ink"
+        >
           <Icon name="alert" className="mt-0.5 size-5 shrink-0" />
           <div className="min-w-0 flex-1 text-sm">
             <p className="wrap-anywhere">
-              {notice} Your message is saved. You can also fill in the essentials yourself with Edit on the right, and
-              still build your plan.
+              {notice} Your message is saved. You can also fill in the essentials yourself with Edit
+              on the right, and still build your plan.
             </p>
             <Button className="mt-3" onClick={onRetry}>
               <Icon name="retry" />

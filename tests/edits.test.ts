@@ -23,14 +23,18 @@ describe("plan edits", () => {
     expect(overridden).toMatchObject({ amount: 123_000, status: "estimate" });
     expect(
       line(
-        patchEntry(patchEntry(makePlan(), "catering", { override: 123_000 }), "catering", { override: null }),
+        patchEntry(patchEntry(makePlan(), "catering", { override: 123_000 }), "catering", {
+          override: null,
+        }),
         "catering",
       )?.amount,
     ).toBe(base?.amount);
   });
 
   it("removeQuote also detaches it from the budget line", () => {
-    const withQuote = patchEntry({ ...makePlan(), quotes: [makeQuote()] }, "catering", { quoteId: "q1" });
+    const withQuote = patchEntry({ ...makePlan(), quotes: [makeQuote()] }, "catering", {
+      quoteId: "q1",
+    });
     expect(line(withQuote, "catering")).toMatchObject({ amount: 250_000, status: "quoted" });
     const removed = removeQuote(withQuote, "q1");
     expect(removed.quotes).toEqual([]);

@@ -26,7 +26,13 @@ interface Props {
 }
 
 /** The new-date picker that appears only for a delayed task. */
-function DelayedDate({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): ReactElement {
+function DelayedDate({
+  task,
+  onSet,
+}: {
+  task: ScheduledTask;
+  onSet: Props["onSet"];
+}): ReactElement {
   function changeDate(date: string) {
     if (date) {
       onSet(task.id, "delayed", date);
@@ -48,7 +54,13 @@ function DelayedDate({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet
 }
 
 /** The To do / Done / Delayed segmented control; choosing a different status moves the due date 14 days on. */
-function StatusToggle({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): ReactElement {
+function StatusToggle({
+  task,
+  onSet,
+}: {
+  task: ScheduledTask;
+  onSet: Props["onSet"];
+}): ReactElement {
   function choose(status: TaskStatus) {
     if (task.status !== status) {
       onSet(task.id, status, addDays(task.due, 14));
@@ -82,7 +94,9 @@ function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): 
   return (
     <li className="grid gap-3 py-4 md:grid-cols-[1fr_auto] md:items-center">
       <div className="min-w-0">
-        <p className={`font-medium leading-snug wrap-anywhere ${done ? "text-muted line-through" : ""}`}>
+        <p
+          className={`font-medium leading-snug wrap-anywhere ${done ? "text-muted line-through" : ""}`}
+        >
           {task.title}
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">

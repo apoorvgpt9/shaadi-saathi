@@ -20,7 +20,9 @@ const UNAVAILABLE_STATUSES = new Set([401, 402, 403, 429, 503, 529]);
 
 /** Exhausted credit arrives as a 400 invalid_request_error. */
 function isCreditExhausted(err: unknown): boolean {
-  return err instanceof Anthropic.APIError && err.status === 400 && /credit balance/i.test(err.message);
+  return (
+    err instanceof Anthropic.APIError && err.status === 400 && /credit balance/i.test(err.message)
+  );
 }
 
 function hasUnavailableStatus(err: unknown): boolean {
@@ -28,7 +30,11 @@ function hasUnavailableStatus(err: unknown): boolean {
 }
 
 function isAiUnavailable(err: unknown): boolean {
-  return err instanceof Anthropic.APIConnectionError || hasUnavailableStatus(err) || isCreditExhausted(err);
+  return (
+    err instanceof Anthropic.APIConnectionError ||
+    hasUnavailableStatus(err) ||
+    isCreditExhausted(err)
+  );
 }
 
 /** Maps any thrown error to an HTTP status, API code and user-safe message; SDK error text is never passed through. */
@@ -37,7 +43,11 @@ export function toApiFailure(err: unknown): ApiFailure {
     return { status: 400, code: "invalid_input", message: err.message };
   }
   if (err instanceof RefusalError) {
-    return { status: 422, code: "refused", message: "I can't help with that request. Try rephrasing it." };
+    return {
+      status: 422,
+      code: "refused",
+      message: "I can't help with that request. Try rephrasing it.",
+    };
   }
   if (err instanceof AiOutputError) {
     return { status: 502, code: "ai_error", message: err.message };
@@ -46,8 +56,13 @@ export function toApiFailure(err: unknown): ApiFailure {
     return {
       status: 503,
       code: "ai_unavailable",
-      message: "The AI assistant is unavailable right now. Your plan still works; please try again shortly.",
+      message:
+        "The AI assistant is unavailable right now. Your plan still works; please try again shortly.",
     };
   }
-  return { status: 502, code: "ai_error", message: "Something went wrong with the AI assistant. Please try again." };
+  return {
+    status: 502,
+    code: "ai_error",
+    message: "Something went wrong with the AI assistant. Please try again.",
+  };
 }

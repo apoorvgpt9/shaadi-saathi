@@ -31,7 +31,14 @@ interface Props {
 }
 
 /** The plan page: the plan's headline and budget at the top, the tabs below, and the next tasks beside them. */
-export function Workspace({ profile, budget, nextTasks, panels, changeBox, onReset }: Props): ReactElement {
+export function Workspace({
+  profile,
+  budget,
+  nextTasks,
+  panels,
+  changeBox,
+  onReset,
+}: Props): ReactElement {
   const wedding = profile.functions.find((f) => f.kind === "wedding");
   const meta = [profile.city, wedding && formatDate(wedding.date), plural(profile.guests, "guest")];
 
@@ -51,7 +58,11 @@ export function Workspace({ profile, budget, nextTasks, panels, changeBox, onRes
           </h1>
         </section>
         <div className="space-y-6">
-          <section aria-label="Budget at a glance" className="card reveal p-6 sm:p-8" style={cssVars({ "--i": 1 })}>
+          <section
+            aria-label="Budget at a glance"
+            className="card reveal p-6 sm:p-8"
+            style={cssVars({ "--i": 1 })}
+          >
             <BudgetMeter summary={budget} />
           </section>
           {changeBox}

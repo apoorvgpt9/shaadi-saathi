@@ -30,12 +30,24 @@ const list = (items: string[]): ReactElement =>
   );
 
 /** Quotes for one category side by side, with the benchmark estimate for the same budget line. */
-export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove }: Props): ReactElement {
+export function QuoteCompare({
+  quotes,
+  needed,
+  estimate,
+  usedId,
+  onUse,
+  onRemove,
+}: Props): ReactElement {
   return (
     <div className="mt-6 border-t border-line pt-4">
       <h3 className="eyebrow">Quotes compared</h3>
       <p className="mt-1 text-sm text-muted">Benchmark estimate for this line: {estimate}</p>
-      <div className="relative mt-3 overflow-x-auto" tabIndex={0} role="region" aria-label="Quote comparison table">
+      <div
+        className="relative mt-3 overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label="Quote comparison table"
+      >
         <table className="w-full min-w-[40rem] text-left text-sm">
           <thead>
             <tr className="border-b border-line text-muted">
@@ -82,12 +94,18 @@ export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove
                   </td>
                   <td className="py-3 pr-4">
                     {list(
-                      q.extraCharges.map((c) => (c.amount === null ? c.item : `${c.item}: ${formatINR(c.amount)}`)),
+                      q.extraCharges.map((c) =>
+                        c.amount === null ? c.item : `${c.item}: ${formatINR(c.amount)}`,
+                      ),
                     )}
                   </td>
                   <td className="py-3">
                     <div className="flex flex-col gap-1">
-                      <Button className="min-h-9" disabled={usedId === q.id} onClick={() => onUse(q.id)}>
+                      <Button
+                        className="min-h-9"
+                        disabled={usedId === q.id}
+                        onClick={() => onUse(q.id)}
+                      >
                         {usedId === q.id ? "In use" : "Use this quote"}
                       </Button>
                       <Button variant="ghost" className="min-h-9" onClick={() => onRemove(q.id)}>

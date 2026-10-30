@@ -8,6 +8,9 @@ export const maxDuration = 300;
 
 export async function POST(request: Request) {
   return handleAi(request, "vendors", VendorsRequest, VendorsResponse, (input) =>
-    generate("vendors", VendorsResponse, { system: VENDORS_SYSTEM, messages: vendorsMessages(input) }),
+    generate("vendors", VendorsResponse, {
+      system: VENDORS_SYSTEM,
+      messages: vendorsMessages(input),
+    }),
   );
 }

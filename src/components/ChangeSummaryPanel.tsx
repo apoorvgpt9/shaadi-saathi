@@ -38,7 +38,9 @@ function Totals({ summary: s }: { summary: ChangeSummary }): ReactElement {
         <dd className="text-right font-medium">
           {pct(s.totalBefore, s.budgetBefore)}% to {pct(s.totalAfter, s.budgetAfter)}%
           {s.budgetBefore !== s.budgetAfter && (
-            <span className="block font-normal text-muted">Budget now {formatINR(s.budgetAfter)}</span>
+            <span className="block font-normal text-muted">
+              Budget now {formatINR(s.budgetAfter)}
+            </span>
           )}
         </dd>
       </div>
@@ -104,7 +106,10 @@ export function ChangeSummaryPanel({ pending, onAccept, onUndo }: Props): ReactE
       // The opener may be disabled by now (the change box empties on Accept) or gone (the trade-offs panel closes
       // once the plan fits), so fall back to the change box.
       const usable =
-        opener instanceof HTMLElement && opener !== document.body && opener.isConnected && !opener.matches(":disabled");
+        opener instanceof HTMLElement &&
+        opener !== document.body &&
+        opener.isConnected &&
+        !opener.matches(":disabled");
       (usable ? opener : document.getElementById("change-input"))?.focus();
     };
   }, []);

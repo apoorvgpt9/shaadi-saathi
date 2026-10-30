@@ -26,7 +26,13 @@ const withVendors = (extra: Partial<Plan> = {}): Plan => ({
 const noRefresh = { stale: false, busy: false, onRefresh: vi.fn() };
 
 /** Holds the plan so ticks, quotes and removals flow back into the tab like they do in the app. */
-function VendorsHarness({ initial, onPlan = vi.fn() }: { initial: Plan; onPlan?: (plan: Plan) => void }) {
+function VendorsHarness({
+  initial,
+  onPlan = vi.fn(),
+}: {
+  initial: Plan;
+  onPlan?: (plan: Plan) => void;
+}) {
   const [plan, setPlan] = useState(initial);
   return (
     <VendorsTab
@@ -94,7 +100,9 @@ describe("VendorsTab checklists", () => {
         refresh={{ stale: true, busy: false, onRefresh }}
       />,
     );
-    expect(screen.getByText(/Your plan has changed since these checklists were written/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Your plan has changed since these checklists were written/),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Refresh checklists" }));
     expect(onRefresh).toHaveBeenCalledOnce();
     await expectAccessible(container);
@@ -114,11 +122,23 @@ describe("VendorsTab checklists", () => {
 });
 
 describe("VendorsTab quotes", () => {
-  const cheap = makeQuote({ id: "q1", vendorName: "Sharma Caterers", total: 250_000, guestsCovered: 150 });
-  const full = makeQuote({ id: "q2", vendorName: "Verma Foods", total: 300_000, guestsCovered: 200 });
+  const cheap = makeQuote({
+    id: "q1",
+    vendorName: "Sharma Caterers",
+    total: 250_000,
+    guestsCovered: 150,
+  });
+  const full = makeQuote({
+    id: "q2",
+    vendorName: "Verma Foods",
+    total: 300_000,
+    guestsCovered: 200,
+  });
 
   it("compares quotes, flags a quote that covers too few guests and uses the benchmark as reference", async () => {
-    const { container } = render(<VendorsHarness initial={withVendors({ quotes: [cheap, full] })} />);
+    const { container } = render(
+      <VendorsHarness initial={withVendors({ quotes: [cheap, full] })} />,
+    );
 
     const table = screen.getByRole("region", { name: "Quote comparison table" });
     expect(screen.getByText("Benchmark estimate for this line: ₹2,84,000")).toBeInTheDocument();
@@ -133,7 +153,9 @@ describe("VendorsTab quotes", () => {
 
   it("switches the chosen quote to In use and moves it when another is picked", async () => {
     const user = userEvent.setup();
-    const { container } = render(<VendorsHarness initial={withVendors({ quotes: [cheap, full] })} />);
+    const { container } = render(
+      <VendorsHarness initial={withVendors({ quotes: [cheap, full] })} />,
+    );
 
     expect(screen.queryByRole("button", { name: "In use" })).not.toBeInTheDocument();
     const [first, second] = screen.getAllByRole("button", { name: "Use this quote" });
@@ -166,7 +188,11 @@ describe("VendorsTab quotes", () => {
   });
 
   it("extracts a pasted quote and adds it to the comparison", async () => {
-    const extracted: Omit<Quote, "id"> = { ...makeQuote(), vendorName: "Gupta Catering", total: 275_000 };
+    const extracted: Omit<Quote, "id"> = {
+      ...makeQuote(),
+      vendorName: "Gupta Catering",
+      total: 275_000,
+    };
     const quote = vi.spyOn(api, "quote").mockResolvedValue(ok({ quote: extracted }));
     const user = userEvent.setup();
     const { container } = render(<VendorsHarness initial={withVendors()} />);
@@ -174,7 +200,10 @@ describe("VendorsTab quotes", () => {
     await user.click(screen.getByText("Paste a quote"));
     const extract = screen.getByRole("button", { name: "Extract details" });
     expect(extract).toBeDisabled();
-    await user.type(screen.getByLabelText(/Paste the vendor/), "Gupta Catering: 200 plates, 2.75 lakh all in");
+    await user.type(
+      screen.getByLabelText(/Paste the vendor/),
+      "Gupta Catering: 200 plates, 2.75 lakh all in",
+    );
     expect(extract).toBeEnabled();
     await user.click(extract);
 
@@ -190,11 +219,18 @@ describe("VendorsTab quotes", () => {
     const { container } = render(<VendorsHarness initial={withVendors()} />);
 
     await user.click(screen.getByText("Paste a quote"));
-    await user.type(screen.getByLabelText(/Paste the vendor/), "Please call me back about the menu");
+    await user.type(
+      screen.getByLabelText(/Paste the vendor/),
+      "Please call me back about the menu",
+    );
     await user.click(screen.getByRole("button", { name: "Extract details" }));
 
-    expect(await screen.findByText("That text has no total price. Your text is still here.")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Paste the vendor/)).toHaveValue("Please call me back about the menu");
+    expect(
+      await screen.findByText("That text has no total price. Your text is still here."),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Paste the vendor/)).toHaveValue(
+      "Please call me back about the menu",
+    );
     await expectAccessible(container);
   });
 });

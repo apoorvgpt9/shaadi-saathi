@@ -13,7 +13,12 @@ interface Props extends ComponentProps<"button"> {
 }
 
 /** A button that defaults to type="button", so it never submits a form by accident. Extra classes append to its own. */
-export function Button({ variant = "secondary", className = "", type = "button", ...rest }: Props): ReactElement {
+export function Button({
+  variant = "secondary",
+  className = "",
+  type = "button",
+  ...rest
+}: Props): ReactElement {
   return (
     <button
       type={type}

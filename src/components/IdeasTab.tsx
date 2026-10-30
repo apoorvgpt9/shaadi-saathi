@@ -37,7 +37,12 @@ function FunctionIdeasBlock({
   async function request(feedback: string | null): Promise<boolean> {
     setBusy(true);
     setError(null);
-    const res = await api.ideas({ profile: plan.profile, function: kind, feedback, previous: plan.ideas });
+    const res = await api.ideas({
+      profile: plan.profile,
+      function: kind,
+      feedback,
+      previous: plan.ideas,
+    });
     setBusy(false);
     const fresh = res.ok ? res.data.ideas.find((i) => i.kind === kind) : undefined;
     if (!fresh) {
@@ -77,7 +82,10 @@ function FunctionIdeasBlock({
       ) : (
         <ul className="mt-4 grid gap-4 md:grid-cols-3">
           {ideas.map((idea) => (
-            <li key={idea.title} className="flex flex-col rounded-lg border border-line bg-canvas p-5 wrap-anywhere">
+            <li
+              key={idea.title}
+              className="flex flex-col rounded-lg border border-line bg-canvas p-5 wrap-anywhere"
+            >
               <span className="self-start">
                 <Badge tone={IMPACT[idea.costImpact].tone}>{IMPACT[idea.costImpact].label}</Badge>
               </span>
@@ -91,7 +99,10 @@ function FunctionIdeasBlock({
           ))}
         </ul>
       )}
-      <form onSubmit={(e) => void refresh(e)} className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end">
+      <form
+        onSubmit={(e) => void refresh(e)}
+        className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end"
+      >
         <Field
           label={`Feedback on the ${name.toLowerCase()} ideas`}
           name="feedback"

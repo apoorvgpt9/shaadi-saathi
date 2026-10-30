@@ -46,7 +46,8 @@ html {
 body {
   line-height: 1.6;
   /* One soft warm light spot behind the top of the page; static, so it costs nothing. */
-  background: radial-gradient(60rem 28rem at 78% -6rem, rgb(232 163 61 / 0.1), transparent 70%), var(--canvas);
+  background:
+    radial-gradient(60rem 28rem at 78% -6rem, rgb(232 163 61 / 0.1), transparent 70%), var(--canvas);
 }
 
 :focus-visible {

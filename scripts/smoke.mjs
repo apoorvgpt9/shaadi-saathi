@@ -47,13 +47,22 @@ const checks = [
   ["ideas", { profile, function: null, feedback: null, previous: [] }, (r) => r.ideas?.length > 0],
   [
     "change",
-    { message: "50 more guests, budget down to 7 lakh, and the wedding two weeks earlier", profile, tasks: [], today },
+    {
+      message: "50 more guests, budget down to 7 lakh, and the wedding two weeks earlier",
+      profile,
+      tasks: [],
+      today,
+    },
     (r) =>
       r.changes?.some((c) => c.type === "set_budget" && c.amount === 700000) &&
       r.changes.some((c) => c.type === "set_guests" && c.count === 250) &&
       r.changes.some((c) => c.type === "shift_dates" && c.days === -14),
   ],
-  ["quote", { text: quoteText, category: "catering", guests: 200 }, (r) => r.quote?.total === 240000],
+  [
+    "quote",
+    { text: quoteText, category: "catering", guests: 200 },
+    (r) => r.quote?.total === 240000,
+  ],
   [
     "tradeoffs",
     {

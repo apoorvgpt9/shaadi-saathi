@@ -44,7 +44,11 @@ function getClient(): Anthropic {
 
 /** The model id for a route: its own ANTHROPIC_MODEL_<ROUTE> override, else ANTHROPIC_MODEL, else the default. */
 export function modelFor(route: RouteName): string {
-  return process.env[`ANTHROPIC_MODEL_${route.toUpperCase()}`] ?? process.env.ANTHROPIC_MODEL ?? "claude-opus-5-5";
+  return (
+    process.env[`ANTHROPIC_MODEL_${route.toUpperCase()}`] ??
+    process.env.ANTHROPIC_MODEL ??
+    "claude-opus-5-5"
+  );
 }
 
 function baseParams(route: RouteName, call: Call) {
@@ -133,7 +137,9 @@ export async function callTools(
     tool_choice: { type: "auto" },
   });
   checkUsable(message);
-  const calls = message.content.flatMap((b) => (b.type === "tool_use" ? [{ name: b.name, input: b.input }] : []));
+  const calls = message.content.flatMap((b) =>
+    b.type === "tool_use" ? [{ name: b.name, input: b.input }] : [],
+  );
   const text = message.content
     .flatMap((b) => (b.type === "text" ? [b.text] : []))
     .join("\n")

@@ -100,10 +100,16 @@ export function intakeMessages({ messages, draft, today }: Input<typeof IntakeRe
 }
 
 /** The vendors request: the profile as tagged data. */
-export const vendorsMessages = ({ profile }: Input<typeof VendorsRequest>) => user(tag("profile", profile));
+export const vendorsMessages = ({ profile }: Input<typeof VendorsRequest>) =>
+  user(tag("profile", profile));
 
 /** The ideas request for one function, or all of them when `function` is null, with optional feedback and prior ideas. */
-export function ideasMessages({ profile, function: kind, feedback, previous }: Input<typeof IdeasRequest>) {
+export function ideasMessages({
+  profile,
+  function: kind,
+  feedback,
+  previous,
+}: Input<typeof IdeasRequest>) {
   const functions = kind ? [kind] : profile.functions.map((f) => f.kind);
   return user(
     tag("profile", profile),
@@ -115,7 +121,12 @@ export function ideasMessages({ profile, function: kind, feedback, previous }: I
 
 /** The change request: the user's message plus profile and task list, all tagged as data. */
 export const changeMessages = ({ message, profile, tasks, today }: Input<typeof ChangeRequest>) =>
-  user(tag("context", { today }), tag("profile", profile), tag("tasks", tasks), tag("user_message", message));
+  user(
+    tag("context", { today }),
+    tag("profile", profile),
+    tag("tasks", tasks),
+    tag("user_message", message),
+  );
 
 /** The quote-reading request: the pasted quote text, tagged as data, with its category and guest count. */
 export const quoteMessages = ({ text, category, guests }: Input<typeof QuoteRequest>) =>

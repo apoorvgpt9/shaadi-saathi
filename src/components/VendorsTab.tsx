@@ -3,7 +3,13 @@ import { useState, type ReactElement } from "react";
 import { api, failureMessage } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
-import { LIMITS, type BudgetSummary, type CategoryId, type Plan, type VendorChecklist } from "@/lib/types";
+import {
+  LIMITS,
+  type BudgetSummary,
+  type CategoryId,
+  type Plan,
+  type VendorChecklist,
+} from "@/lib/types";
 import { patchEntry, removeQuote } from "@/lib/plan/edits";
 import { QuoteCompare } from "@/components/QuoteCompare";
 import { Button } from "@/components/ui/Button";
@@ -55,7 +61,9 @@ function QuoteForm({
 
   return (
     <details className="mt-6 border-t border-line pt-4">
-      <summary className="cursor-pointer py-1 text-sm font-medium text-maroon">Paste a quote</summary>
+      <summary className="cursor-pointer py-1 text-sm font-medium text-maroon">
+        Paste a quote
+      </summary>
       <div className="mt-3">
         <label htmlFor={id} className="text-sm text-muted">
           Paste the vendor&apos;s message or quote as text
@@ -113,10 +121,16 @@ function Checklist({
                       type="checkbox"
                       name={k}
                       checked={!!plan.checked[k]}
-                      onChange={() => onUpdate((p) => ({ ...p, checked: { ...p.checked, [k]: !p.checked[k] } }))}
+                      onChange={() =>
+                        onUpdate((p) => ({ ...p, checked: { ...p.checked, [k]: !p.checked[k] } }))
+                      }
                       className="mt-1 size-4 shrink-0 accent-maroon"
                     />
-                    <span className={`wrap-anywhere ${plan.checked[k] ? "text-muted line-through" : ""}`}>{item}</span>
+                    <span
+                      className={`wrap-anywhere ${plan.checked[k] ? "text-muted line-through" : ""}`}
+                    >
+                      {item}
+                    </span>
                   </label>
                 </li>
               );
@@ -138,7 +152,8 @@ function StaleNotice({ busy, onRefresh }: StaleNoticeProps): ReactElement {
   return (
     <div className="card flex flex-wrap items-center justify-between gap-3 border-tint-yellow-ink/30 bg-tint-yellow p-4 text-sm text-tint-yellow-ink">
       <p className="min-w-0 flex-1">
-        Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.
+        Your plan has changed since these checklists were written. Refreshing replaces them and
+        clears the ticks.
       </p>
       <Button disabled={busy} onClick={onRefresh}>
         <Icon name="retry" />
@@ -191,7 +206,13 @@ export function VendorsTab({ plan, summary, onUpdate, refresh }: Props): ReactEl
       </p>
       {refresh.stale && <StaleNotice busy={refresh.busy} onRefresh={refresh.onRefresh} />}
       {plan.vendors.map((v) => (
-        <VendorSection key={v.category} vendor={v} plan={plan} summary={summary} onUpdate={onUpdate} />
+        <VendorSection
+          key={v.category}
+          vendor={v}
+          plan={plan}
+          summary={summary}
+          onUpdate={onUpdate}
+        />
       ))}
     </div>
   );

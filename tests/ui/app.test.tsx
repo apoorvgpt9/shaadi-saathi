@@ -32,7 +32,12 @@ const IDEAS: FunctionIdeas[] = [
   {
     kind: "wedding",
     ideas: [
-      { title: "Marigold mandap", description: "Seasonal flowers.", costImpact: "saves", fitsBecause: "Cuts decor." },
+      {
+        title: "Marigold mandap",
+        description: "Seasonal flowers.",
+        costImpact: "saves",
+        fitsBecause: "Cuts decor.",
+      },
     ],
   },
   { kind: "mehendi", ideas: [] },
@@ -46,7 +51,10 @@ const savedPlan = (extra: Partial<Plan> = {}): Plan => ({
 });
 
 const save = (plan: Plan) => {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ stage: "plan", messages: [], draft: null, plan }));
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ stage: "plan", messages: [], draft: null, plan }),
+  );
 };
 
 const mockLoad = () => ({
@@ -80,7 +88,9 @@ describe("App intake", () => {
   });
 
   it("chats, builds the plan, loads vendors and ideas, and saves it in the browser", async () => {
-    vi.spyOn(api, "intake").mockResolvedValue(ok({ reply: "Lovely, I have the essentials.", draft: DRAFT }));
+    vi.spyOn(api, "intake").mockResolvedValue(
+      ok({ reply: "Lovely, I have the essentials.", draft: DRAFT }),
+    );
     const { vendors, ideas } = mockLoad();
     const user = userEvent.setup();
     const { container } = render(<App />);
@@ -89,7 +99,9 @@ describe("App intake", () => {
     expect(await screen.findByText("Lovely, I have the essentials.")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Build my plan" }));
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Jaipur · 1 Mar 2027 · 200 guests");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Jaipur · 1 Mar 2027 · 200 guests",
+    );
     expect(vendors).toHaveBeenCalledOnce();
     expect(ideas).toHaveBeenCalledOnce();
     await user.click(screen.getByRole("tab", { name: "Vendors" }));
@@ -121,7 +133,9 @@ describe("App plan", () => {
     const { container, unmount } = render(<App />);
     expect(await screen.findByRole("heading", { level: 1, name: /Jaipur/ })).toBeInTheDocument();
     expect(screen.getByRole("complementary", { name: "Next 3 things to do" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Estimated ₹9\.6L against a budget of ₹8L/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /Estimated ₹9\.6L against a budget of ₹8L/ }),
+    ).toBeInTheDocument();
     await expectAccessible(container);
     unmount();
 
@@ -136,7 +150,12 @@ describe("App plan", () => {
     render(<App />);
     await screen.findByRole("heading", { level: 1 });
 
-    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual(["Budget", "Timeline", "Vendors", "Ideas"]);
+    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual([
+      "Budget",
+      "Timeline",
+      "Vendors",
+      "Ideas",
+    ]);
     expect(screen.getByRole("tab", { name: "Budget" })).toHaveAttribute("aria-selected", "true");
     await user.click(screen.getByRole("tab", { name: "Ideas" }));
     expect(screen.getByRole("heading", { name: "Marigold mandap" })).toBeInTheDocument();
@@ -247,7 +266,9 @@ describe("App plan", () => {
     await screen.findByRole("heading", { level: 1 });
 
     await submitChange(user, "budget now 12 lakh");
-    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Undo" }));
+    await user.click(
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Undo" }),
+    );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByText(/20% over ·/)).toBeInTheDocument();
@@ -258,7 +279,9 @@ describe("App plan", () => {
     save(savedPlan());
     const change = vi
       .spyOn(api, "change")
-      .mockResolvedValueOnce(ok({ changes: [], reply: "Which function should have 50 more guests?" }))
+      .mockResolvedValueOnce(
+        ok({ changes: [], reply: "Which function should have 50 more guests?" }),
+      )
       .mockResolvedValueOnce(ok({ changes: [], reply: null }))
       .mockResolvedValueOnce(failed("timeout"));
     const user = userEvent.setup();
@@ -267,7 +290,9 @@ describe("App plan", () => {
     await user.type(screen.getByLabelText("What changed?"), "more guests");
 
     await user.click(screen.getByRole("button", { name: "Review changes" }));
-    expect(await screen.findByText("Which function should have 50 more guests?")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Which function should have 50 more guests?"),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Review changes" }));
     expect(await screen.findByText(/I could not find a change in that/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Review changes" }));
@@ -290,16 +315,24 @@ describe("App plan", () => {
     await user.click(screen.getByRole("button", { name: "Build my plan" }));
     await user.click(screen.getByRole("tab", { name: "Vendors" }));
     await user.click(await screen.findByRole("checkbox", { name: "Staff count" }));
-    expect(screen.queryByText(/Your plan has changed since these checklists/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Your plan has changed since these checklists/),
+    ).not.toBeInTheDocument();
 
     await submitChange(user, "250 guests");
-    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Accept" }));
-    expect(await screen.findByText(/Your plan has changed since these checklists/)).toBeInTheDocument();
+    await user.click(
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Accept" }),
+    );
+    expect(
+      await screen.findByText(/Your plan has changed since these checklists/),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Refresh checklists" }));
 
     expect(vendors).toHaveBeenCalledTimes(2);
     expect(await screen.findByRole("checkbox", { name: "Staff count" })).not.toBeChecked();
-    expect(screen.queryByText(/Your plan has changed since these checklists/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Your plan has changed since these checklists/),
+    ).not.toBeInTheDocument();
   });
 
   it("returns to the intake screen after Start over is confirmed", async () => {

@@ -34,7 +34,10 @@ export const ChangeRequest = z.object({
   tasks: z.array(z.object({ id: z.string(), title: z.string(), status: TaskStatus })).max(60),
   today: IsoDate,
 });
-export const ChangeResponse = z.object({ changes: z.array(PlanChange), reply: z.string().nullable() });
+export const ChangeResponse = z.object({
+  changes: z.array(PlanChange),
+  reply: z.string().nullable(),
+});
 
 export const QuoteRequest = z.object({
   text: z.string().trim().min(LIMITS.quoteMinChars).max(LIMITS.quoteChars),
@@ -47,15 +50,20 @@ export const TradeoffsRequest = z.object({
   profile: Profile,
   total: Rupees,
   levers: z
-    .array(z.object({ id: z.string(), label: z.string(), saving: Rupees, touchesPriority: z.boolean() }))
+    .array(
+      z.object({ id: z.string(), label: z.string(), saving: Rupees, touchesPriority: z.boolean() }),
+    )
     .min(1)
     .max(40),
 });
 export const TradeoffsResponse = z.object({
-  options: z.array(z.object({ title: z.string(), leverIds: z.array(z.string()).min(1), why: z.string() })).max(3),
+  options: z
+    .array(z.object({ title: z.string(), leverIds: z.array(z.string()).min(1), why: z.string() }))
+    .max(3),
 });
 
-export type ApiErrorCode = "invalid_input" | "rate_limited" | "ai_unavailable" | "ai_error" | "refused";
+export type ApiErrorCode =
+  "invalid_input" | "rate_limited" | "ai_unavailable" | "ai_error" | "refused";
 export interface ApiError {
   error: { code: ApiErrorCode; message: string };
 }

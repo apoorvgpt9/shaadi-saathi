@@ -36,14 +36,22 @@ export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactEl
   async function ask() {
     const levers = listLevers(plan);
     if (levers.length === 0) {
-      setState({ kind: "error", message: "There is nothing left to trim automatically. Try editing lines yourself." });
+      setState({
+        kind: "error",
+        message: "There is nothing left to trim automatically. Try editing lines yourself.",
+      });
       return;
     }
     setState({ kind: "loading" });
     const res = await api.tradeoffs({
       profile: plan.profile,
       total,
-      levers: levers.map(({ id, label, saving, touchesPriority }) => ({ id, label, saving, touchesPriority })),
+      levers: levers.map(({ id, label, saving, touchesPriority }) => ({
+        id,
+        label,
+        saving,
+        touchesPriority,
+      })),
     });
     if (!res.ok) {
       setState({ kind: "error", message: failureMessage(res.error) });
@@ -58,7 +66,10 @@ export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactEl
   }
 
   return (
-    <section aria-labelledby="tradeoff-title" className="card border-tint-red-ink/20 bg-tint-red/40 p-6 sm:p-8">
+    <section
+      aria-labelledby="tradeoff-title"
+      className="card border-tint-red-ink/20 bg-tint-red/40 p-6 sm:p-8"
+    >
       <h2 id="tradeoff-title" className="font-serif text-xl tracking-tight">
         {pct(total, budget) - 100}% over budget
       </h2>
@@ -66,12 +77,19 @@ export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactEl
         Pick one of a few concrete ways to trim. Nothing changes until you review and accept it.
       </p>
       {!options && (
-        <Button variant="primary" className="mt-4" disabled={state.kind === "loading"} onClick={() => void ask()}>
+        <Button
+          variant="primary"
+          className="mt-4"
+          disabled={state.kind === "loading"}
+          onClick={() => void ask()}
+        >
           {state.kind === "loading" ? "Finding options" : "Help me get back under budget"}
         </Button>
       )}
       <div aria-live="polite">
-        {state.kind === "error" && <p className="mt-3 text-sm text-tint-red-ink">{state.message}</p>}
+        {state.kind === "error" && (
+          <p className="mt-3 text-sm text-tint-red-ink">{state.message}</p>
+        )}
       </div>
       {previews && (
         <ul className="mt-5 grid gap-4 md:grid-cols-3">
@@ -87,7 +105,10 @@ export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactEl
                   {preview.within ? "Within budget" : "Still over"} · {preview.percent}%
                 </Badge>
               </p>
-              <Button className="mt-4" onClick={() => onChoose((p) => ({ plan: applyLevers(p, o.ids), ignored: [] }))}>
+              <Button
+                className="mt-4"
+                onClick={() => onChoose((p) => ({ plan: applyLevers(p, o.ids), ignored: [] }))}
+              >
                 Choose this
               </Button>
             </li>

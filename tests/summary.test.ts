@@ -13,7 +13,9 @@ describe("summarizeChange", () => {
     expect(summary.totalAfter).toBeGreaterThan(summary.totalBefore);
     expect(summary.budgetBefore).toBe(800_000);
     expect(summary.budgetAfter).toBe(700_000);
-    expect(summary.totalAfter / summary.budgetAfter).toBeGreaterThan(summary.totalBefore / summary.budgetBefore);
+    expect(summary.totalAfter / summary.budgetAfter).toBeGreaterThan(
+      summary.totalBefore / summary.budgetBefore,
+    );
     const catering = summary.lines.find((l) => l.category === "catering");
     assert(catering);
     expect(catering.after).toBeGreaterThan(catering.before);
@@ -29,7 +31,9 @@ describe("summarizeChange", () => {
 
   it("names tasks that newly became urgent when the wedding moves earlier", () => {
     const summary = summarizeChange(before, after, TODAY);
-    expect(summary.newlyUrgent).toEqual(expect.arrayContaining(["Book caterer", "Book photographer and videographer"]));
+    expect(summary.newlyUrgent).toEqual(
+      expect.arrayContaining(["Book caterer", "Book photographer and videographer"]),
+    );
     expect(summary.newlyUrgent).not.toContain("Shortlist and book venue(s)"); // already urgent before
   });
 
@@ -38,12 +42,18 @@ describe("summarizeChange", () => {
     expect(plain.notes).toEqual(["Wedding moved from 1 Mar 2027 to 15 Feb 2027"]);
 
     const booked = makePlan();
-    booked.quotes = [makeQuote({ category: "catering" }), makeQuote({ id: "q2", category: "venue" })];
+    booked.quotes = [
+      makeQuote({ category: "catering" }),
+      makeQuote({ id: "q2", category: "venue" }),
+    ];
     booked.budget.catering = { override: null, quoteId: "q1", confirmed: false };
     booked.budget.venue = { override: null, quoteId: "q2", confirmed: true };
     const bookedAfter = applyChanges(booked, EXAMPLE_CHANGES).plan;
     expect(summarizeChange(booked, bookedAfter, TODAY).notes).toEqual(
-      expect.arrayContaining(["Check your venue holds 250 guests", "Send your caterer the new headcount"]),
+      expect.arrayContaining([
+        "Check your venue holds 250 guests",
+        "Send your caterer the new headcount",
+      ]),
     );
   });
 

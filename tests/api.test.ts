@@ -95,9 +95,9 @@ describe("api client", () => {
   });
 
   it("has distinct copy for each failure family", () => {
-    const titles = (["rate_limited", "refused", "invalid_input", "network", "timeout", "ai_unavailable"] as const).map(
-      (c) => describeFailure(c).title,
-    );
+    const titles = (
+      ["rate_limited", "refused", "invalid_input", "network", "timeout", "ai_unavailable"] as const
+    ).map((c) => describeFailure(c).title);
     expect(new Set(titles).size).toBe(6);
   });
 });
@@ -107,9 +107,9 @@ describe("failureMessage", () => {
     const quote = "I could not find a total price in that quote. Check the text and try again.";
     expect(failureMessage({ code: "ai_error", message: quote })).toBe(quote);
     expect(failureMessage({ code: "refused", message: "Try rephrasing." })).toBe("Try rephrasing.");
-    expect(failureMessage({ code: "invalid_input", message: "Too long." }, "Your text is still here.")).toBe(
-      "Too long. Your text is still here.",
-    );
+    expect(
+      failureMessage({ code: "invalid_input", message: "Too long." }, "Your text is still here."),
+    ).toBe("Too long. Your text is still here.");
   });
 
   it("uses standard copy when the message is empty, and for codes the server's text does not replace", () => {

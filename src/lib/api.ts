@@ -119,12 +119,19 @@ export const api = {
   vendors: (body: z.infer<typeof VendorsRequest>) => post("/api/vendors", body, VendorsResponse),
   change: (body: z.infer<typeof ChangeRequest>) => post("/api/change", body, ChangeResponse),
   quote: (body: z.infer<typeof QuoteRequest>) => post("/api/quote", body, QuoteResponse),
-  tradeoffs: (body: z.infer<typeof TradeoffsRequest>) => post("/api/tradeoffs", body, TradeoffsResponse),
+  tradeoffs: (body: z.infer<typeof TradeoffsRequest>) =>
+    post("/api/tradeoffs", body, TradeoffsResponse),
 };
 
 const FAILURE_COPY: Record<ApiFailureCode, { title: string; hint: string }> = {
-  rate_limited: { title: "That is a lot of requests at once", hint: "Give it a few minutes and try again." },
-  refused: { title: "The assistant could not help with that", hint: "Try rewording it, or add the details yourself." },
+  rate_limited: {
+    title: "That is a lot of requests at once",
+    hint: "Give it a few minutes and try again.",
+  },
+  refused: {
+    title: "The assistant could not help with that",
+    hint: "Try rewording it, or add the details yourself.",
+  },
   invalid_input: {
     title: "That message could not be sent",
     hint: "Shorten it or remove unusual characters, then try again.",
@@ -132,8 +139,14 @@ const FAILURE_COPY: Record<ApiFailureCode, { title: string; hint: string }> = {
   network: { title: "You appear to be offline", hint: "Check your connection and retry." },
   timeout: { title: "This is taking longer than usual", hint: "Please try again." },
   aborted: { title: "That request was cancelled", hint: "Please try again." },
-  ai_unavailable: { title: "The planning assistant is unavailable right now", hint: "Try again in a moment." },
-  ai_error: { title: "The planning assistant is unavailable right now", hint: "Try again in a moment." },
+  ai_unavailable: {
+    title: "The planning assistant is unavailable right now",
+    hint: "Try again in a moment.",
+  },
+  ai_error: {
+    title: "The planning assistant is unavailable right now",
+    hint: "Try again in a moment.",
+  },
 };
 
 /** Plain-language title and hint for a failure code. */
@@ -144,7 +157,8 @@ export function describeFailure(code: ApiFailureCode): { title: string; hint: st
 /** Copy for a failed call. The server's own message wins where it explains the problem (a quote with no total, say). */
 export function failureMessage({ code, message }: ApiFailure, suffix = ""): string {
   const { title, hint } = FAILURE_COPY[code];
-  const explained = message !== "" && (code === "ai_error" || code === "refused" || code === "invalid_input");
+  const explained =
+    message !== "" && (code === "ai_error" || code === "refused" || code === "invalid_input");
   return [explained ? message : `${title}. ${hint}`, suffix].filter(Boolean).join(" ");
 }
 

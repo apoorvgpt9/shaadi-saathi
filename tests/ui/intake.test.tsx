@@ -41,9 +41,13 @@ afterEach(() => {
 
 describe("ProfilePanel", () => {
   it("keeps Build my plan disabled and names what is still missing", async () => {
-    const { container } = render(<ProfilePanel draft={EMPTY} onDraftChange={vi.fn()} onBuild={vi.fn()} />);
+    const { container } = render(
+      <ProfilePanel draft={EMPTY} onDraftChange={vi.fn()} onBuild={vi.fn()} />,
+    );
     expect(screen.getByRole("button", { name: "Build my plan" })).toBeDisabled();
-    expect(screen.getByText("Still needed: wedding date, city, guest count, budget.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Still needed: wedding date, city, guest count, budget."),
+    ).toBeInTheDocument();
     await expectAccessible(container);
   });
 
@@ -64,7 +68,9 @@ describe("ProfilePanel", () => {
   it("enables Build once date, city, guests and budget exist, and builds on click", async () => {
     const onBuild = vi.fn();
     const user = userEvent.setup();
-    const { container } = render(<ProfilePanel draft={READY} onDraftChange={vi.fn()} onBuild={onBuild} />);
+    const { container } = render(
+      <ProfilePanel draft={READY} onDraftChange={vi.fn()} onBuild={onBuild} />,
+    );
     const build = screen.getByRole("button", { name: "Build my plan" });
     expect(build).toBeEnabled();
     expect(build).toHaveAccessibleDescription(/The four essentials are in/);
@@ -74,7 +80,9 @@ describe("ProfilePanel", () => {
   });
 
   it("shows what was understood: essentials, functions, priorities and notes", async () => {
-    const { container } = render(<ProfilePanel draft={READY} onDraftChange={vi.fn()} onBuild={vi.fn()} />);
+    const { container } = render(
+      <ProfilePanel draft={READY} onDraftChange={vi.fn()} onBuild={vi.fn()} />,
+    );
     expect(screen.getByText("1 Mar 2027")).toBeInTheDocument();
     expect(screen.getByText("Jaipur · Tier-2")).toBeInTheDocument();
     expect(screen.getByText("₹8,00,000")).toBeInTheDocument();
@@ -85,7 +93,11 @@ describe("ProfilePanel", () => {
 
   it("blocks Build for a wedding date in the past and says why", async () => {
     const { container } = render(
-      <ProfilePanel draft={{ ...READY, weddingDate: "2026-10-28" }} onDraftChange={vi.fn()} onBuild={vi.fn()} />,
+      <ProfilePanel
+        draft={{ ...READY, weddingDate: "2026-10-28" }}
+        onDraftChange={vi.fn()}
+        onBuild={vi.fn()}
+      />,
     );
     expect(screen.getByRole("button", { name: "Build my plan" })).toBeDisabled();
     expect(screen.getByText(/That wedding date has already passed/)).toBeInTheDocument();
@@ -93,14 +105,22 @@ describe("ProfilePanel", () => {
   });
 
   it("accepts a wedding date of today", () => {
-    render(<ProfilePanel draft={{ ...READY, weddingDate: "2026-10-29" }} onDraftChange={vi.fn()} onBuild={vi.fn()} />);
+    render(
+      <ProfilePanel
+        draft={{ ...READY, weddingDate: "2026-10-29" }}
+        onDraftChange={vi.fn()}
+        onBuild={vi.fn()}
+      />,
+    );
     expect(screen.getByRole("button", { name: "Build my plan" })).toBeEnabled();
   });
 
   it("lets the user fill the four essentials by hand", async () => {
     const onDraftChange = vi.fn();
     const user = userEvent.setup();
-    const { container } = render(<ProfilePanel draft={EMPTY} onDraftChange={onDraftChange} onBuild={vi.fn()} />);
+    const { container } = render(
+      <ProfilePanel draft={EMPTY} onDraftChange={onDraftChange} onBuild={vi.fn()} />,
+    );
 
     await user.click(screen.getByRole("button", { name: "Edit" }));
     expect(screen.getByLabelText("Wedding date")).toHaveAttribute("min", "2026-10-29");
@@ -176,7 +196,9 @@ describe("ProfilePanel", () => {
   it("discards manual edits on Cancel", async () => {
     const onDraftChange = vi.fn();
     const user = userEvent.setup();
-    const { container } = render(<ProfilePanel draft={READY} onDraftChange={onDraftChange} onBuild={vi.fn()} />);
+    const { container } = render(
+      <ProfilePanel draft={READY} onDraftChange={onDraftChange} onBuild={vi.fn()} />,
+    );
     await user.click(screen.getByRole("button", { name: "Edit" }));
     await user.clear(screen.getByLabelText("City"));
     await user.click(screen.getByRole("button", { name: "Cancel" }));
@@ -222,19 +244,26 @@ describe("IntakeChat", () => {
     vi.spyOn(api, "intake").mockResolvedValue(ok({ reply: "Noted.", draft: EMPTY }));
     const onUserMessage = vi.fn();
     const user = userEvent.setup();
-    render(<IntakeChat messages={[]} draft={null} onUserMessage={onUserMessage} onReply={vi.fn()} />);
+    render(
+      <IntakeChat messages={[]} draft={null} onUserMessage={onUserMessage} onReply={vi.fn()} />,
+    );
     const box = screen.getByLabelText("Your message");
 
     await user.type(box, "first line{Shift>}{Enter}{/Shift}second line");
     expect(onUserMessage).not.toHaveBeenCalled();
     await user.keyboard("{Enter}");
 
-    expect(onUserMessage).toHaveBeenCalledWith({ role: "user", content: "first line\nsecond line" });
+    expect(onUserMessage).toHaveBeenCalledWith({
+      role: "user",
+      content: "first line\nsecond line",
+    });
     expect(box).toHaveValue("");
   });
 
   it("sends through the real client to /api/intake, with today's date and the history", async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ reply: "Hello.", draft: EMPTY }));
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(Response.json({ reply: "Hello.", draft: EMPTY }));
     vi.stubGlobal("fetch", fetchMock);
     const onReply = vi.fn();
     const user = userEvent.setup();
@@ -248,7 +277,11 @@ describe("IntakeChat", () => {
     });
     expect(fetchMock.mock.lastCall?.[0]).toBe("/api/intake");
     expect(fetchMock.mock.lastCall?.[1]?.body).toBe(
-      JSON.stringify({ messages: [{ role: "user", content: "Jaipur" }], draft: null, today: "2026-10-29" }),
+      JSON.stringify({
+        messages: [{ role: "user", content: "Jaipur" }],
+        draft: null,
+        today: "2026-10-29",
+      }),
     );
   });
 
@@ -285,7 +318,9 @@ describe("IntakeChat", () => {
       <IntakeChat messages={[]} draft={null} onUserMessage={vi.fn()} onReply={vi.fn()} />,
     );
     await user.type(screen.getByLabelText("Your message"), "Jaipur{Enter}");
-    rerender(<IntakeChat messages={messages} draft={null} onUserMessage={vi.fn()} onReply={vi.fn()} />);
+    rerender(
+      <IntakeChat messages={messages} draft={null} onUserMessage={vi.fn()} onReply={vi.fn()} />,
+    );
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "You appear to be offline. Check your connection and retry.",

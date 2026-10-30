@@ -2,7 +2,14 @@
 import { formatDate } from "@/lib/format";
 import { computeBudget } from "@/lib/plan/budget";
 import { scheduleTasks } from "@/lib/plan/timeline";
-import type { BudgetSummary, CategoryId, ChangeSummary, Plan, ScheduledTask, TaskFlag } from "@/lib/types";
+import type {
+  BudgetSummary,
+  CategoryId,
+  ChangeSummary,
+  Plan,
+  ScheduledTask,
+  TaskFlag,
+} from "@/lib/types";
 
 type LineChange = ChangeSummary["lines"][number];
 
@@ -32,7 +39,9 @@ function changeNotes(before: Plan, after: Plan, afterBudget: BudgetSummary): str
   const notes: string[] = [];
   const { guests } = after.profile;
   if (weddingDate(before) !== weddingDate(after)) {
-    notes.push(`Wedding moved from ${formatDate(weddingDate(before))} to ${formatDate(weddingDate(after))}`);
+    notes.push(
+      `Wedding moved from ${formatDate(weddingDate(before))} to ${formatDate(weddingDate(after))}`,
+    );
   }
   if (guests > before.profile.guests) {
     const isBooked = (category: CategoryId) =>

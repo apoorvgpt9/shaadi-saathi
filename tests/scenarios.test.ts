@@ -59,15 +59,20 @@ function findTask(tasks: ScheduledTask[], id: string): ScheduledTask {
 
 const weddingOnlyIn = (days: number): Plan => {
   const plan = makePlan();
-  const functions: Plan["profile"]["functions"] = [{ kind: "wedding", date: addDays(TODAY, days), guests: 200 }];
+  const functions: Plan["profile"]["functions"] = [
+    { kind: "wedding", date: addDays(TODAY, days), guests: 200 },
+  ];
   return { ...plan, profile: { ...plan.profile, functions } };
 };
 
-const quotedCatering = patchEntry({ ...makePlan(), quotes: [makeQuote()] }, "catering", { quoteId: "q1" });
+const quotedCatering = patchEntry({ ...makePlan(), quotes: [makeQuote()] }, "catering", {
+  quoteId: "q1",
+});
 
 const SCENARIOS: Scenario[] = [
   {
-    story: "The example wedding (Jaipur, Tier-2, Classic, 200 + mehendi 120, Rs 8L) lands at about 120% of budget",
+    story:
+      "The example wedding (Jaipur, Tier-2, Classic, 200 + mehendi 120, Rs 8L) lands at about 120% of budget",
     given: { plan: makePlan(), changes: [] },
     then: ({ budget }) => {
       expect(budget.total).toBe(958_000);
@@ -76,13 +81,18 @@ const SCENARIOS: Scenario[] = [
     },
   },
   {
-    story: "+50 guests, budget Rs 7L, two weeks earlier: over budget, catering up, a date note, newly urgent tasks",
+    story:
+      "+50 guests, budget Rs 7L, two weeks earlier: over budget, catering up, a date note, newly urgent tasks",
     given: { plan: makePlan(), changes: EXAMPLE_CHANGES },
     then: ({ summary, budget }) => {
       expect(budget.ratio).toBeGreaterThan(1.5);
       expect(summary.totalAfter).toBe(1_067_000);
       expect(summary.totalAfter).toBeGreaterThan(summary.budgetAfter);
-      expect(summary.lines).toContainEqual({ category: "catering", before: 284_000, after: 355_000 });
+      expect(summary.lines).toContainEqual({
+        category: "catering",
+        before: 284_000,
+        after: 355_000,
+      });
       expect(summary.notes).toEqual(["Wedding moved from 1 Mar 2027 to 15 Feb 2027"]);
       expect(summary.newlyUrgent).toEqual(["Book caterer", "Book photographer and videographer"]);
     },
@@ -91,7 +101,14 @@ const SCENARIOS: Scenario[] = [
     story: "Delaying book-venue to 10 Jan flags the tasks that depend on it as at risk",
     given: {
       plan: makePlan(),
-      changes: [{ type: "set_task_status", taskId: "book-venue", status: "delayed", delayedTo: "2027-01-10" }],
+      changes: [
+        {
+          type: "set_task_status",
+          taskId: "book-venue",
+          status: "delayed",
+          delayedTo: "2027-01-10",
+        },
+      ],
     },
     then: ({ tasks }) => {
       expect(findTask(tasks, "book-venue")).toMatchObject({ due: "2027-01-10", status: "delayed" });
@@ -122,8 +139,14 @@ const SCENARIOS: Scenario[] = [
     then: ({ before }) => {
       const levers = listLevers(before);
       expect(levers[0]).toMatchObject({ id: "skip-mehendi", saving: 193_000 });
-      expect(levers[1]).toMatchObject({ id: "step-down-catering", saving: 122_000, touchesPriority: true });
-      expect(levers.map((l) => l.saving)).toEqual([...levers.map((l) => l.saving)].sort((a, b) => b - a));
+      expect(levers[1]).toMatchObject({
+        id: "step-down-catering",
+        saving: 122_000,
+        touchesPriority: true,
+      });
+      expect(levers.map((l) => l.saving)).toEqual(
+        [...levers.map((l) => l.saving)].sort((a, b) => b - a),
+      );
     },
   },
   {
@@ -145,7 +168,8 @@ const SCENARIOS: Scenario[] = [
     },
   },
   {
-    story: "A wedding 60 days away makes the early bookings urgent, due today, with nothing at risk",
+    story:
+      "A wedding 60 days away makes the early bookings urgent, due today, with nothing at risk",
     given: { plan: weddingOnlyIn(60), changes: [] },
     then: ({ tasks }) => {
       expect(findTask(tasks, "book-venue")).toMatchObject({ due: TODAY, flags: ["urgent"] });

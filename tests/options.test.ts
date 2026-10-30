@@ -32,7 +32,9 @@ describe("previewOption", () => {
   it("reflects the plan as it is now, so an edit made after the options arrived changes the figures", () => {
     const ids = levers.slice(0, 1).map((l) => l.id);
     const edited = patchEntry(overBudget, "decor", { override: 900_000 });
-    expect(previewOption(edited, ids).percent).toBeGreaterThan(previewOption(overBudget, ids).percent);
+    expect(previewOption(edited, ids).percent).toBeGreaterThan(
+      previewOption(overBudget, ids).percent,
+    );
   });
 
   it("never calls a total over budget within budget, even when it rounds to 100%", () => {

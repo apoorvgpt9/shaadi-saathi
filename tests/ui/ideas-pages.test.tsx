@@ -24,7 +24,12 @@ const WEDDING: FunctionIdeas = {
   kind: "wedding",
   ideas: [
     MANDAP,
-    { title: "Live ghazal night", description: "A small band.", costImpact: "adds", fitsBecause: "You like music." },
+    {
+      title: "Live ghazal night",
+      description: "A small band.",
+      costImpact: "adds",
+      fitsBecause: "You like music.",
+    },
   ],
 };
 
@@ -34,7 +39,9 @@ function IdeasHarness({ initial }: { initial: Plan }) {
 }
 
 const refreshButton = () =>
-  within(screen.getByRole("region", { name: "Wedding" })).getByRole("button", { name: "Refresh ideas" });
+  within(screen.getByRole("region", { name: "Wedding" })).getByRole("button", {
+    name: "Refresh ideas",
+  });
 
 beforeEach(freezeToday);
 afterEach(() => {
@@ -57,7 +64,9 @@ describe("IdeasTab", () => {
   it("fetches ideas for a function that has none", async () => {
     const ideas = vi
       .spyOn(api, "ideas")
-      .mockResolvedValue(ok({ ideas: [{ kind: "mehendi", ideas: [{ ...MANDAP, title: "Henna lounge" }] }] }));
+      .mockResolvedValue(
+        ok({ ideas: [{ kind: "mehendi", ideas: [{ ...MANDAP, title: "Henna lounge" }] }] }),
+      );
     const user = userEvent.setup();
     render(<IdeasHarness initial={{ ...makePlan(), ideas: [WEDDING] }} />);
 
@@ -70,7 +79,9 @@ describe("IdeasTab", () => {
   it("refreshes a function's ideas from the user's feedback, then clears the box", async () => {
     const ideas = vi
       .spyOn(api, "ideas")
-      .mockResolvedValue(ok({ ideas: [{ kind: "wedding", ideas: [{ ...MANDAP, title: "Paper lanterns" }] }] }));
+      .mockResolvedValue(
+        ok({ ideas: [{ kind: "wedding", ideas: [{ ...MANDAP, title: "Paper lanterns" }] }] }),
+      );
     const user = userEvent.setup();
     render(<IdeasHarness initial={{ ...makePlan(), ideas: [WEDDING] }} />);
 
@@ -80,7 +91,10 @@ describe("IdeasTab", () => {
 
     expect(await screen.findByRole("heading", { name: "Paper lanterns" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Marigold mandap" })).not.toBeInTheDocument();
-    expect(ideas.mock.lastCall?.[0]).toMatchObject({ function: "wedding", feedback: "Too expensive" });
+    expect(ideas.mock.lastCall?.[0]).toMatchObject({
+      function: "wedding",
+      feedback: "Too expensive",
+    });
     expect(feedback).toHaveValue("");
   });
 
@@ -112,7 +126,9 @@ describe("IdeasTab", () => {
     await user.type(screen.getByLabelText("Feedback on the wedding ideas"), "Anything");
     await user.click(refreshButton());
 
-    expect(await screen.findByText("No new ideas came back. Try describing it differently.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("No new ideas came back. Try describing it differently."),
+    ).toBeInTheDocument();
   });
 });
 
@@ -131,7 +147,9 @@ describe("pages", () => {
 
   it("the not-found page links back home", async () => {
     const { container } = render(<NotFound />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("This page is not part of the plan.");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "This page is not part of the plan.",
+    );
     expect(screen.getByRole("link", { name: "Back to ShaadiSaathi" })).toHaveAttribute("href", "/");
     await expectAccessible(container);
   });

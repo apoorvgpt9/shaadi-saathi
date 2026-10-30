@@ -33,7 +33,11 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props): 
   async function ask(history: ChatMessage[]) {
     setBusy(true);
     setError(null);
-    const res = await api.intake({ messages: history.slice(-LIMITS.chatMessages), draft, today: todayIso() });
+    const res = await api.intake({
+      messages: history.slice(-LIMITS.chatMessages),
+      draft,
+      today: todayIso(),
+    });
     setBusy(false);
     if (res.ok) {
       onReply(res.data.reply, res.data.draft);
@@ -65,7 +69,11 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props): 
   const notice = unanswered ? (error ?? "That message did not get a reply.") : null;
 
   return (
-    <section aria-labelledby="chat-title" className="card reveal flex flex-col" style={cssVars({ "--i": 1 })}>
+    <section
+      aria-labelledby="chat-title"
+      className="card reveal flex flex-col"
+      style={cssVars({ "--i": 1 })}
+    >
       <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4 sm:px-8">
         <h2 id="chat-title" className="font-serif text-2xl tracking-tight">
           Opening questions

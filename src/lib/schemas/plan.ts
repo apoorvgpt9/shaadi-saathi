@@ -1,5 +1,14 @@
 // Everything persisted in localStorage, the vendor and idea payloads inside it, and the edits applied to it.
-import { CategoryId, FunctionKind, Guests, IsoDate, Profile, Rupees, ShortText, Style } from "./domain";
+import {
+  CategoryId,
+  FunctionKind,
+  Guests,
+  IsoDate,
+  Profile,
+  Rupees,
+  ShortText,
+  Style,
+} from "./domain";
 import { LIMITS } from "./limits";
 import { z } from "zod";
 
@@ -57,14 +66,26 @@ export const Plan = z.object({
 
 /** One structured edit. The change route exposes each variant to Claude as a tool named by `type`. */
 export const PlanChange = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("set_guests"), function: z.union([FunctionKind, z.literal("all")]), count: Guests }),
+  z.object({
+    type: z.literal("set_guests"),
+    function: z.union([FunctionKind, z.literal("all")]),
+    count: Guests,
+  }),
   z.object({ type: z.literal("set_budget"), amount: Rupees.min(LIMITS.budget.min) }),
   z.object({ type: z.literal("shift_dates"), days: z.number().int().min(-365).max(365) }),
   z.object({ type: z.literal("set_function_date"), function: FunctionKind, date: IsoDate }),
-  z.object({ type: z.literal("add_function"), function: FunctionKind, date: IsoDate, guests: Guests }),
+  z.object({
+    type: z.literal("add_function"),
+    function: FunctionKind,
+    date: IsoDate,
+    guests: Guests,
+  }),
   z.object({ type: z.literal("remove_function"), function: FunctionKind }),
   z.object({ type: z.literal("set_style"), style: Style, category: CategoryId.nullable() }),
-  z.object({ type: z.literal("set_priorities"), priorities: z.array(CategoryId).max(LIMITS.priorities) }),
+  z.object({
+    type: z.literal("set_priorities"),
+    priorities: z.array(CategoryId).max(LIMITS.priorities),
+  }),
   z.object({
     type: z.literal("set_task_status"),
     taskId: z.string().min(1).max(64),

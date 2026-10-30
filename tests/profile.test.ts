@@ -31,7 +31,12 @@ describe("profile helpers", () => {
 
   it("builds a valid profile with defaults, offsets and clamped numbers", () => {
     const profile = draftToProfile(draft);
-    expect(profile).toMatchObject({ city: "Jaipur", cityTier: "tier2", style: "classic", guests: 200 });
+    expect(profile).toMatchObject({
+      city: "Jaipur",
+      cityTier: "tier2",
+      style: "classic",
+      guests: 200,
+    });
     expect(profile.functions).toEqual([
       { kind: "wedding", date: "2027-03-01", guests: 200 },
       { kind: "mehendi", date: "2027-02-28", guests: 120 },
@@ -57,7 +62,12 @@ describe("profile helpers", () => {
         { kind: "haldi", dayOffset: -3, guests: null },
       ],
     });
-    expect(far.functions.map((f) => f.date)).toEqual(["2027-03-01", "2027-03-08", "2027-02-22", "2027-02-26"]);
+    expect(far.functions.map((f) => f.date)).toEqual([
+      "2027-03-01",
+      "2027-03-08",
+      "2027-02-22",
+      "2027-02-26",
+    ]);
     expect(Plan.safeParse(newPlan(far)).success).toBe(true);
   });
 
@@ -67,6 +77,10 @@ describe("profile helpers", () => {
 
   it("marks the questions the intake already answered as done", () => {
     const plan = newPlan(draftToProfile(draft));
-    expect(Object.keys(plan.tasks).sort()).toEqual(["agree-budget", "finalise-dates", "guest-estimate"]);
+    expect(Object.keys(plan.tasks).sort()).toEqual([
+      "agree-budget",
+      "finalise-dates",
+      "guest-estimate",
+    ]);
   });
 });

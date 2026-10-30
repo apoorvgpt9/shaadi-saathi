@@ -15,9 +15,14 @@ export function freezeToday() {
  * `color-contrast` because jsdom has no layout or canvas to measure it with.
  */
 export async function expectAccessible(container: Element) {
-  const results = await axe(container, { rules: { region: { enabled: false }, "color-contrast": { enabled: false } } });
+  const results = await axe(container, {
+    rules: { region: { enabled: false }, "color-contrast": { enabled: false } },
+  });
   expect(results.violations).toEqual([]);
 }
 
 export const ok = <T,>(data: T) => ({ ok: true as const, data });
-export const failed = (code: ApiFailure["code"], message = "") => ({ ok: false as const, error: { code, message } });
+export const failed = (code: ApiFailure["code"], message = "") => ({
+  ok: false as const,
+  error: { code, message },
+});

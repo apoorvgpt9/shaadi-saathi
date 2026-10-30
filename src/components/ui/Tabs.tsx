@@ -1,5 +1,12 @@
 // Accessible tabs: a WAI-ARIA tablist with keyboard navigation.
-import { useId, useRef, useState, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
+import {
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 interface TabItem {
   id: string;
@@ -35,7 +42,11 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }): React
 
   return (
     <div>
-      <div role="tablist" aria-label={label} className="-mx-1 flex gap-1 overflow-x-auto border-b border-line px-1">
+      <div
+        role="tablist"
+        aria-label={label}
+        className="-mx-1 flex gap-1 overflow-x-auto border-b border-line px-1"
+      >
         {tabs.map((t, i) => {
           const selected = t.id === active;
           return (
@@ -53,7 +64,9 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }): React
               onClick={() => setActive(t.id)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={`relative shrink-0 px-4 py-3 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-[-1px] after:h-0.5 after:rounded-full after:transition-colors ${
-                selected ? "text-maroon after:bg-maroon" : "text-muted after:bg-transparent hover:text-ink"
+                selected
+                  ? "text-maroon after:bg-maroon"
+                  : "text-muted after:bg-transparent hover:text-ink"
               }`}
             >
               {t.label}

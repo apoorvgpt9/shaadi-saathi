@@ -1,7 +1,15 @@
 // The budget engine: benchmark estimates per category, overlaid with the user's quotes, overrides and confirmations.
 import { formatINR } from "@/lib/format";
 import { CATEGORY_IDS } from "@/lib/types";
-import type { BudgetLine, BudgetSummary, CategoryId, Plan, PriceStatus, Profile, Style } from "@/lib/types";
+import type {
+  BudgetLine,
+  BudgetSummary,
+  CategoryId,
+  Plan,
+  PriceStatus,
+  Profile,
+  Style,
+} from "@/lib/types";
 import {
   BENCHMARKS,
   CITY_TIER_LABELS,
@@ -57,7 +65,12 @@ function weightedFunctions(profile: Profile, weight: WeightKind) {
 }
 
 /** Rate x guests x weight, summed over the weighted functions (catering plates, venue seats). */
-function perGuestPerFunction(rate: number, weight: WeightKind, unit: string, profile: Profile): Costed {
+function perGuestPerFunction(
+  rate: number,
+  weight: WeightKind,
+  unit: string,
+  profile: Profile,
+): Costed {
   const parts = weightedFunctions(profile, weight);
   const text = parts.map(({ f, weight: partWeight }) => {
     const weightNote = partWeight < 1 ? ` (×${partWeight})` : "";
@@ -72,7 +85,9 @@ function perGuestPerFunction(rate: number, weight: WeightKind, unit: string, pro
 /** One rate per function, scaled by that function's weight (decor, rituals). */
 function perFunction(rate: number, weight: WeightKind, profile: Profile): Costed {
   const parts = weightedFunctions(profile, weight);
-  const text = parts.map(({ f, weight: partWeight }) => `${FUNCTION_LABELS[f.kind]} (×${partWeight})`);
+  const text = parts.map(
+    ({ f, weight: partWeight }) => `${FUNCTION_LABELS[f.kind]} (×${partWeight})`,
+  );
   return {
     raw: sum(parts.map(({ weight: partWeight }) => rate * partWeight)),
     basis: `${formatINR(rate)} per function, scaled by size: ${text.join(", ")}`,
@@ -99,12 +114,18 @@ function flat(rate: number, addOn: AddOn | undefined, rateFor: RateFor, profile:
     return { raw: rate, basis: `${formatINR(rate)} flat` };
   }
   const addOnRate = rateFor(addOn.rates);
-  return { raw: rate + addOnRate, basis: `${formatINR(rate)} flat + ${formatINR(addOnRate)} ${addOn.label}` };
+  return {
+    raw: rate + addOnRate,
+    basis: `${formatINR(rate)} flat + ${formatINR(addOnRate)} ${addOn.label}`,
+  };
 }
 
 /** A rate per wedding-day guest. */
 function perWeddingGuest(rate: number, profile: Profile): Costed {
-  return { raw: rate * profile.guests, basis: `${formatINR(rate)}/guest × ${profile.guests} wedding guests` };
+  return {
+    raw: rate * profile.guests,
+    basis: `${formatINR(rate)}/guest × ${profile.guests} wedding guests`,
+  };
 }
 
 /** Raw (unrounded) cost and a plain-words basis for one category. */
@@ -129,7 +150,9 @@ function estimateCategory(category: BenchmarkCategory, profile: Profile): Estima
   const style = effectiveStyle(profile, category);
   const multiplier = model.tiered ? TIER_MULTIPLIER[profile.cityTier] : 1;
   const { raw, basis } = applyModel(model, (rates) => rates[style] * multiplier, profile);
-  const scope = model.tiered ? `${CITY_TIER_LABELS[profile.cityTier]}, ${STYLE_LABELS[style]}` : STYLE_LABELS[style];
+  const scope = model.tiered
+    ? `${CITY_TIER_LABELS[profile.cityTier]}, ${STYLE_LABELS[style]}`
+    : STYLE_LABELS[style];
   const note = model.note ? ` ${model.note}` : "";
   return { amount: roundToStep(raw), source: `Benchmark (${scope}): ${basis}.${note}` };
 }
@@ -165,7 +188,9 @@ function resolveLine(plan: Plan, category: CategoryId, estimate: Estimate): Budg
  * // total === 958_000, budget === 800_000, ratio === 1.1975 (about 120% of budget)
  */
 export function computeBudget(plan: Plan): BudgetSummary {
-  const benchmarkCategories = CATEGORY_IDS.filter((c): c is BenchmarkCategory => c !== "contingency");
+  const benchmarkCategories = CATEGORY_IDS.filter(
+    (c): c is BenchmarkCategory => c !== "contingency",
+  );
   const benchmarked = benchmarkCategories.map((category) =>
     resolveLine(plan, category, estimateCategory(category, plan.profile)),
   );

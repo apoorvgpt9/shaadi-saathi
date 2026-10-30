@@ -46,19 +46,27 @@ function setGuests(plan: Plan, { function: target, count }: ChangeOf<"set_guests
     return ok(setWeddingGuests(plan, count));
   }
   if (!hasFunction(plan, target)) {
-    return ignore(`${FUNCTION_LABELS[target]} is not in the plan, so its guest count was not changed`);
+    return ignore(
+      `${FUNCTION_LABELS[target]} is not in the plan, so its guest count was not changed`,
+    );
   }
   return ok(withFunctions(plan, (f) => (f.kind === target ? { ...f, guests: count } : f)));
 }
 
-function setFunctionDate(plan: Plan, { function: kind, date }: ChangeOf<"set_function_date">): Outcome {
+function setFunctionDate(
+  plan: Plan,
+  { function: kind, date }: ChangeOf<"set_function_date">,
+): Outcome {
   if (!hasFunction(plan, kind)) {
     return ignore(`${FUNCTION_LABELS[kind]} is not in the plan, so its date was not changed`);
   }
   return ok(withFunctions(plan, (f) => (f.kind === kind ? { ...f, date } : f)));
 }
 
-function addFunction(plan: Plan, { function: kind, date, guests }: ChangeOf<"add_function">): Outcome {
+function addFunction(
+  plan: Plan,
+  { function: kind, date, guests }: ChangeOf<"add_function">,
+): Outcome {
   if (hasFunction(plan, kind)) {
     return ignore(`${FUNCTION_LABELS[kind]} is already in the plan`);
   }
@@ -84,7 +92,10 @@ function setStyle(plan: Plan, { style, category }: ChangeOf<"set_style">): Outco
   return ok({ ...plan, profile });
 }
 
-function setTaskStatus(plan: Plan, { taskId, status, delayedTo }: ChangeOf<"set_task_status">): Outcome {
+function setTaskStatus(
+  plan: Plan,
+  { taskId, status, delayedTo }: ChangeOf<"set_task_status">,
+): Outcome {
   if (!TASK_TEMPLATES.some((t) => t.id === taskId)) {
     return ignore(`Unknown task "${taskId}"`);
   }

@@ -21,8 +21,8 @@ export function IntakeScreen({ state, actions, onBuild }: Props): ReactElement {
           Plan the wedding, <em className="text-maroon">and the budget behind it.</em>
         </h1>
         <p className="mt-5 max-w-xl text-lg text-muted">
-          Answer a few questions about your families, dates and guests. You get a budget, a timeline and vendor
-          checklists that you can change any time.
+          Answer a few questions about your families, dates and guests. You get a budget, a timeline
+          and vendor checklists that you can change any time.
         </p>
       </section>
       <div className="grid items-start gap-6 pb-24 lg:grid-cols-[1.2fr_1fr]">

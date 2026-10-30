@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { addDays, formatDate, formatINR, formatLakh, groupByMonth, pct, plural, signed } from "@/lib/format";
+import {
+  addDays,
+  formatDate,
+  formatINR,
+  formatLakh,
+  groupByMonth,
+  pct,
+  plural,
+  signed,
+} from "@/lib/format";
 
 describe("formatINR", () => {
   it("groups digits the Indian way", () => {
@@ -70,7 +79,12 @@ describe("plural", () => {
 
 describe("groupByMonth", () => {
   it("groups by year and month in first-seen order", () => {
-    const items = [{ due: "2026-11-30" }, { due: "2026-12-01" }, { due: "2026-11-02" }, { due: "2027-11-01" }];
+    const items = [
+      { due: "2026-11-30" },
+      { due: "2026-12-01" },
+      { due: "2026-11-02" },
+      { due: "2027-11-01" },
+    ];
     expect(groupByMonth(items).map(([month, group]) => [month, group.length])).toEqual([
       ["2026-11", 2],
       ["2026-12", 1],

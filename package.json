@@ -48,6 +48,6 @@
   },
   "type": "module",
   "prettier": {
-    "printWidth": 120
+    "printWidth": 100
   }
 }

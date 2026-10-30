@@ -27,7 +27,13 @@ export interface PlanState {
   pending: Pending | null;
 }
 
-export const initialState: PlanState = { stage: "intake", messages: [], draft: null, plan: null, pending: null };
+export const initialState: PlanState = {
+  stage: "intake",
+  messages: [],
+  draft: null,
+  plan: null,
+  pending: null,
+};
 
 const Stored = z
   .object({
@@ -127,7 +133,8 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
 export const bindActions = (dispatch: Dispatch<PlanAction>) => ({
   hydrate: (state: PlanState) => dispatch({ type: "hydrate", state }),
   sendUser: (message: ChatMessage) => dispatch({ type: "user_message", message }),
-  receiveReply: (reply: string, draft: IntakeDraft) => dispatch({ type: "assistant_reply", reply, draft }),
+  receiveReply: (reply: string, draft: IntakeDraft) =>
+    dispatch({ type: "assistant_reply", reply, draft }),
   editDraft: (draft: IntakeDraft) => dispatch({ type: "edit_draft", draft }),
   startPlan: (plan: Plan) => dispatch({ type: "start_plan", plan }),
   updatePlan: (update: (plan: Plan) => Plan) => dispatch({ type: "update_plan", update }),

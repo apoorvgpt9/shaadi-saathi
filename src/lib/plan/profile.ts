@@ -25,7 +25,12 @@ type ReadyDraft = IntakeDraft & {
 
 /** True once the four required answers (date, city, guests, budget) are present. */
 export function isDraftReady(draft: IntakeDraft): draft is ReadyDraft {
-  return draft.weddingDate !== null && !!draft.city?.trim() && draft.guests !== null && draft.budget !== null;
+  return (
+    draft.weddingDate !== null &&
+    !!draft.city?.trim() &&
+    draft.guests !== null &&
+    draft.budget !== null
+  );
 }
 
 function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
@@ -38,7 +43,10 @@ function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
     weddingDay,
     ...others.map((f) => ({
       kind: f.kind,
-      date: addDays(draft.weddingDate, clamp(f.dayOffset, -LIMITS.functionOffsetDays, LIMITS.functionOffsetDays)),
+      date: addDays(
+        draft.weddingDate,
+        clamp(f.dayOffset, -LIMITS.functionOffsetDays, LIMITS.functionOffsetDays),
+      ),
       guests: clamp(f.guests ?? guests, LIMITS.guests.min, LIMITS.guests.max),
     })),
   ];
@@ -55,7 +63,8 @@ function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
  * // a mehendi at dayOffset -1 for a wedding on 2027-03-01 is dated "2027-02-28"
  */
 export function draftToProfile(draft: IntakeDraft): Profile {
-  if (!isDraftReady(draft)) throw new Error("Draft needs a date, city, guest count and budget before planning");
+  if (!isDraftReady(draft))
+    throw new Error("Draft needs a date, city, guest count and budget before planning");
   const guests = clamp(draft.guests, LIMITS.guests.min, LIMITS.guests.max);
   return {
     city: draft.city.trim().slice(0, LIMITS.cityChars),
@@ -83,7 +92,9 @@ export function newPlan(profile: Profile): Plan {
     version: 1,
     profile,
     budget: {},
-    tasks: Object.fromEntries(TASKS_DONE_AT_INTAKE.map((id) => [id, { status: "done", delayedTo: null }])),
+    tasks: Object.fromEntries(
+      TASKS_DONE_AT_INTAKE.map((id) => [id, { status: "done", delayedTo: null }]),
+    ),
     quotes: [],
     vendors: [],
     checked: {},

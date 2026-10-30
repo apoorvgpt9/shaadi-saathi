@@ -15,7 +15,12 @@ export interface RateLimiter {
   isLimited(key: string): boolean;
 }
 
-export function createRateLimiter({ limit, windowMs, maxTracked, now = Date.now }: RateLimiterOptions): RateLimiter {
+export function createRateLimiter({
+  limit,
+  windowMs,
+  maxTracked,
+  now = Date.now,
+}: RateLimiterOptions): RateLimiter {
   const hitsByKey = new Map<string, number[]>();
 
   function pruneIdleKeys(currentTime: number): void {
@@ -51,4 +56,8 @@ export function createRateLimiter({ limit, windowMs, maxTracked, now = Date.now 
 }
 
 /** The limiter shared by every AI route: 40 requests per client per 10 minutes. */
-export const aiRateLimiter = createRateLimiter({ limit: 40, windowMs: 10 * 60_000, maxTracked: 5000 });
+export const aiRateLimiter = createRateLimiter({
+  limit: 40,
+  windowMs: 10 * 60_000,
+  maxTracked: 5000,
+});

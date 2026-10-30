@@ -83,12 +83,19 @@ function skipLevers(profile: Profile): Candidate[] {
 
 function candidateLevers(plan: Plan): Candidate[] {
   const { profile } = plan;
-  return [...trimFunctionLevers(profile), trimAllLever(profile), ...stepDownLevers(profile), ...skipLevers(profile)];
+  return [
+    ...trimFunctionLevers(profile),
+    trimAllLever(profile),
+    ...stepDownLevers(profile),
+    ...skipLevers(profile),
+  ];
 }
 
 /** True when a change lowers the style of a category the couple marked as a priority. */
 function lowersPriorityStyle(changes: PlanChange[], priorities: CategoryId[]): boolean {
-  return changes.some((c) => c.type === "set_style" && c.category !== null && priorities.includes(c.category));
+  return changes.some(
+    (c) => c.type === "set_style" && c.category !== null && priorities.includes(c.category),
+  );
 }
 
 /**
