@@ -47,6 +47,6 @@ These were computed once for this page; no test re-checks them, so recompute if 
 ## Not covered
 
 - Colour contrast is not asserted by any test (axe's rule is off in jsdom); see the table above for the manual calculation. Textarea placeholder text is the muted token at 70% opacity and was not measured.
-- Nothing runs in a real browser or with a screen reader, so announcement order and wording of live regions are untested.
+- Screen readers (NVDA, VoiceOver) and browsers other than Chromium have not been tried, so announcement order and wording of live regions are untested. No automated suite runs in a browser engine; axe-core and Lighthouse were run by hand on Chromium against the deployed app.
 - The jsdom suite models `<dialog>` modality (`tests/ui/setup.ts`) rather than using the browser's.
 - Conformance with WCAG 2.1 AA has not been audited by a third party.

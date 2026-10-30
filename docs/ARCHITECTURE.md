@@ -12,7 +12,7 @@ ShaadiSaathi keeps a wedding plan consistent with a family's budget, dates and p
 | API client | `src/lib/api.ts` | One typed caller per AI route. Never throws; every failure becomes `{ ok: false }`. Validates each reply. | Schemas |
 | UI | `src/components/`, `src/app/` (pages, layout, error and not-found) | Intake chat, workspace, tabs, review dialog. Renders state and calls the engine directly for instant recalculation. | Client state, engine, API client, Schemas |
 | Route handlers | `src/app/api/*/route.ts` | One file per route: pick the schemas, the prompt and the Claude call. Stateless. | AI layer, Schemas |
-| AI layer | `src/lib/ai/` | `route.ts`: the shared handler. `client.ts`: the only code that talks to Claude. `prompts.ts`, `tools.ts`: prompts and tool definitions. | Schemas, `@anthropic-ai/sdk` |
+| AI layer | `src/lib/ai/` | `route.ts`: the shared handler. `errors.ts`: error types and the mapping to HTTP failures. `rate-limit.ts`, `client-ip.ts`: the per-client limiter and how the client is identified. `logger.ts`: the one log line per request. `client.ts`: the only code that talks to Claude. `prompts.ts`, `tools.ts`: prompts and tool definitions. | Schemas, `@anthropic-ai/sdk` |
 | Claude API | external | Structured output and function calling. | n/a |
 
 ```mermaid
@@ -39,14 +39,12 @@ flowchart LR
 
 The engine imports only schemas and its own modules. It has no React, no AI layer, no I/O, and no clock: "today" is a parameter (`scheduleTasks(plan, today)`, `summarizeChange(before, after, today)`). The AI layer and route handlers never import the engine, and routes keep no state. Dependencies point downwards in the table and nothing imports upwards.
 
-Checked at the current commit with grep:
+The rule is enforced by lint, in [`eslint.config.mjs`](../eslint.config.mjs), so `npm run lint` fails on a violation:
 
-- `grep -rhn 'from "' src/lib/plan src/lib/format.ts` lists only `@/lib/types`, `@/lib/format` and `@/lib/plan/*` imports.
-- `grep -rnE "react|next/|@/lib/ai|@/lib/api|@/lib/store|fetch\(|localStorage|Date\.now|process\.env|console\." src/lib/plan src/lib/format.ts` finds nothing. The only `new Date(...)` calls are in `format.ts` and always receive an explicit argument (ISO date arithmetic), never the current time.
-- `grep -rn "@/lib/plan\|@/lib/store\|@/lib/api\|components" src/lib/ai src/app/api` finds nothing.
-- `src/lib/store.ts` imports React as a type only (`import type { Dispatch }`).
+- **Engine** (`src/lib/plan/**`, `src/lib/format.ts`): `no-restricted-imports` bans `react`, `react-dom`, `next`, `next/*`, `@/lib/ai`, `@/lib/api`, `@/lib/store` and `@/components/*`. It also bans `Date.now`, `new Date()` with no argument, `localStorage`, `fetch` and `process.env`.
+- **Server** (`src/lib/ai/**`, `src/app/api/**`): `no-restricted-imports` bans `@/lib/plan`, `@/lib/store`, `@/lib/api` and `@/components/*`.
 
-The rule is not enforced by a lint rule or test; it is a convention that the grep above lets you re-check. Pure engine behaviour is covered by the unit tests (see [TESTING.md](TESTING.md)).
+The client store, [`src/lib/store.ts`](../src/lib/store.ts), imports React as a type only (`import type { Dispatch }`). Engine behaviour is covered by the unit tests (see [TESTING.md](TESTING.md)).
 
 ## Algorithms
 
@@ -62,15 +60,15 @@ The rule is not enforced by a lint rule or test; it is a convention that the gre
 
 ## AI request lifecycle
 
-Every AI route runs through `handleAi` in `src/lib/ai/route.ts`:
+Every AI route runs through `handleAi` in [`src/lib/ai/route.ts`](../src/lib/ai/route.ts):
 
-1. **Rate limit.** 40 requests per client IP per 10 minutes, in instance memory, keyed on `x-real-ip`, then the first `x-forwarded-for` entry. Over the limit: 429.
+1. **Rate limit.** 40 requests per client per 10 minutes, counted in instance memory by [`rate-limit.ts`](../src/lib/ai/rate-limit.ts). The client is identified by [`client-ip.ts`](../src/lib/ai/client-ip.ts): `x-real-ip`, then the first `x-forwarded-for` entry. Over the limit: 429.
 2. **Body cap.** A declared `content-length` over 100,000 is refused before reading; a chunked body is checked after reading. Oversize or unparseable JSON is treated as invalid input.
 3. **Request validation.** The route's zod request schema. Failure: 400. The intake route additionally rejects a conversation that ends on an assistant turn (400).
-4. **One Claude call.** `generate` (structured output validated by zod; it repeats once only if the output fails to parse) for intake, ideas, vendors, quote and tradeoffs, or `callTools` (function calling with `tool_choice: auto`, one strict tool per `PlanChange` variant) for change. Adaptive thinking is on; server-side refusal fallback is on for every model except Haiku. Each attempt has a 100 second timeout with SDK retries off, inside the routes' `maxDuration` of 300 seconds.
+4. **One Claude call**, through [`client.ts`](../src/lib/ai/client.ts). `generate` (structured output validated by zod; it repeats once only if the output fails to parse) for intake, ideas, vendors, quote and tradeoffs, or `callTools` (function calling with `tool_choice: auto`, one strict tool per `PlanChange` variant from [`tools.ts`](../src/lib/ai/tools.ts)) for change. The prompts come from [`prompts.ts`](../src/lib/ai/prompts.ts). Adaptive thinking is on; server-side refusal fallback is on for every model except Haiku. Each call has a 100 second timeout with SDK retries off, inside the routes' `maxDuration` of 300 seconds.
 5. **Response validation.** The route post-processes the result (for change, tool calls that fail `PlanChange` are dropped; for quote, a missing total is an error), then the response zod schema is applied. Failure: 502.
-6. **Error mapping.** A refusal is 422. Auth, permission, payment, rate-limit and overload errors from Anthropic, connection failures and exhausted credit are 503. Anything else, including malformed output and unexpected exceptions, is 502. SDK error text is never passed to the user. The handler has no path that returns 500.
-7. **Structured log.** One JSON line per request: route, status, milliseconds, model and token counts. User content is never logged.
+6. **Error mapping.** [`errors.ts`](../src/lib/ai/errors.ts) maps a refusal to 422; auth, permission, payment, rate-limit and overload errors from Anthropic, connection failures and exhausted credit to 503; and anything else, including malformed output and unexpected exceptions, to 502. SDK error text is never passed to the user. The handler has no path that returns 500.
+7. **Structured log.** [`logger.ts`](../src/lib/ai/logger.ts) writes one JSON line per request: route, status, milliseconds, model and token counts. User content is never logged.
 
 Model and effort per route, from `src/lib/ai/client.ts`:
 
@@ -83,7 +81,7 @@ Model and effort per route, from `src/lib/ai/client.ts`:
 | `ideas` | `generate` | medium | 16,000 |
 | `tradeoffs` | `generate` | medium | 8,000 |
 
-The model for a route is `ANTHROPIC_MODEL_<ROUTE>`, else `ANTHROPIC_MODEL`, else `claude-opus-5-5` (`modelFor`). The hosted deployment sets Sonnet as the default with Opus for `change` and `tradeoffs`, as noted in `.env.example`.
+The model for a route is `ANTHROPIC_MODEL_<ROUTE>`, else `ANTHROPIC_MODEL`, else `claude-opus-5-5` (`modelFor`). The hosted deployment sets `ANTHROPIC_MODEL=claude-sonnet-5-5` and `claude-opus-5-5` for `change` and `tradeoffs`; the variables are listed in the [README](../README.md#running-locally).
 
 ## State lifecycle
 
