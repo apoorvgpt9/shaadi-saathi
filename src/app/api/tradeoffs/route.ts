@@ -1,4 +1,6 @@
-import { AiOutputError, generate } from "@/lib/ai/client";
+// POST /api/tradeoffs: groups the engine's budget levers into named savings options.
+import { generate } from "@/lib/ai/client";
+import { AiOutputError } from "@/lib/ai/errors";
 import { TRADEOFFS_SYSTEM, tradeoffsMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
 import { TradeoffsRequest, TradeoffsResponse } from "@/lib/types";
@@ -16,7 +18,9 @@ export async function POST(request: Request) {
     const options = result.data.options
       .map((o) => ({ ...o, leverIds: [...new Set(o.leverIds.filter((id) => known.has(id)))] }))
       .filter((o) => o.leverIds.length > 0);
-    if (options.length === 0) throw new AiOutputError("I could not find a good option. Please try again.");
+    if (options.length === 0) {
+      throw new AiOutputError("I could not find a good option. Please try again.");
+    }
     return { ...result, data: { options } };
   });
 }

@@ -28,6 +28,15 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: { "no-console": "error" },
+  },
+  {
+    // The request logger is the one place allowed to write to the console.
+    files: ["src/lib/ai/logger.ts"],
+    rules: { "no-console": "off" },
+  },
+  {
     files: ["**/*.{js,mjs}"],
     extends: [tseslint.configs.disableTypeChecked],
   },

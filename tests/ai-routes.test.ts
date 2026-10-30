@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { callTools, generate, RefusalError } from "@/lib/ai/client";
+import { callTools, generate } from "@/lib/ai/client";
+import { RefusalError } from "@/lib/ai/errors";
 import { CHANGE_TOOLS } from "@/lib/ai/tools";
 import { POST as change } from "@/app/api/change/route";
 import { POST as ideas } from "@/app/api/ideas/route";
@@ -11,7 +12,7 @@ import { POST as tradeoffs } from "@/app/api/tradeoffs/route";
 import { POST as vendors } from "@/app/api/vendors/route";
 import { BASE_PROFILE as profile } from "./plan-fixtures";
 
-// Mock only the network calls; the error classes stay real so the handler can recognise them.
+// Mock only the network calls; everything else, including the error classes, stays real.
 vi.mock("@/lib/ai/client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/ai/client")>()),
   generate: vi.fn(),

@@ -1,4 +1,6 @@
-import { AiOutputError, generate } from "@/lib/ai/client";
+// POST /api/quote: reads a pasted vendor quote into a priced budget-line entry.
+import { generate } from "@/lib/ai/client";
+import { AiOutputError } from "@/lib/ai/errors";
 import { QUOTE_SYSTEM, quoteMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
 import { QuoteRequest, QuoteResponse } from "@/lib/types";

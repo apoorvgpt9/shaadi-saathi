@@ -1,3 +1,4 @@
+// POST /api/vendors: generates vendor guidance for the current plan.
 import { generate } from "@/lib/ai/client";
 import { VENDORS_SYSTEM, vendorsMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
