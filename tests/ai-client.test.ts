@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { AiOutputError, callTools, generate, modelFor, RefusalError } from "@/lib/ai/client";
+import { callTools, generate, modelFor } from "@/lib/ai/client";
+import { AiOutputError, RefusalError } from "@/lib/ai/errors";
 
 const Schema = z.object({ answer: z.string() });
 const call = { system: "sys", messages: [{ role: "user" as const, content: "hi" }] };

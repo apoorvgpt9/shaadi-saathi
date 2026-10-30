@@ -1,6 +1,8 @@
+// POST /api/intake: turns one chat turn into a reply and an updated wedding-profile draft.
 import { generate } from "@/lib/ai/client";
+import { InvalidInputError } from "@/lib/ai/errors";
 import { INTAKE_SYSTEM, intakeMessages } from "@/lib/ai/prompts";
-import { handleAi, InvalidInputError } from "@/lib/ai/route";
+import { handleAi } from "@/lib/ai/route";
 import { IntakeRequest, IntakeResponse, LIMITS } from "@/lib/types";
 
 export const maxDuration = 300;

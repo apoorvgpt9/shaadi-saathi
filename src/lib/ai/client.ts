@@ -2,6 +2,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
+import { AiOutputError, RefusalError } from "./errors";
 
 export type RouteName = "intake" | "ideas" | "vendors" | "change" | "quote" | "tradeoffs";
 
@@ -30,17 +31,15 @@ interface Call {
   messages: Anthropic.Beta.BetaMessageParam[];
 }
 
-/** The model declined the request for safety reasons. */
-export class RefusalError extends Error {}
-/** The model answered, but not in a usable shape. The message is safe to show the user. */
-export class AiOutputError extends Error {}
+let cachedClient: Anthropic | undefined;
 
-let singleton: Anthropic | undefined;
-// Lazy so that building or testing without a key never touches the network.
-// One 100s attempt per call (plus the single parse retry) stays inside the routes' 300s limit; the UI offers retry.
+/**
+ * The shared SDK client, created on first use so that building or testing without a key never touches the network.
+ * One 100s attempt per call (plus the single parse retry) stays inside the routes' 300s limit; the UI offers retry.
+ */
 function getClient(): Anthropic {
-  singleton ??= new Anthropic({ timeout: 100_000, maxRetries: 0 });
-  return singleton;
+  cachedClient ??= new Anthropic({ timeout: 100_000, maxRetries: 0 });
+  return cachedClient;
 }
 
 /** The model id for a route: its own ANTHROPIC_MODEL_<ROUTE> override, else ANTHROPIC_MODEL, else the default. */
@@ -63,8 +62,12 @@ function baseParams(route: RouteName, call: Call) {
 }
 
 function checkUsable(message: Anthropic.Beta.BetaMessage) {
-  if (message.stop_reason === "refusal") throw new RefusalError("The model declined this request.");
-  if (message.stop_reason === "max_tokens") throw new AiOutputError("The answer was cut off. Please try again.");
+  if (message.stop_reason === "refusal") {
+    throw new RefusalError("The model declined this request.");
+  }
+  if (message.stop_reason === "max_tokens") {
+    throw new AiOutputError("The answer was cut off. Please try again.");
+  }
 }
 
 function meta(model: string, usage: Anthropic.Beta.BetaUsage[]): Meta {
@@ -73,6 +76,15 @@ function meta(model: string, usage: Anthropic.Beta.BetaUsage[]): Meta {
     inputTokens: usage.reduce((n, u) => n + u.input_tokens, 0),
     outputTokens: usage.reduce((n, u) => n + u.output_tokens, 0),
   };
+}
+
+/** True when a second attempt may succeed: unusable model output, or the SDK's schema-validation error. */
+function isRetryableOutputError(err: unknown): boolean {
+  if (err instanceof AiOutputError) {
+    return true;
+  }
+  // The SDK throws a plain AnthropicError (not an APIError) when the output fails schema validation.
+  return err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError);
 }
 
 /**
@@ -94,14 +106,14 @@ export async function generate<S extends z.ZodType>(
       });
       usage.push(message.usage);
       checkUsable(message);
-      if (message.parsed_output == null) throw new AiOutputError("The answer was empty. Please try again.");
+      if (message.parsed_output == null) {
+        throw new AiOutputError("The answer was empty. Please try again.");
+      }
       return { data: message.parsed_output, meta: meta(params.model, usage) };
     } catch (err) {
-      // The SDK throws a plain AnthropicError (not an APIError) when the output fails schema validation.
-      const retryable =
-        err instanceof AiOutputError ||
-        (err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError));
-      if (attempt === 0 && retryable) continue;
+      if (attempt === 0 && isRetryableOutputError(err)) {
+        continue;
+      }
       throw err;
     }
   }

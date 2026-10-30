@@ -1,3 +1,4 @@
+// POST /api/change: turns a free-text change request into validated plan changes.
 import { callTools } from "@/lib/ai/client";
 import { CHANGE_SYSTEM, changeMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";
