@@ -53,15 +53,18 @@ flowchart LR
 
 - **The engine runs in the browser**, so budget edits, task updates and "what if" checks are instant and work even when the AI is unavailable.
 - **AI routes are stateless.** The client sends only what each call needs, and the server stores nothing.
-- **Shared contract:** `src/lib/types.ts` defines every stored and transported shape once, as zod schemas.
+- **Shared contract:** `src/lib/schemas/` (re-exported by `src/lib/types.ts`) defines every stored and transported shape once, as zod schemas. The engine imports only these schemas; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the layers, algorithms and AI request lifecycle.
 
 ```
-src/lib/types.ts      shared zod contract
-src/lib/plan/         deterministic engine (benchmarks, budget, timeline, changes, summary, edits, levers, profile)
+src/lib/schemas/      shared zod contract (limits, domain, plan, views, api); src/lib/types.ts re-exports it
+src/lib/plan/         deterministic engine (benchmarks, budget, timeline, changes, summary, edits, levers, options, profile)
+src/lib/store.ts      client state: reducer, pending changes, validated localStorage parsing
+src/lib/api.ts        typed client for the AI routes
 src/lib/ai/           Claude client, prompts, tools, shared route handler
 src/app/api/*/        six AI route handlers + health check
 src/components/       UI (intake, workspace, tabs, change summary, trade-offs)
-tests/                unit and route tests (Vitest), with shared fixtures in plan-fixtures.ts
+tests/                engine, route, store and API tests (node); tests/ui/ for components with axe (jsdom)
+docs/                 ARCHITECTURE, TESTING, ACCESSIBILITY
 scripts/smoke.mjs     optional end-to-end check against a running server with a real key
 ```
 
@@ -92,18 +95,29 @@ npm run dev                  # http://localhost:3000
 | `ANTHROPIC_MODEL_<ROUTE>` | Optional per-route override, e.g. `ANTHROPIC_MODEL_INTAKE` |
 
 ```bash
-npm test              # unit and route tests (no network; the Claude client is mocked)
-npm run test:coverage # the same tests with a V8 coverage report
-npm run lint
-npm run typecheck
-npm run format:check  # Prettier; npm run format to fix
+npm test              # engine, route, store, API client and component tests (no network; Claude is mocked)
+npm run check         # everything CI runs before the build: format, lint, typecheck, tests with coverage gate
 npm run build
 node scripts/smoke.mjs http://localhost:3000   # optional: real end-to-end calls against a running server
 ```
 
+## Quality gates
+
+`npm run check` runs the first four rows in order; CI runs it, then the build and the audit. Details: [docs/TESTING.md](docs/TESTING.md), [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md), [CONTRIBUTING.md](CONTRIBUTING.md).
+
+| Command | What it enforces | Threshold or flag |
+|---|---|---|
+| `npm run format:check` | Prettier over `src`, `tests`, `scripts` and root `*.ts`/`*.mjs` | print width 120 |
+| `npm run lint` | typescript-eslint `strictTypeChecked` and `stylisticTypeChecked`, `jsx-a11y`, `react-hooks`, Next.js core web vitals | any finding fails |
+| `npm run typecheck` | `next typegen && tsc --noEmit` | `strict`, `noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`, `noFallthroughCasesInSwitch` |
+| `npm run test:coverage` | Vitest over `src/**` (node and jsdom projects, axe checks in the UI suite) | statements 99%, branches 96%, functions 99%, lines 99% (`vitest.config.ts`) |
+| `npm run build` | Production build | build errors fail |
+| `npm audit --omit=dev --audit-level=high` | Known vulnerabilities in runtime dependencies | high or critical fails |
+
 ## Quality, security and accessibility
 
-- **Testing:** Vitest covers the engine (budget maths, scheduling, change application, levers), the AI routes (validation, rate limiting, error mapping, tool-call parsing), the client store and the API client. GitHub Actions runs the format check, lint, typecheck, tests with coverage and the production build on every push.
+- **Testing:** Vitest covers the engine (budget maths, scheduling, change application, levers), the AI routes (validation, rate limiting, error mapping, tool-call parsing), the client store, the API client and the UI components, with axe accessibility checks. Coverage is measured over all of `src` and gated in CI; `scripts/smoke.mjs` makes real calls to every route when run by hand.
+- **Code quality:** strict lint and compiler flags (no `any`, no suppressions in the code), a pure engine that imports only the schemas, JSDoc on the exported contract, and zod validation at every boundary. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - **Security:**
   - The API key stays on the server.
   - Every request body is validated with zod and size-capped.
@@ -112,10 +126,10 @@ node scripts/smoke.mjs http://localhost:3000   # optional: real end-to-end calls
   - User text and pasted quotes are wrapped as untrusted data in prompts.
   - Logs contain only route, status, latency, model and token counts, never user content. See [SECURITY.md](SECURITY.md).
 - **Resilience:** AI failures map to clear 4xx/5xx JSON errors, never an unhandled crash. The budget and timeline keep working without the AI.
-- **Accessibility:**
+- **Accessibility:** target WCAG 2.1 AA. See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) for the patterns and for what is not covered by automated checks.
   - Semantic landmarks and labelled controls.
-  - Keyboard-operable tabs (WAI-ARIA pattern), with live regions for the chat and the change summary.
-  - Visible focus, AA contrast, `prefers-reduced-motion`.
+  - WAI-ARIA tabs and a native modal dialog for reviewing changes, with focus moved in and returned, and live regions for the chat and the change summary.
+  - Visible focus, colour tokens with documented contrast ratios, `prefers-reduced-motion`.
   - Status is always written in text, never shown by colour alone.
 
 ## Honest limits
