@@ -16,7 +16,7 @@ The tests need no key and make no network calls. Read [docs/ARCHITECTURE.md](doc
 
 | You are adding | It goes in | Notes |
 |---|---|---|
-| A shared shape, limit or enum | `src/lib/schemas/` | Import it through `@/lib/types`, and `z` only from `src/lib/schemas/zod.ts`. Changing the persisted `Plan` shape must keep stored plans parseable or bump `version` in `plan.ts`. |
+| A shared shape, limit or enum | `src/lib/schemas/` | Import schemas through `@/lib/types`; in schema files import `z` from `zod` directly (the barrel already loads the JIT-less config in `src/lib/schemas/zod.ts`). Changing the persisted `Plan` shape must keep stored plans parseable or bump `version` in `plan.ts`. |
 | Budget, schedule or edit logic | `src/lib/plan/` | Pure functions of their arguments. Import only schemas and other engine modules. |
 | Reducer actions, persisted state | `src/lib/store.ts` | No I/O. `usePlan.ts` owns localStorage. |
 | A call to an AI route from the browser | `src/lib/api.ts` | Validate the reply; never throw. |

@@ -105,6 +105,6 @@ The model for a route is `ANTHROPIC_MODEL_<ROUTE>`, else `ANTHROPIC_MODEL`, else
 - **Server-rendered first screen.** Why: the intake screen is meaningful HTML before JavaScript runs, and saved state is applied after mount so server and client markup match.
 - **Native `<dialog>` for the review.** Why: the browser provides the inert background, focus containment and Escape handling; the component only adds focus return and a Tab wrap for browsers that let Tab leave the dialog.
 - **One `tbody` per quote.** Why: a quote's open questions sit in a full-width row under it, which a single shared body cannot group.
-- **zod everywhere a boundary is crossed.** Why: localStorage, request bodies, model output and API replies are all untrusted; one schema set serves the engine, routes and client. `zod.ts` runs zod in JIT-less mode once for every schema file, because the Content-Security-Policy forbids the `Function` constructor that zod's JIT probe uses.
+- **zod everywhere a boundary is crossed.** Why: localStorage, request bodies, model output and API replies are all untrusted; one schema set serves the engine, routes and client. `schemas/zod.ts` switches zod to JIT-less mode once, as a side-effect import the `@/lib/types` barrel loads first, because the Content-Security-Policy forbids the `Function` constructor that zod's JIT probe uses. Schema files import `z` from `zod` directly so the bundler can tree-shake it.
 
 See also [TESTING.md](TESTING.md), [ACCESSIBILITY.md](ACCESSIBILITY.md), [SECURITY.md](../SECURITY.md) and [CONTRIBUTING.md](../CONTRIBUTING.md).
