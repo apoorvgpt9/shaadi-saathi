@@ -1,6 +1,8 @@
+// The client-side root: owns the plan store and AI loading, and chooses between the intake and plan screens.
+// It is a client component because the plan lives in the browser (localStorage), which the server cannot see.
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ReactElement } from "react";
 import { api, cancelRequests } from "@/lib/api";
 import { draftToProfile, isDraftReady, newPlan } from "@/lib/plan/profile";
 import type { Plan } from "@/lib/types";
@@ -11,7 +13,8 @@ import { usePlan } from "@/components/usePlan";
 import type { AiStatus } from "@/components/ui/AiGate";
 import { StartOver } from "@/components/ui/StartOver";
 
-export function App() {
+/** The whole app below the page shell: the intake screen until a plan is built, then the plan screen. Takes no props. */
+export function App(): ReactElement {
   const { state, actions } = usePlan();
   const [status, setStatus] = useState<AiStatus>("idle");
   // The profile the vendor checklists were generated for; null until this session generates them.
@@ -43,13 +46,26 @@ export function App() {
         updatePlan((p) => ({ ...p, vendors: vendors.data.vendors, checked: refreshVendors ? {} : p.checked }));
         setVendorsFor(profileKey);
       }
-      if (ideas?.ok) updatePlan((p) => ({ ...p, ideas: ideas.data.ideas }));
+      if (ideas?.ok) {
+        updatePlan((p) => ({ ...p, ideas: ideas.data.ideas }));
+      }
       const failed = [vendors, ideas].find((r) => r && !r.ok);
-      if (failed && !failed.ok && failed.error.code === "aborted") return; // Start over cancelled it; the screen has moved on.
+      if (failed && !failed.ok && failed.error.code === "aborted") {
+        return; // Start over cancelled it; the screen has moved on.
+      }
       setStatus(failed && !failed.ok ? failed.error.code : "idle");
     },
     [updatePlan],
   );
+
+  function buildPlan(): void {
+    if (!state.draft || !isDraftReady(state.draft)) {
+      return;
+    }
+    const plan = newPlan(draftToProfile(state.draft));
+    appActions.startPlan(plan);
+    void load(plan);
+  }
 
   if (state.stage === "plan" && state.plan) {
     return (
@@ -70,16 +86,7 @@ export function App() {
     <>
       <SiteHeader>{state.messages.length > 0 ? <StartOver onConfirm={reset} /> : undefined}</SiteHeader>
       <main id="main" className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-        <IntakeScreen
-          state={state}
-          actions={appActions}
-          onBuild={() => {
-            if (!state.draft || !isDraftReady(state.draft)) return;
-            const plan = newPlan(draftToProfile(state.draft));
-            appActions.startPlan(plan);
-            void load(plan);
-          }}
-        />
+        <IntakeScreen state={state} actions={appActions} onBuild={buildPlan} />
       </main>
     </>
   );

@@ -1,3 +1,5 @@
+// The sidebar list of the next tasks to start, and the badges that flag a task's risk.
+import type { ReactElement } from "react";
 import type { ScheduledTask, TaskFlag } from "@/lib/types";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/icons";
@@ -9,15 +11,21 @@ const FLAG: Record<TaskFlag, { label: string; tone: Tone }> = {
   clash: { label: "Clash", tone: "red" },
 };
 
-export function Flags({ flags }: { flags: TaskFlag[] }) {
-  return flags.map((f) => (
-    <Badge key={f} tone={FLAG[f].tone}>
-      {FLAG[f].label}
-    </Badge>
-  ));
+/** One badge per risk flag on a task. */
+export function Flags({ flags }: { flags: TaskFlag[] }): ReactElement {
+  return (
+    <>
+      {flags.map((f) => (
+        <Badge key={f} tone={FLAG[f].tone}>
+          {FLAG[f].label}
+        </Badge>
+      ))}
+    </>
+  );
 }
 
-export function NextTasks({ tasks }: { tasks: ScheduledTask[] }) {
+/** The sidebar card of the first three tasks that can be started now. */
+export function NextTasks({ tasks }: { tasks: ScheduledTask[] }): ReactElement {
   return (
     <aside aria-labelledby="next-title" className="card p-6">
       <p className="eyebrow">Ready to start</p>

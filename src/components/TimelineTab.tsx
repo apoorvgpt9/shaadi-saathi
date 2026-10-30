@@ -1,5 +1,5 @@
-"use client";
-
+// The Timeline tab: tasks grouped by month, each with a To do / Done / Delayed control.
+import type { ReactElement } from "react";
 import type { ScheduledTask, TaskStatus } from "@/lib/types";
 import { addDays, formatDate, groupByMonth } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
@@ -19,7 +19,65 @@ const monthOf = (iso: string) =>
     timeZone: "UTC",
   });
 
-function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }) {
+interface Props {
+  tasks: ScheduledTask[];
+  /** Sets a task's status; `delayedTo` is the new due date, or null to keep it. */
+  onSet: (id: string, status: TaskStatus, delayedTo: string | null) => void;
+}
+
+/** The new-date picker that appears only for a delayed task. */
+function DelayedDate({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): ReactElement {
+  function changeDate(date: string) {
+    if (date) {
+      onSet(task.id, "delayed", date);
+    }
+  }
+
+  return (
+    <label className="text-sm text-muted">
+      <span className="sr-only">New date for {task.title}</span>
+      <input
+        type="date"
+        name={`delay-${task.id}`}
+        defaultValue={task.due}
+        onChange={(e) => changeDate(e.target.value)}
+        className="min-h-9 rounded-md border border-line bg-surface px-2 text-sm"
+      />
+    </label>
+  );
+}
+
+/** The To do / Done / Delayed segmented control; choosing a different status moves the due date 14 days on. */
+function StatusToggle({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): ReactElement {
+  function choose(status: TaskStatus) {
+    if (task.status !== status) {
+      onSet(task.id, status, addDays(task.due, 14));
+    }
+  }
+
+  return (
+    <div
+      role="group"
+      aria-label={`Status of ${task.title}`}
+      className="inline-flex rounded-md border border-line bg-surface p-0.5"
+    >
+      {STATUSES.map((s) => (
+        <button
+          key={s.value}
+          type="button"
+          aria-pressed={task.status === s.value}
+          onClick={() => choose(s.value)}
+          className={`min-h-8 rounded px-3 text-sm transition-colors ${task.status === s.value ? s.selected : "text-muted hover:bg-sand hover:text-ink"}`}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** One task row: title, due date and flags on the left, its controls on the right. */
+function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }): ReactElement {
   const done = task.status === "done";
   return (
     <li className="grid gap-3 py-4 md:grid-cols-[1fr_auto] md:items-center">
@@ -34,46 +92,15 @@ function Task({ task, onSet }: { task: ScheduledTask; onSet: Props["onSet"] }) {
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {task.status === "delayed" && (
-          <label className="text-sm text-muted">
-            <span className="sr-only">New date for {task.title}</span>
-            <input
-              type="date"
-              name={`delay-${task.id}`}
-              defaultValue={task.due}
-              onChange={(e) => e.target.value && onSet(task.id, "delayed", e.target.value)}
-              className="min-h-9 rounded-md border border-line bg-surface px-2 text-sm"
-            />
-          </label>
-        )}
-        <div
-          role="group"
-          aria-label={`Status of ${task.title}`}
-          className="inline-flex rounded-md border border-line bg-surface p-0.5"
-        >
-          {STATUSES.map((s) => (
-            <button
-              key={s.value}
-              type="button"
-              aria-pressed={task.status === s.value}
-              onClick={() => task.status !== s.value && onSet(task.id, s.value, addDays(task.due, 14))}
-              className={`min-h-8 rounded px-3 text-sm transition-colors ${task.status === s.value ? s.selected : "text-muted hover:bg-sand hover:text-ink"}`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+        {task.status === "delayed" && <DelayedDate task={task} onSet={onSet} />}
+        <StatusToggle task={task} onSet={onSet} />
       </div>
     </li>
   );
 }
 
-interface Props {
-  tasks: ScheduledTask[];
-  onSet: (id: string, status: TaskStatus, delayedTo: string | null) => void;
-}
-
-export function TimelineTab({ tasks, onSet }: Props) {
+/** Every task, grouped under its month, with controls to mark each done or delayed. */
+export function TimelineTab({ tasks, onSet }: Props): ReactElement {
   return (
     <div className="space-y-8">
       {groupByMonth(tasks).map(([month, items]) => (

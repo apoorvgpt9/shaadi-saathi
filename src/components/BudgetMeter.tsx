@@ -1,6 +1,8 @@
-import type { CSSProperties } from "react";
+// The budget bar: estimated total against budget, with the state also written in words.
+import type { ReactElement } from "react";
 import type { BudgetSummary } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
+import { cssVars } from "@/components/ui/cssVars";
 import { Icon } from "@/components/ui/icons";
 import { formatLakh as lakh, pct } from "@/lib/format";
 
@@ -8,7 +10,7 @@ import { formatLakh as lakh, pct } from "@/lib/format";
  * Estimated total against budget. One bar, one axis: the part within budget is marigold, the overage is maroon,
  * and a tick marks the budget. State is also stated in words, so the bar never carries it alone.
  */
-export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
+export function BudgetMeter({ summary }: { summary: BudgetSummary }): ReactElement {
   const { total, budget } = summary;
   const over = total > budget;
   const scale = Math.max(total, budget) || 1;
@@ -44,7 +46,7 @@ export function BudgetMeter({ summary }: { summary: BudgetSummary }) {
       </div>
       <div role="img" aria-label={description} className="relative mt-6">
         <div
-          style={{ "--from": "scaleX(0.85)" } as CSSProperties}
+          style={cssVars({ "--from": "scaleX(0.85)" })}
           className="reveal flex h-2 origin-left gap-0.5 overflow-hidden rounded-[4px] bg-sand"
         >
           <div

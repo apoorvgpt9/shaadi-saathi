@@ -1,4 +1,6 @@
+// The root layout: fonts, document shell, skip link and page metadata.
 import type { Metadata, Viewport } from "next";
+import type { ReactElement } from "react";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +20,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+/** Wraps every page in the document shell, with a skip link as the first focusable element. */
+export default function RootLayout({ children }: LayoutProps<"/">): ReactElement {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">

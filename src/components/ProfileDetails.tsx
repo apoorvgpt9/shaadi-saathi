@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+// Read-only profile rows: the four essentials, then the optional extras.
+import type { ReactElement, ReactNode } from "react";
 import { formatDate, formatINR, plural } from "@/lib/format";
 import { CATEGORY_LABELS, CITY_TIER_LABELS, FUNCTION_LABELS, STYLE_LABELS } from "@/lib/plan/benchmarks";
 import type { IntakeDraft } from "@/lib/types";
@@ -7,7 +8,8 @@ import { Badge } from "@/components/ui/Badge";
 const offsetText = (n: number) =>
   n === 0 ? "wedding day" : `${plural(Math.abs(n), "day")} ${n < 0 ? "before" : "after"}`;
 
-function Row({ label, value, required }: { label: string; value: ReactNode; required?: boolean }) {
+/** One label and value line; a missing value shows a "Needed" badge when the field is required. */
+function Row({ label, value, required }: { label: string; value: ReactNode; required?: boolean }): ReactElement {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-0">
       <dt className="text-sm text-muted">{label}</dt>
@@ -19,6 +21,7 @@ function Row({ label, value, required }: { label: string; value: ReactNode; requ
   );
 }
 
+/** A titled group that shows its children, or the `empty` hint when `items` is empty. */
 function Section({
   title,
   empty,
@@ -29,7 +32,7 @@ function Section({
   empty: string;
   items: unknown[];
   children: ReactNode;
-}) {
+}): ReactElement {
   return (
     <div>
       <h3 className="eyebrow">{title}</h3>
@@ -39,7 +42,7 @@ function Section({
 }
 
 /** The four required fields, plus style: what the assistant has understood so far. */
-export function Essentials({ draft: d }: { draft: IntakeDraft }) {
+export function Essentials({ draft: d }: { draft: IntakeDraft }): ReactElement {
   return (
     <dl className="mt-4">
       <Row label="Wedding date" required value={d.weddingDate && formatDate(d.weddingDate)} />
@@ -56,7 +59,7 @@ export function Essentials({ draft: d }: { draft: IntakeDraft }) {
 }
 
 /** The optional detail: functions, priorities, must-haves and notes. */
-export function Extras({ draft: d }: { draft: IntakeDraft }) {
+export function Extras({ draft: d }: { draft: IntakeDraft }): ReactElement {
   const notes = [...d.mustHaves, ...d.notes];
   return (
     <div className="mt-6 space-y-5 border-t border-line pt-6 text-sm">

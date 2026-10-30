@@ -1,6 +1,5 @@
-"use client";
-
-import { useMemo, useState } from "react";
+// The over-budget panel: asks the AI to bundle trims, then previews each with engine figures.
+import { useMemo, useState, type ReactElement } from "react";
 import { api, failureMessage } from "@/lib/api";
 import { formatINR, pct } from "@/lib/format";
 import { applyLevers, listLevers } from "@/lib/plan/levers";
@@ -18,13 +17,15 @@ type State =
 
 interface Props {
   plan: Plan;
+  /** The current estimated total, in rupees. */
   total: number;
   budget: number;
+  /** Starts a reviewable change that applies the chosen option. */
   onChoose: (build: Proposal) => void;
 }
 
 /** The AI picks and explains option bundles; every figure shown here comes from the engine, against the plan as it is now. */
-export function TradeoffPanel({ plan, total, budget, onChoose }: Props) {
+export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactElement {
   const [state, setState] = useState<State>({ kind: "idle" });
   const options = state.kind === "done" ? state.options : null;
   const previews = useMemo(

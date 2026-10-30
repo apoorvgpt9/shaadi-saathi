@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+// A small status pill.
+import type { ReactElement, ReactNode } from "react";
 
 const TONES = {
   neutral: "bg-sand text-muted",
@@ -8,10 +9,11 @@ const TONES = {
   red: "bg-tint-red text-tint-red-ink",
 } as const;
 
+/** The colour family of a badge. */
 export type Tone = keyof typeof TONES;
 
 /** A status pill. The label always carries the meaning; colour is only reinforcement. */
-export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }) {
+export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }): ReactElement {
   return (
     <span
       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.05em] ${TONES[tone]}`}

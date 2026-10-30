@@ -1,7 +1,12 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+// Shared text input and textarea styling.
+import type { InputHTMLAttributes, ReactElement, TextareaHTMLAttributes } from "react";
 
 /** A labelled text-like input, so every form in the app looks and sizes the same. */
-export function Field({ label, className = "", ...input }: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
+export function Field({
+  label,
+  className = "",
+  ...input
+}: { label: string } & InputHTMLAttributes<HTMLInputElement>): ReactElement {
   return (
     <label className={`text-sm text-muted ${className}`}>
       {label}
@@ -14,7 +19,7 @@ export function Field({ label, className = "", ...input }: { label: string } & I
 }
 
 /** A bare styled textarea: the caller supplies its own label. */
-export function TextArea({ className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function TextArea({ className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>): ReactElement {
   return (
     <textarea
       {...rest}

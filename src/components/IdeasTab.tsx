@@ -1,6 +1,5 @@
-"use client";
-
-import { useState, type SubmitEvent } from "react";
+// The Ideas tab: AI ideas per wedding function, with a feedback loop to refresh them.
+import { useState, type ReactElement, type SubmitEvent } from "react";
 import { api, failureMessage } from "@/lib/api";
 import { FUNCTION_LABELS } from "@/lib/plan/benchmarks";
 import { LIMITS, type FunctionKind, type Idea, type Plan } from "@/lib/types";
@@ -19,7 +18,16 @@ interface Props {
   onUpdate: (update: (plan: Plan) => Plan) => void;
 }
 
-function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan: Plan; onUpdate: Props["onUpdate"] }) {
+/** The ideas for one wedding function, with a form to ask for different ones. */
+function FunctionIdeasBlock({
+  kind,
+  plan,
+  onUpdate,
+}: {
+  kind: FunctionKind;
+  plan: Plan;
+  onUpdate: Props["onUpdate"];
+}): ReactElement {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const ideas = plan.ideas.find((i) => i.kind === kind)?.ideas ?? [];
@@ -49,7 +57,9 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
     const form = e.currentTarget;
     const entry = new FormData(form).get("feedback");
     const feedback = (typeof entry === "string" ? entry : "").trim();
-    if (feedback && (await request(feedback))) form.reset();
+    if (feedback && (await request(feedback))) {
+      form.reset();
+    }
   }
 
   return (
@@ -100,7 +110,8 @@ function FunctionIdeasBlock({ kind, plan, onUpdate }: { kind: FunctionKind; plan
   );
 }
 
-export function IdeasTab({ plan, onUpdate }: Props) {
+/** AI ideas for every function in the plan, one card group each. */
+export function IdeasTab({ plan, onUpdate }: Props): ReactElement {
   return (
     <div className="space-y-6">
       {plan.profile.functions.map((f) => (

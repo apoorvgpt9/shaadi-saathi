@@ -1,7 +1,14 @@
-import type { ReactNode } from "react";
+// The page header: brand mark, plus a slot for actions or the privacy note.
+import type { ReactElement, ReactNode } from "react";
 import { Mark } from "@/components/ui/icons";
 
-export function SiteHeader({ children }: { children?: ReactNode }) {
+interface Props {
+  /** Replaces the privacy note, for screens that need an action in the header. */
+  children?: ReactNode;
+}
+
+/** The top bar shared by every screen: brand on the left, the caller's action or a privacy note on the right. */
+export function SiteHeader({ children }: Props): ReactElement {
   return (
     <header className="border-b border-line/70 bg-canvas/80 backdrop-blur">
       <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap py-2 items-center justify-between gap-4 px-5 sm:px-8">

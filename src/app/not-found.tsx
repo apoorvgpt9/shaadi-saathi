@@ -1,7 +1,10 @@
+// The 404 page: says the page is missing and links back to the app.
 import Link from "next/link";
+import type { ReactElement } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 
-export default function NotFound() {
+/** Shown for any unknown URL; reassures the user that a saved plan is untouched. */
+export default function NotFound(): ReactElement {
   return (
     <>
       <SiteHeader />

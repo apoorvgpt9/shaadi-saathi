@@ -1,6 +1,5 @@
-"use client";
-
-import { useMemo, useState } from "react";
+// Wires the engine, the AI routes and the store to the workspace, its tabs and the change review.
+import { useMemo, useState, type ReactElement } from "react";
 import { api, failureMessage, todayIso } from "@/lib/api";
 import { computeBudget } from "@/lib/plan/budget";
 import { applyChanges } from "@/lib/plan/changes";
@@ -19,8 +18,10 @@ import { AiGate, type AiStatus } from "@/components/ui/AiGate";
 
 interface Props {
   plan: Plan;
+  /** A proposed change awaiting review, if any. */
   pending: PlanState["pending"];
   actions: PlanActions;
+  /** The App-level AI loading state, passed through to the vendor and idea tabs. */
   extras: {
     status: AiStatus;
     /** Fetches what the plan lacks; with `refreshVendors`, regenerates the vendor checklists too. */
@@ -31,7 +32,7 @@ interface Props {
 }
 
 /** Connects the engine, the AI routes and the store to the workspace and its tabs. */
-export function PlanScreen({ plan, pending, actions, extras }: Props) {
+export function PlanScreen({ plan, pending, actions, extras }: Props): ReactElement {
   const [today] = useState(todayIso);
   const [changeText, setChangeText] = useState("");
   const summary = useMemo(() => computeBudget(plan), [plan]);
@@ -46,7 +47,9 @@ export function PlanScreen({ plan, pending, actions, extras }: Props) {
       tasks: tasks.map(({ id, title, status }) => ({ id, title, status })),
       today,
     });
-    if (!res.ok) return { kind: "error", message: failureMessage(res.error) };
+    if (!res.ok) {
+      return { kind: "error", message: failureMessage(res.error) };
+    }
     const { changes, reply } = res.data;
     if (changes.length === 0) {
       return reply

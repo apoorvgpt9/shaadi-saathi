@@ -1,6 +1,5 @@
-"use client";
-
-import { useState, type CSSProperties, type KeyboardEvent } from "react";
+// The intake chat card: sends messages to the assistant and reports its replies upward.
+import { useState, type KeyboardEvent, type ReactElement } from "react";
 import { api, failureMessage, todayIso } from "@/lib/api";
 import { addDays } from "@/lib/format";
 import { awaitingReply } from "@/lib/store";
@@ -8,6 +7,7 @@ import { LIMITS, type ChatMessage, type IntakeDraft } from "@/lib/types";
 import { ChatLog } from "@/components/ChatLog";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/Field";
+import { cssVars } from "@/components/ui/cssVars";
 import { Icon } from "@/components/ui/icons";
 
 /** The sample brief, dated four months out so the plan always has urgent and comfortable tasks. */
@@ -18,12 +18,14 @@ function exampleMessage(): string {
 
 interface Props {
   messages: ChatMessage[];
+  /** The profile understood so far, sent with each message so the assistant can build on it. */
   draft: IntakeDraft | null;
   onUserMessage: (m: ChatMessage) => void;
   onReply: (reply: string, draft: IntakeDraft) => void;
 }
 
-export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
+/** The opening conversation: the log, a composer, and a one-click example, talking to the intake assistant. */
+export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props): ReactElement {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +35,18 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
     setError(null);
     const res = await api.intake({ messages: history.slice(-LIMITS.chatMessages), draft, today: todayIso() });
     setBusy(false);
-    if (res.ok) onReply(res.data.reply, res.data.draft);
-    else if (res.error.code !== "aborted") setError(failureMessage(res.error));
+    if (res.ok) {
+      onReply(res.data.reply, res.data.draft);
+    } else if (res.error.code !== "aborted") {
+      setError(failureMessage(res.error));
+    }
   }
 
   function send(content: string) {
     const trimmed = content.trim();
-    if (!trimmed || busy) return;
+    if (!trimmed || busy) {
+      return;
+    }
     const message: ChatMessage = { role: "user", content: trimmed };
     onUserMessage(message);
     setText("");
@@ -58,7 +65,7 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props) {
   const notice = unanswered ? (error ?? "That message did not get a reply.") : null;
 
   return (
-    <section aria-labelledby="chat-title" className="card reveal flex flex-col" style={{ "--i": 1 } as CSSProperties}>
+    <section aria-labelledby="chat-title" className="card reveal flex flex-col" style={cssVars({ "--i": 1 })}>
       <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-4 sm:px-8">
         <h2 id="chat-title" className="font-serif text-2xl tracking-tight">
           Opening questions

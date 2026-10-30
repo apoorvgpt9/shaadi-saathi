@@ -1,13 +1,16 @@
-"use client";
-
-import { useEffect, useRef, type ReactNode } from "react";
+// The modal that shows what a proposed change would move, for the user to accept or undo.
+import { useEffect, useRef, type KeyboardEvent, type ReactElement } from "react";
 import { formatINR, pct, signed } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
 import type { Pending } from "@/lib/store";
+import type { ChangeSummary } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
-function Group({ title, items }: { title: string; items: string[] }): ReactNode {
-  if (items.length === 0) return null;
+/** A titled bullet list of notes; renders nothing when there are none. */
+function Group({ title, items }: { title: string; items: string[] }): ReactElement | null {
+  if (items.length === 0) {
+    return null;
+  }
   return (
     <div>
       <h3 className="eyebrow">{title}</h3>
@@ -20,19 +23,73 @@ function Group({ title, items }: { title: string; items: string[] }): ReactNode 
   );
 }
 
+/** Before and after for the estimated total and its share of the budget. */
+function Totals({ summary: s }: { summary: ChangeSummary }): ReactElement {
+  return (
+    <dl className="space-y-2 text-sm tabular-nums">
+      <div className="flex justify-between gap-4">
+        <dt className="text-muted">Estimated total</dt>
+        <dd className="text-right font-medium">
+          {formatINR(s.totalBefore)} to {formatINR(s.totalAfter)}
+        </dd>
+      </div>
+      <div className="flex justify-between gap-4">
+        <dt className="text-muted">Of budget</dt>
+        <dd className="text-right font-medium">
+          {pct(s.totalBefore, s.budgetBefore)}% to {pct(s.totalAfter, s.budgetAfter)}%
+          {s.budgetBefore !== s.budgetAfter && (
+            <span className="block font-normal text-muted">Budget now {formatINR(s.budgetAfter)}</span>
+          )}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+/** The budget lines whose amount moves, each with its before, after and difference. */
+function BudgetLines({ lines }: { lines: ChangeSummary["lines"] }): ReactElement {
+  return (
+    <div>
+      <h3 className="eyebrow">Budget lines</h3>
+      <ul className="mt-2 divide-y divide-line text-sm tabular-nums">
+        {lines.map((l) => (
+          <li key={l.category} className="flex flex-wrap justify-between gap-x-4 py-2">
+            <span>{CATEGORY_LABELS[l.category]}</span>
+            <span className="text-right">
+              {formatINR(l.before)} to {formatINR(l.after)}{" "}
+              <strong className="ml-1">({signed(l.after - l.before)})</strong>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap focus at the first and last control. */
+function wrapTabFocus(e: KeyboardEvent<HTMLDialogElement>): void {
+  if (e.key !== "Tab") {
+    return;
+  }
+  const items = [...e.currentTarget.querySelectorAll<HTMLElement>("button, [tabindex='0']")];
+  const edge = items[e.shiftKey ? 0 : items.length - 1];
+  if (document.activeElement === edge) {
+    e.preventDefault();
+    items[e.shiftKey ? items.length - 1 : 0]?.focus();
+  }
+}
+
+interface Props {
+  pending: Pending;
+  onAccept: () => void;
+  onUndo: () => void;
+}
+
 /**
  * Modal review of a proposed change, as a native modal dialog: the page behind is inert, Tab stays inside, Escape and
  * the scrim click undo, and closing returns focus to the opener. Nothing is saved until Accept.
  */
-export function ChangeSummaryPanel({
-  pending,
-  onAccept,
-  onUndo,
-}: {
-  pending: Pending;
-  onAccept: () => void;
-  onUndo: () => void;
-}) {
+export function ChangeSummaryPanel({ pending, onAccept, onUndo }: Props): ReactElement {
   const { summary: s, ignored } = pending;
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -56,7 +113,9 @@ export function ChangeSummaryPanel({
   useEffect(() => {
     const el = dialog.current;
     const onScrimClick = (e: MouseEvent) => {
-      if (e.target === el) onUndo();
+      if (e.target === el) {
+        onUndo();
+      }
     };
     el?.addEventListener("click", onScrimClick);
     return () => el?.removeEventListener("click", onScrimClick);
@@ -70,15 +129,7 @@ export function ChangeSummaryPanel({
         e.preventDefault();
         onUndo();
       }}
-      onKeyDown={(e) => {
-        // Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap at the ends here.
-        const items = [...e.currentTarget.querySelectorAll<HTMLElement>("button, [tabindex='0']")];
-        const edge = items[e.shiftKey ? 0 : items.length - 1];
-        if (e.key === "Tab" && document.activeElement === edge) {
-          e.preventDefault();
-          items[e.shiftKey ? items.length - 1 : 0]?.focus();
-        }
-      }}
+      onKeyDown={wrapTabFocus}
       className="card reveal m-0 ml-auto h-full max-h-none w-full max-w-md rounded-none border-y-0 border-r-0 p-0 backdrop:bg-ink/30 [--from:translateX(24px)]"
     >
       <div className="flex h-full flex-col">
@@ -99,39 +150,8 @@ export function ChangeSummaryPanel({
               What changed
             </h2>
           </div>
-          <dl className="space-y-2 text-sm tabular-nums">
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">Estimated total</dt>
-              <dd className="text-right font-medium">
-                {formatINR(s.totalBefore)} to {formatINR(s.totalAfter)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">Of budget</dt>
-              <dd className="text-right font-medium">
-                {pct(s.totalBefore, s.budgetBefore)}% to {pct(s.totalAfter, s.budgetAfter)}%
-                {s.budgetBefore !== s.budgetAfter && (
-                  <span className="block font-normal text-muted">Budget now {formatINR(s.budgetAfter)}</span>
-                )}
-              </dd>
-            </div>
-          </dl>
-          {s.lines.length > 0 && (
-            <div>
-              <h3 className="eyebrow">Budget lines</h3>
-              <ul className="mt-2 divide-y divide-line text-sm tabular-nums">
-                {s.lines.map((l) => (
-                  <li key={l.category} className="flex flex-wrap justify-between gap-x-4 py-2">
-                    <span>{CATEGORY_LABELS[l.category]}</span>
-                    <span className="text-right">
-                      {formatINR(l.before)} to {formatINR(l.after)}{" "}
-                      <strong className="ml-1">({signed(l.after - l.before)})</strong>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <Totals summary={s} />
+          {s.lines.length > 0 && <BudgetLines lines={s.lines} />}
           <Group title="Newly urgent" items={s.newlyUrgent} />
           <Group title="Newly at risk" items={s.newlyAtRisk} />
           <Group title="Now clashing with the wedding" items={s.newlyClashing} />

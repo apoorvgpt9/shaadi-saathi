@@ -1,16 +1,17 @@
-"use client";
-
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+// The Start over button with its inline two-step confirm.
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from "react";
 import { Button } from "@/components/ui/Button";
 
 /** "Start over" with an inline two-step confirm, because it clears the saved plan with no way back. */
-export function StartOver({ onConfirm }: { onConfirm: () => void }) {
+export function StartOver({ onConfirm }: { onConfirm: () => void }): ReactElement {
   const [asking, setAsking] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const keep = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (asking) keep.current?.focus();
+    if (asking) {
+      keep.current?.focus();
+    }
   }, [asking]);
 
   function close() {
@@ -20,7 +21,9 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
   }
 
   const closeOnEscape = (e: KeyboardEvent) => {
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      close();
+    }
   };
 
   if (!asking) {

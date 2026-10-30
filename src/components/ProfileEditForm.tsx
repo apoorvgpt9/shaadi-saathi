@@ -1,6 +1,5 @@
-"use client";
-
-import { useState, type SubmitEvent } from "react";
+// The form for typing the four essentials in by hand instead of through the chat.
+import { useState, type ReactElement, type SubmitEvent } from "react";
 import { todayIso } from "@/lib/api";
 import { IsoDate, LIMITS, type IntakeDraft } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
@@ -8,12 +7,13 @@ import { Field } from "@/components/ui/Field";
 
 interface Props {
   draft: IntakeDraft;
+  /** Receives the draft with the typed essentials merged in; blank fields become null. */
   onSave: (d: IntakeDraft) => void;
   onCancel: () => void;
 }
 
 /** Manual entry of the four essentials. The browser enforces the ranges, and the date cannot be in the past. */
-export function ProfileEditForm({ draft, onSave, onCancel }: Props) {
+export function ProfileEditForm({ draft, onSave, onCancel }: Props): ReactElement {
   const [today] = useState(todayIso);
 
   function submit(e: SubmitEvent<HTMLFormElement>) {

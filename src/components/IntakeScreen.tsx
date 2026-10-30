@@ -1,3 +1,5 @@
+// The first screen: the intake chat beside the live profile summary.
+import type { ReactElement } from "react";
 import type { PlanActions, PlanState } from "@/lib/store";
 import { IntakeChat } from "@/components/IntakeChat";
 import { ProfilePanel } from "@/components/ProfilePanel";
@@ -5,10 +7,12 @@ import { ProfilePanel } from "@/components/ProfilePanel";
 interface Props {
   state: PlanState;
   actions: PlanActions;
+  /** Starts the plan once the profile is ready. */
   onBuild: () => void;
 }
 
-export function IntakeScreen({ state, actions, onBuild }: Props) {
+/** The landing screen: a short pitch, then the intake chat beside the live profile summary. */
+export function IntakeScreen({ state, actions, onBuild }: Props): ReactElement {
   return (
     <>
       <section className="reveal max-w-4xl pb-10 pt-12 sm:pt-16">

@@ -1,3 +1,4 @@
+// The plan store hook: reducer state persisted to localStorage and hydrated after mount.
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { bindActions, initialState, parseStored, reducer, STORAGE_KEY } from "@/lib/store";
 
@@ -13,7 +14,9 @@ export function usePlan() {
   const { stage, messages, draft, plan } = state;
   // Declared before the hydrate effect: on mount it must still see `hydrated` as false and not overwrite the saved state.
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!hydrated.current) {
+      return;
+    }
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ stage, messages, draft, plan }));
     } catch {
@@ -23,7 +26,9 @@ export function usePlan() {
 
   useEffect(() => {
     const saved = parseStored(window.localStorage.getItem(STORAGE_KEY));
-    if (saved) actions.hydrate(saved);
+    if (saved) {
+      actions.hydrate(saved);
+    }
     hydrated.current = true;
   }, [actions]);
 
