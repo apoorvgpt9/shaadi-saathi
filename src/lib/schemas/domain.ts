@@ -1,7 +1,6 @@
+// The wedding itself: enums, the validated profile, and what the intake AI extracts to build one.
 import { LIMITS } from "./limits";
 import { z } from "zod";
-
-// The wedding itself: enums, the validated profile, and what the intake AI extracts to build one.
 
 const FUNCTION_KINDS = ["haldi", "mehendi", "sangeet", "wedding", "reception"] as const;
 export const CATEGORY_IDS = [

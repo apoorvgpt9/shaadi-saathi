@@ -6,9 +6,15 @@ import type { IntakeDraft, Plan, Profile, WeddingFunction } from "@/lib/types";
 /** The opening questions already settle these, so they start as done. */
 const TASKS_DONE_AT_INTAKE = ["finalise-dates", "agree-budget", "guest-estimate"];
 
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
-const cleanTexts = (items: string[], max: number) =>
-  [...new Set(items.map((s) => s.trim().slice(0, LIMITS.textChars)).filter(Boolean))].slice(0, max);
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+/** Trimmed, length-capped, de-duplicated texts with blanks dropped, keeping at most `max`. */
+function cleanTexts(items: string[], max: number): string[] {
+  const cleaned = items.map((item) => item.trim().slice(0, LIMITS.textChars)).filter(Boolean);
+  return [...new Set(cleaned)].slice(0, max);
+}
 
 type ReadyDraft = IntakeDraft & {
   weddingDate: string;
@@ -38,7 +44,16 @@ function draftFunctions(draft: ReadyDraft, guests: number): WeddingFunction[] {
   ];
 }
 
-/** Turns a ready draft into a full profile, applying defaults and clamping to the schema ranges. Throws if the draft is not ready. */
+/**
+ * Turns a ready draft into a full profile, applying defaults and clamping to the schema ranges.
+ * Throws if the draft is not ready.
+ *
+ * @example
+ * // City is trimmed, tier and style default to Tier-2 and Classic, and offsets become dates.
+ * const profile = draftToProfile({ ...draft, city: " Jaipur ", cityTier: null, style: null });
+ * // profile.city === "Jaipur", profile.cityTier === "tier2", profile.style === "classic"
+ * // a mehendi at dayOffset -1 for a wedding on 2027-03-01 is dated "2027-02-28"
+ */
 export function draftToProfile(draft: IntakeDraft): Profile {
   if (!isDraftReady(draft)) throw new Error("Draft needs a date, city, guest count and budget before planning");
   const guests = clamp(draft.guests, LIMITS.guests.min, LIMITS.guests.max);
@@ -56,7 +71,13 @@ export function draftToProfile(draft: IntakeDraft): Profile {
   };
 }
 
-/** An empty plan around `profile`, with the tasks the opening questions already settle marked done. */
+/**
+ * An empty plan around `profile`, with the tasks the opening questions already settle marked done.
+ *
+ * @example
+ * const plan = newPlan(profile);
+ * // plan.version === 1, plan.quotes is [], and plan.tasks["agree-budget"] is { status: "done", delayedTo: null }
+ */
 export function newPlan(profile: Profile): Plan {
   return {
     version: 1,

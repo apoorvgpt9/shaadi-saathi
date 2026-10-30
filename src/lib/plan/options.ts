@@ -19,13 +19,29 @@ export function usableOptions(
   const known = new Set(levers.map((l) => l.id));
   return raw.flatMap((o) => {
     const ids = o.leverIds.filter((id) => known.has(id));
-    return ids.length > 0 ? [{ title: o.title, why: o.why, ids }] : [];
+    if (ids.length === 0) {
+      return [];
+    }
+    return [{ title: o.title, why: o.why, ids }];
   });
 }
 
+export interface OptionPreview {
+  /** Rupees saved against the plan as it stands now. */
+  saving: number;
+  /** Whole percent of the budget the plan would use afterwards. */
+  percent: number;
+  /** True when the plan would fit its budget afterwards. */
+  within: boolean;
+}
+
 /** What choosing an option would do to the plan as it stands now: money saved, % of budget used, and whether it fits. Pure. */
-export function previewOption(plan: Plan, ids: string[]) {
+export function previewOption(plan: Plan, ids: string[]): OptionPreview {
   const now = computeBudget(plan);
   const next = computeBudget(applyLevers(plan, ids));
-  return { saving: now.total - next.total, percent: pct(next.total, next.budget), within: next.total <= next.budget };
+  return {
+    saving: now.total - next.total,
+    percent: pct(next.total, next.budget),
+    within: next.total <= next.budget,
+  };
 }

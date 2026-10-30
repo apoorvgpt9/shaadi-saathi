@@ -1,3 +1,4 @@
+// Configures zod once (jitless, for the CSP); imported first by the types barrel.
 import { z } from "zod";
 
 // zod's JIT probe calls Function(""), which our CSP forbids and logs as a violation on every page load.

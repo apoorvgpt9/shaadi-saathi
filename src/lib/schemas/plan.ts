@@ -1,8 +1,7 @@
+// Everything persisted in localStorage, the vendor and idea payloads inside it, and the edits applied to it.
 import { CategoryId, FunctionKind, Guests, IsoDate, Profile, Rupees, ShortText, Style } from "./domain";
 import { LIMITS } from "./limits";
 import { z } from "zod";
-
-// Everything persisted in localStorage, the vendor and idea payloads inside it, and the edits applied to it.
 
 export const PriceStatus = z.enum(["estimate", "quoted", "confirmed"]);
 export const TaskStatus = z.enum(["todo", "done", "delayed"]);
