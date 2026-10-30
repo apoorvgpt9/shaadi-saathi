@@ -9,8 +9,8 @@ Vitest runs two projects, defined in `vitest.config.ts`. Counts are from `npx vi
 | Project | Environment | Files | Tests | Location |
 |---|---|---|---|---|
 | `unit` | node | 15 | 152 | `tests/*.test.ts` |
-| `ui` | jsdom | 8 | 108 | `tests/ui/**/*.test.tsx` |
-| Total | | 23 | 260 | `npm test` |
+| `ui` | jsdom | 8 | 109 | `tests/ui/**/*.test.tsx` |
+| Total | | 23 | 261 | `npm test` |
 
 What each area proves:
 
@@ -41,7 +41,7 @@ The measured column is the output of `npm run test:coverage` and will drift as c
 ## Commands
 
 ```bash
-npm test                # all 260 tests, both projects
+npm test                # all 261 tests, both projects
 npx vitest run --project unit   # engine, routes, store, API client (node)
 npx vitest run --project ui     # components with jsdom and axe
 npm run test:coverage   # the same, with the coverage gate

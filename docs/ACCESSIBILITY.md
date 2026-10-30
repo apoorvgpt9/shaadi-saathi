@@ -41,7 +41,7 @@ These were computed once for this page; no test re-checks them, so recompute if 
 ## Automated checks
 
 - **ESLint `jsx-a11y`** (recommended rules) runs over `src` and `tests` as part of `npm run lint`, and `eslint-plugin-react-hooks` runs alongside it.
-- **vitest-axe** runs inside the UI suite. `expectAccessible(container)` in `tests/ui/helpers.tsx` runs axe over rendered states and asserts there are no violations; it is called 57 times across the 8 UI test files. It disables two rules: `region`, because a lone component has no page landmarks, and `color-contrast`, because jsdom has no layout to measure.
+- **vitest-axe** runs inside the UI suite. `expectAccessible(container)` in `tests/ui/helpers.tsx` runs axe over rendered states and asserts there are no violations; it is called 58 times across the 8 UI test files. It disables two rules: `region`, because a lone component has no page landmarks, and `color-contrast`, because jsdom has no layout to measure.
 - **Behavioural tests** assert the keyboard and focus contracts listed above: tab key handling and `aria-selected`, dialog focus on open, Escape, scrim click, Tab wrap and focus return, and Start over's focus handling (`tests/ui/tabs.test.tsx`, `tests/ui/change-summary.test.tsx`).
 
 ## Not covered
