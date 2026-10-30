@@ -24,7 +24,10 @@ const DESCRIPTIONS: Record<PlanChange["type"], string> = {
     "Record a preference or constraint (culture, ages, accessibility, atmosphere) as a short note.",
 };
 
-/** One strict tool per PlanChange variant, named by its `type`, which therefore is not part of the input. */
+/**
+ * One strict tool per PlanChange variant, named by its `type`, which therefore is not part of the
+ * input.
+ */
 export const CHANGE_TOOLS: Anthropic.Beta.BetaTool[] = PlanChange.options.map((variant) => {
   const name = variant.shape.type.value;
   const input = z.object(

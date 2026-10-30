@@ -54,7 +54,8 @@ function QuoteForm({
       setError(failureMessage(res.error, "Your text is still here."));
       return;
     }
-    const quote = { ...res.data.quote, id: crypto.randomUUID() }; // Outside the updater: React may run updaters twice.
+    // Outside the updater: React may run updaters twice.
+    const quote = { ...res.data.quote, id: crypto.randomUUID() };
     onUpdate((p) => ({ ...p, quotes: [...p.quotes, quote].slice(-LIMITS.quotes) }));
     setText("");
   }
@@ -170,7 +171,10 @@ interface VendorSectionProps {
   onUpdate: Props["onUpdate"];
 }
 
-/** One category: its checklist, any quotes pasted for it compared side by side, and the form to add another. */
+/**
+ * One category: its checklist, any quotes pasted for it compared side by side, and the form to add
+ * another.
+ */
 function VendorSection({ vendor, plan, summary, onUpdate }: VendorSectionProps): ReactElement {
   const { category } = vendor;
   const quotes = plan.quotes.filter((q) => q.category === category);

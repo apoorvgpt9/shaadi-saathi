@@ -1,4 +1,4 @@
-// The single gateway to the Claude API: model choice, structured output, tool calls and usage metadata.
+// The single gateway to the Claude API: model choice, structured output, tool calls and usage.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
@@ -34,15 +34,19 @@ interface Call {
 let cachedClient: Anthropic | undefined;
 
 /**
- * The shared SDK client, created on first use so that building or testing without a key never touches the network.
- * One 100s attempt per call (plus the single parse retry) stays inside the routes' 300s limit; the UI offers retry.
+ * The shared SDK client, created on first use so that building or testing without a key never
+ * touches the network. One 100s attempt per call (plus the single parse retry) stays inside the
+ * routes' 300s limit; the UI offers retry.
  */
 function getClient(): Anthropic {
   cachedClient ??= new Anthropic({ timeout: 100_000, maxRetries: 0 });
   return cachedClient;
 }
 
-/** The model id for a route: its own ANTHROPIC_MODEL_<ROUTE> override, else ANTHROPIC_MODEL, else the default. */
+/**
+ * The model id for a route: its own ANTHROPIC_MODEL_<ROUTE> override, else ANTHROPIC_MODEL, else
+ * the default.
+ */
 export function modelFor(route: RouteName): string {
   return (
     process.env[`ANTHROPIC_MODEL_${route.toUpperCase()}`] ??
@@ -82,18 +86,23 @@ function meta(model: string, usage: Anthropic.Beta.BetaUsage[]): Meta {
   };
 }
 
-/** True when a second attempt may succeed: unusable model output, or the SDK's schema-validation error. */
+/**
+ * True when a second attempt may succeed: unusable model output, or the SDK's schema-validation
+ * error.
+ */
 function isRetryableOutputError(err: unknown): boolean {
   if (err instanceof AiOutputError) {
     return true;
   }
-  // The SDK throws a plain AnthropicError (not an APIError) when the output fails schema validation.
+  // The SDK throws a plain AnthropicError (not an APIError) when the output fails schema
+  // validation.
   return err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError);
 }
 
 /**
- * Structured output validated against a zod schema; one retry when the model's output does not parse.
- * Throws RefusalError, AiOutputError or the SDK's own errors, which the route handler maps to API codes.
+ * Structured output validated against a zod schema; one retry when the model's output does not
+ * parse. Throws RefusalError, AiOutputError or the SDK's own errors, which the route handler maps
+ * to API codes.
  */
 export async function generate<S extends z.ZodType>(
   route: RouteName,
@@ -123,7 +132,10 @@ export async function generate<S extends z.ZodType>(
   }
 }
 
-/** One tool-calling turn with `tool_choice: auto`. Returns every tool call plus any text; the calls are unvalidated. */
+/**
+ * One tool-calling turn with `tool_choice: auto`. Returns every tool call plus any text; the calls
+ * are unvalidated.
+ */
 export async function callTools(
   route: RouteName,
   tools: Anthropic.Beta.BetaTool[],

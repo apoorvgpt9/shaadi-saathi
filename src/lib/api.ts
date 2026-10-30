@@ -1,4 +1,4 @@
-// The browser's typed client for the AI routes: validated replies, timeouts, cancellation and failure copy.
+// The browser's typed client for the AI routes: validated replies, timeouts, cancellation, copy.
 import { z } from "zod";
 import {
   ChangeRequest,
@@ -31,22 +31,29 @@ const ErrorBody = z.object({
   }),
 });
 
-// Above the server's 100 s per model attempt, so a healthy slow call (vendors, ideas) is not cut off.
+// Above the server's 100 s per model attempt, so a healthy slow call (vendors, ideas) is not cut
+// off.
 const TIMEOUT_MS = 150_000;
 
 function fail(code: ApiFailureCode, message = ""): ApiResult<never> {
   return { ok: false, error: { code, message } };
 }
 
-// Every call is tied to this scope. Start over cancels it, so a late answer cannot land on the next plan.
+// Every call is tied to this scope. Start over cancels it, so a late answer cannot land on the next
+// plan.
 let scope = new AbortController();
-/** Aborts every in-flight call and starts a fresh scope for the next ones. Safe to call at any time. */
+/**
+ * Aborts every in-flight call and starts a fresh scope for the next ones. Safe to call at any time.
+ */
 export function cancelRequests(): void {
   scope.abort();
   scope = new AbortController();
 }
 
-/** Reads a non-2xx reply as the server's described failure, or a generic `ai_error` when it is not in our shape. */
+/**
+ * Reads a non-2xx reply as the server's described failure, or a generic `ai_error` when it is not
+ * in our shape.
+ */
 function failureFromBody(json: unknown): ApiResult<never> {
   const parsed = ErrorBody.safeParse(json);
   if (!parsed.success) {
@@ -55,7 +62,10 @@ function failureFromBody(json: unknown): ApiResult<never> {
   return fail(parsed.data.error.code, parsed.data.error.message);
 }
 
-/** Why a request that never produced a reply failed: our own timeout, a cancellation, or the network. */
+/**
+ * Why a request that never produced a reply failed: our own timeout, a cancellation, or the
+ * network.
+ */
 function transportFailure(request: AbortSignal, caller: AbortSignal): ApiFailureCode {
   if (request.reason === "timeout") {
     return "timeout";
@@ -64,7 +74,8 @@ function transportFailure(request: AbortSignal, caller: AbortSignal): ApiFailure
 }
 
 /**
- * POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal` cancels it.
+ * POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal`
+ * cancels it.
  *
  * @example
  * const result = await post("/api/quote", body, QuoteResponse);
@@ -112,7 +123,10 @@ export async function post<Res>(
   }
 }
 
-/** One typed caller per AI route; each posts the validated request body and returns a validated result. */
+/**
+ * One typed caller per AI route; each posts the validated request body and returns a validated
+ * result.
+ */
 export const api = {
   intake: (body: z.infer<typeof IntakeRequest>) => post("/api/intake", body, IntakeResponse),
   ideas: (body: z.infer<typeof IdeasRequest>) => post("/api/ideas", body, IdeasResponse),
@@ -154,7 +168,10 @@ export function describeFailure(code: ApiFailureCode): { title: string; hint: st
   return FAILURE_COPY[code];
 }
 
-/** Copy for a failed call. The server's own message wins where it explains the problem (a quote with no total, say). */
+/**
+ * Copy for a failed call. The server's own message wins where it explains the problem (a quote with
+ * no total, say).
+ */
 export function failureMessage({ code, message }: ApiFailure, suffix = ""): string {
   const { title, hint } = FAILURE_COPY[code];
   const explained =

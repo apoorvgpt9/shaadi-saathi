@@ -1,17 +1,22 @@
-// A sliding-window rate limiter keyed by string. Counts are per server instance; a shared store would make them global.
+// A sliding-window rate limiter keyed by string; counts are kept per server instance.
 
 interface RateLimiterOptions {
   /** Requests allowed per key inside one window. */
   limit: number;
   windowMs: number;
-  /** Upper bound on remembered keys, so a flood of distinct keys cannot grow memory without limit. */
+  /**
+   * Upper bound on remembered keys, so a flood of distinct keys cannot grow memory without limit.
+   */
   maxTracked: number;
   /** Clock in milliseconds; injected so tests need no fake timers. */
   now?: () => number;
 }
 
 export interface RateLimiter {
-  /** Records a request for `key` and reports whether it is over the limit. Rejected requests are not counted. */
+  /**
+   * Records a request for `key` and reports whether it is over the limit. Rejected requests are not
+   * counted.
+   */
   isLimited(key: string): boolean;
 }
 

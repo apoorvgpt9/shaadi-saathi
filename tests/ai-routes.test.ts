@@ -21,7 +21,8 @@ vi.mock("@/lib/ai/client", async (importOriginal) => ({
 
 const generateMock = vi.mocked(generate);
 const callToolsMock = vi.mocked(callTools);
-// Every field any route returns, so assertions read the body without `any`. Unknown keys are kept for toEqual.
+// Every field any route returns, so assertions read the body without `any`. Unknown keys are kept
+// for toEqual.
 const Body = z
   .looseObject({
     error: z.object({ code: z.string(), message: z.string() }),
@@ -39,7 +40,9 @@ async function json(res: Response) {
 const meta = { model: "test-model", inputTokens: 10, outputTokens: 5 };
 
 let nextIp = 0;
-/** Each request gets its own IP unless one is given, so the rate limiter never leaks between tests. */
+/**
+ * Each request gets its own IP unless one is given, so the rate limiter never leaks between tests.
+ */
 function post(
   handler: (r: Request) => Promise<Response>,
   body: unknown,

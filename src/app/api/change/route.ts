@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       system: CHANGE_SYSTEM,
       messages: changeMessages(input),
     });
-    // The tool name is the variant's `type`; anything that fails the contract is dropped, never applied.
+    // The tool name is the variant's `type`; anything that fails the contract is dropped, never
+    // applied.
     const changes = result.data.calls.flatMap((call) => {
       const parsed = PlanChange.safeParse(Object.assign({}, call.input, { type: call.name }));
       return parsed.success ? [parsed.data] : [];

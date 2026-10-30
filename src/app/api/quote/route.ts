@@ -19,7 +19,8 @@ export async function POST(request: Request) {
         "I could not find a total price in that quote. Check the text and try again.",
       );
     }
-    // The request's category decides which budget line the quote belongs to, whatever the model returned.
+    // The request's category decides which budget line the quote belongs to, whatever the model
+    // returned.
     return { ...result, data: { quote: { ...result.data.quote, category: input.category } } };
   });
 }

@@ -61,9 +61,10 @@ function changeNotes(before: Plan, after: Plan, afterBudget: BudgetSummary): str
  * Pure; both schedules are computed against the injected `today`.
  *
  * @example
- * // The README example (+50 guests, budget Rs 7,00,000, two weeks earlier) from the Rs 8,00,000 plan:
+ * // README example: +50 guests, budget Rs 7,00,000, two weeks earlier, from the Rs 8,00,000 plan
  * const summary = summarizeChange(before, after, "2026-10-29");
- * // summary.totalBefore === 958_000, summary.totalAfter === 1_067_000, summary.budgetAfter === 700_000,
+ * // summary.totalBefore === 958_000, summary.totalAfter === 1_067_000
+ * // summary.budgetAfter === 700_000
  * // summary.notes is ["Wedding moved from 1 Mar 2027 to 15 Feb 2027"]
  */
 export function summarizeChange(before: Plan, after: Plan, today: string): ChangeSummary {

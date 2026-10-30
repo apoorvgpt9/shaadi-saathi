@@ -61,7 +61,8 @@ export function QuoteCompare({
           {quotes.map((q) => {
             const short = q.guestsCovered !== null && q.guestsCovered < needed;
             return (
-              // One tbody per quote keeps its open questions grouped under it, full width instead of a narrow column.
+              // One tbody per quote keeps its open questions grouped under it, full width instead
+              // of a narrow column.
               <tbody key={q.id} className="border-b border-line align-top">
                 <tr>
                   <th scope="row" className="py-3 pr-4 font-medium wrap-break-word">

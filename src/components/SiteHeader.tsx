@@ -7,7 +7,10 @@ interface Props {
   children?: ReactNode;
 }
 
-/** The top bar shared by every screen: brand on the left, the caller's action or a privacy note on the right. */
+/**
+ * The top bar shared by every screen: brand on the left, the caller's action or a privacy note on
+ * the right.
+ */
 export function SiteHeader({ children }: Props): ReactElement {
   return (
     <header className="border-b border-line/70 bg-canvas/80 backdrop-blur">

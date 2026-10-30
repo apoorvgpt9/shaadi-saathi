@@ -25,7 +25,10 @@ const EMPTY_DRAFT: IntakeDraft = {
 interface Props {
   draft: IntakeDraft | null;
   onDraftChange: (d: IntakeDraft) => void;
-  /** Called by "Build my plan", which is enabled only once the draft is ready and its date is not in the past. */
+  /**
+   * Called by "Build my plan", which is enabled only once the draft is ready and its date is not in
+   * the past.
+   */
   onBuild: () => void;
 }
 
@@ -57,7 +60,10 @@ function BuildHint({ past, ready, missing }: BuildHintProps): ReactElement {
   return <>Still needed: {missing.join(", ")}.</>;
 }
 
-/** "What I've understood": the live profile, with the four required fields marked and the build gate. */
+/**
+ * "What I've understood": the live profile, with the four required fields marked and the build
+ * gate.
+ */
 export function ProfilePanel({ draft, onDraftChange, onBuild }: Props): ReactElement {
   const [editing, setEditing] = useState(false);
   const d = draft ?? EMPTY_DRAFT;
@@ -67,7 +73,8 @@ export function ProfilePanel({ draft, onDraftChange, onBuild }: Props): ReactEle
     d.guests === null ? "guest count" : null,
     d.budget === null ? "budget" : null,
   ].filter((name) => name !== null);
-  // Read lazily: a date exists only after mount, and the clock cannot be read while the page is prerendered.
+  // Read lazily: a date exists only after mount, and the clock cannot be read while the page is
+  // prerendered.
   const past = d.weddingDate !== null && d.weddingDate < todayIso();
   const ready = isDraftReady(d) && !past;
 

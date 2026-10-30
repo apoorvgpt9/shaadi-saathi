@@ -105,7 +105,8 @@ function lowersPriorityStyle(changes: PlanChange[], priorities: CategoryId[]): b
  * @example
  * // The Rs 8,00,000 example wedding (total 9,58,000):
  * const levers = listLevers(plan);
- * // levers[0] is { id: "skip-mehendi", saving: 193_000 }, levers[1] is { id: "step-down-catering", saving: 122_000 }
+ * // levers[0] is { id: "skip-mehendi", saving: 193_000 }
+ * // levers[1] is { id: "step-down-catering", saving: 122_000 }
  */
 export function listLevers(plan: Plan): Lever[] {
   const totalBefore = computeBudget(plan).total;

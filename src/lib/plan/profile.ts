@@ -85,7 +85,8 @@ export function draftToProfile(draft: IntakeDraft): Profile {
  *
  * @example
  * const plan = newPlan(profile);
- * // plan.version === 1, plan.quotes is [], and plan.tasks["agree-budget"] is { status: "done", delayedTo: null }
+ * // plan.version === 1 and plan.quotes is []
+ * // plan.tasks["agree-budget"] is { status: "done", delayedTo: null }
  */
 export function newPlan(profile: Profile): Plan {
   return {

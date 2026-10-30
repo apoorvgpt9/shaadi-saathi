@@ -1,4 +1,4 @@
-// Shared contract between the planning engine, the AI routes and the UI, as a barrel over ./schemas.
+// The shared contract between the engine, the AI routes and the UI: a barrel over ./schemas.
 // Stored state is validated with these schemas; derived views are plain types.
 //   limits  every size limit        domain  enums, Profile, IntakeDraft
 //   plan    persisted Plan, edits   views   derived engine output

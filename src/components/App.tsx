@@ -1,5 +1,5 @@
-// The client-side root: owns the plan store and AI loading, and chooses between the intake and plan screens.
-// It is a client component because the plan lives in the browser (localStorage), which the server cannot see.
+// The client root: owns the plan store and AI loading, and picks the intake or the plan screen.
+// A client component because the plan lives in browser localStorage, which the server can't see.
 "use client";
 
 import { useCallback, useMemo, useState, type ReactElement } from "react";
@@ -13,7 +13,10 @@ import { usePlan } from "@/components/usePlan";
 import type { AiStatus } from "@/components/ui/AiGate";
 import { StartOver } from "@/components/ui/StartOver";
 
-/** The whole app below the page shell: the intake screen until a plan is built, then the plan screen. Takes no props. */
+/**
+ * The whole app below the page shell: the intake screen until a plan is built, then the plan
+ * screen. Takes no props.
+ */
 export function App(): ReactElement {
   const { state, actions } = usePlan();
   const [status, setStatus] = useState<AiStatus>("idle");
@@ -30,7 +33,10 @@ export function App(): ReactElement {
 
   const appActions = useMemo(() => ({ ...actions, reset }), [actions, reset]);
 
-  /** Fetches whichever of vendors and ideas the plan still lacks, in parallel. Failures leave the rest usable. */
+  /**
+   * Fetches whichever of vendors and ideas the plan still lacks, in parallel. Failures leave the
+   * rest usable.
+   */
   const load = useCallback(
     async (plan: Plan, refreshVendors = false) => {
       const profileKey = JSON.stringify(plan.profile);
@@ -42,7 +48,8 @@ export function App(): ReactElement {
           : null,
       ]);
       if (vendors?.ok) {
-        // Ticks are stored by item position, so they only stay valid for the checklists they were made against.
+        // Ticks are stored by item position, so they only stay valid for the checklists they were
+        // made against.
         updatePlan((p) => ({
           ...p,
           vendors: vendors.data.vendors,

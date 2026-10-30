@@ -27,7 +27,9 @@ interface Props {
   plan: Plan;
   summary: BudgetSummary;
   onUpdate: (update: (plan: Plan) => Plan) => void;
-  /** Starts a reviewable change; used by the trade-off panel, which only appears when over budget. */
+  /**
+   * Starts a reviewable change; used by the trade-off panel, which only appears when over budget.
+   */
   onPropose: (build: Proposal) => void;
 }
 
@@ -40,7 +42,10 @@ interface LineEditorProps {
   onDone: () => void;
 }
 
-/** The inline amount form for one budget line. An empty or invalid amount returns the line to its estimate. */
+/**
+ * The inline amount form for one budget line. An empty or invalid amount returns the line to its
+ * estimate.
+ */
 function LineEditor({
   category,
   label,
@@ -169,7 +174,10 @@ function Line({
   );
 }
 
-/** The budget breakdown, one editable line per category, with the trade-off helper above it when over budget. */
+/**
+ * The budget breakdown, one editable line per category, with the trade-off helper above it when
+ * over budget.
+ */
 export function BudgetTab({ plan, summary, onUpdate, onPropose }: Props): ReactElement {
   return (
     <div className="space-y-6">

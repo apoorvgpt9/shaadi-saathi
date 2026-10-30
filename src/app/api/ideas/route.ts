@@ -1,4 +1,4 @@
-// POST /api/ideas: generates ideas for the wedding functions, or for one function when regenerating.
+// POST /api/ideas: ideas for every wedding function, or for one function when regenerating.
 import { generate } from "@/lib/ai/client";
 import { IDEAS_SYSTEM, ideasMessages } from "@/lib/ai/prompts";
 import { handleAi } from "@/lib/ai/route";

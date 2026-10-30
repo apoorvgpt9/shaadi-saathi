@@ -17,7 +17,10 @@ interface Props {
   children: ReactNode;
 }
 
-/** Shows the content, or a skeleton while it loads, or a calm retry prompt when the AI could not provide it. */
+/**
+ * Shows the content, or a skeleton while it loads, or a calm retry prompt when the AI could not
+ * provide it.
+ */
 export function AiGate({ ready, status, noun, onRetry, children }: Props): ReactElement {
   if (ready) {
     return <>{children}</>;

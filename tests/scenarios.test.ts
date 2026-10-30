@@ -1,4 +1,4 @@
-// End-to-end planning stories as a table of requirements, each run through the real engine (no mocks).
+// Planning stories as a table of requirements, each run through the real engine with no mocks.
 import { describe, expect, it } from "vitest";
 import { addDays } from "@/lib/format";
 import { computeBudget } from "@/lib/plan/budget";

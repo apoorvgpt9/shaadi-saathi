@@ -10,14 +10,19 @@ export type ChangeOutcome =
   { kind: "applied" } | { kind: "question"; text: string } | { kind: "error"; message: string };
 
 interface Props {
-  /** The request text lives in the parent, which clears it on Accept; Undo leaves it here for editing. */
+  /**
+   * The request text lives in the parent, which clears it on Accept; Undo leaves it here for
+   * editing.
+   */
   text: string;
   onTextChange: (text: string) => void;
   /** Resolves with what the host did, so the box can show a question or an error under the form. */
   onSubmit: (text: string) => Promise<ChangeOutcome>;
 }
 
-/** A form for describing what changed in plain words; the host decides what that means for the plan. */
+/**
+ * A form for describing what changed in plain words; the host decides what that means for the plan.
+ */
 export function ChangeBox({ text, onTextChange, onSubmit }: Props): ReactElement {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: "question" | "error"; text: string } | null>(null);

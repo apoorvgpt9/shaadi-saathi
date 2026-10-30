@@ -30,7 +30,10 @@ interface Props {
   onReset: () => void;
 }
 
-/** The plan page: the plan's headline and budget at the top, the tabs below, and the next tasks beside them. */
+/**
+ * The plan page: the plan's headline and budget at the top, the tabs below, and the next tasks
+ * beside them.
+ */
 export function Workspace({
   profile,
   budget,

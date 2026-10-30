@@ -1,4 +1,4 @@
-// Inline SVG icons and the app mark. One 1.75 stroke weight throughout. Decorative: pair with visible text.
+// Inline SVG icons and the app mark, at one 1.75 stroke. Decorative: pair with visible text.
 import type { ReactElement } from "react";
 
 const PATHS = {
@@ -10,7 +10,10 @@ const PATHS = {
   clock: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z",
 } as const;
 
-/** One of the app's line icons, sized by `className`. Hidden from assistive tech, so pair it with visible text. */
+/**
+ * One of the app's line icons, sized by `className`. Hidden from assistive tech, so pair it with
+ * visible text.
+ */
 export function Icon({
   name,
   className = "size-4",

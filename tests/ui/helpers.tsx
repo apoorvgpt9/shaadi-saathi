@@ -11,8 +11,8 @@ export function freezeToday() {
 }
 
 /**
- * The rendered state has no axe violations. `region` is off because a lone component has no page landmarks, and
- * `color-contrast` because jsdom has no layout or canvas to measure it with.
+ * The rendered state has no axe violations. `region` is off because a lone component has no page
+ * landmarks, and `color-contrast` because jsdom has no layout or canvas to measure it with.
  */
 export async function expectAccessible(container: Element) {
   const results = await axe(container, {

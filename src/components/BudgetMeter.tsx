@@ -7,8 +7,9 @@ import { Icon } from "@/components/ui/icons";
 import { formatLakh as lakh, pct } from "@/lib/format";
 
 /**
- * Estimated total against budget. One bar, one axis: the part within budget is marigold, the overage is maroon,
- * and a tick marks the budget. State is also stated in words, so the bar never carries it alone.
+ * Estimated total against budget. One bar, one axis: the part within budget is marigold, the
+ * overage is maroon, and a tick marks the budget. State is also stated in words, so the bar never
+ * carries it alone.
  */
 export function BudgetMeter({ summary }: { summary: BudgetSummary }): ReactElement {
   const { total, budget } = summary;

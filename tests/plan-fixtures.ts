@@ -40,7 +40,10 @@ export function makeQuote(overrides: Partial<Quote> = {}): Quote {
   };
 }
 
-/** The edits behind the README example: 50 more guests, budget down to 7 lakh, wedding two weeks earlier. */
+/**
+ * The edits behind the README example: 50 more guests, budget down to 7 lakh, wedding two weeks
+ * earlier.
+ */
 export const EXAMPLE_CHANGES: PlanChange[] = [
   { type: "set_guests", function: "all", count: 250 },
   { type: "set_budget", amount: 700_000 },

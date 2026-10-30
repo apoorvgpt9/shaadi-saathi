@@ -12,7 +12,10 @@ interface Props {
   reset: () => void;
 }
 
-/** Last-resort screen for a render crash. Saved data is the usual suspect, so clearing it is offered. */
+/**
+ * Last-resort screen for a render crash. Saved data is the usual suspect, so clearing it is
+ * offered.
+ */
 export default function ErrorPage({ reset }: Props): ReactElement {
   return (
     <>

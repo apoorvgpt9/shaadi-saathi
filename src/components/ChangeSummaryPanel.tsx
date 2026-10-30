@@ -68,7 +68,10 @@ function BudgetLines({ lines }: { lines: ChangeSummary["lines"] }): ReactElement
   );
 }
 
-/** Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap focus at the first and last control. */
+/**
+ * Chrome lets Tab walk out of a modal dialog through the browser UI, so wrap focus at the first and
+ * last control.
+ */
 function wrapTabFocus(e: KeyboardEvent<HTMLDialogElement>): void {
   if (e.key !== "Tab") {
     return;
@@ -88,8 +91,9 @@ interface Props {
 }
 
 /**
- * Modal review of a proposed change, as a native modal dialog: the page behind is inert, Tab stays inside, Escape and
- * the scrim click undo, and closing returns focus to the opener. Nothing is saved until Accept.
+ * Modal review of a proposed change, as a native modal dialog: the page behind is inert, Tab stays
+ * inside, Escape and the scrim click undo, and closing returns focus to the opener. Nothing is
+ * saved until Accept.
  */
 export function ChangeSummaryPanel({ pending, onAccept, onUndo }: Props): ReactElement {
   const { summary: s, ignored } = pending;
@@ -103,8 +107,8 @@ export function ChangeSummaryPanel({ pending, onAccept, onUndo }: Props): ReactE
     heading.current?.focus();
     return () => {
       el?.close();
-      // The opener may be disabled by now (the change box empties on Accept) or gone (the trade-offs panel closes
-      // once the plan fits), so fall back to the change box.
+      // The opener may be disabled by now (the change box empties on Accept) or gone (the
+      // trade-offs panel closes once the plan fits), so fall back to the change box.
       const usable =
         opener instanceof HTMLElement &&
         opener !== document.body &&
@@ -114,7 +118,8 @@ export function ChangeSummaryPanel({ pending, onAccept, onUndo }: Props): ReactE
     };
   }, []);
 
-  // Native listener: a click on the scrim lands on the dialog itself, which jsx-a11y does not accept an onClick on.
+  // Native listener: a click on the scrim lands on the dialog itself, which jsx-a11y does not
+  // accept an onClick on.
   useEffect(() => {
     const el = dialog.current;
     const onScrimClick = (e: MouseEvent) => {

@@ -24,7 +24,9 @@ interface Props {
   /** The App-level AI loading state, passed through to the vendor and idea tabs. */
   extras: {
     status: AiStatus;
-    /** Fetches what the plan lacks; with `refreshVendors`, regenerates the vendor checklists too. */
+    /**
+     * Fetches what the plan lacks; with `refreshVendors`, regenerates the vendor checklists too.
+     */
     reload: (plan: Plan, refreshVendors?: boolean) => void;
     /** True when the plan's profile has changed since the vendor checklists were generated. */
     staleVendors: boolean;

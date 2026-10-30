@@ -37,7 +37,10 @@ function isAiUnavailable(err: unknown): boolean {
   );
 }
 
-/** Maps any thrown error to an HTTP status, API code and user-safe message; SDK error text is never passed through. */
+/**
+ * Maps any thrown error to an HTTP status, API code and user-safe message; SDK error text is never
+ * passed through.
+ */
 export function toApiFailure(err: unknown): ApiFailure {
   if (err instanceof InvalidInputError) {
     return { status: 400, code: "invalid_input", message: err.message };

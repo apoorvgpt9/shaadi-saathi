@@ -2,7 +2,9 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from "react";
 import { Button } from "@/components/ui/Button";
 
-/** "Start over" with an inline two-step confirm, because it clears the saved plan with no way back. */
+/**
+ * "Start over" with an inline two-step confirm, because it clears the saved plan with no way back.
+ */
 export function StartOver({ onConfirm }: { onConfirm: () => void }): ReactElement {
   const [asking, setAsking] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);

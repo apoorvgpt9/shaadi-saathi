@@ -8,7 +8,8 @@ const day = 86_400_000;
 const iso = (offsetDays) => new Date(Date.now() + offsetDays * day).toISOString().slice(0, 10);
 const today = iso(0);
 
-// The example scenario: Tier-2 city, 200 guests, 8 lakh, about four months away, mehendi the day before.
+// The example scenario: Tier-2 city, 200 guests, 8 lakh, about four months away, mehendi the day
+// before.
 const profile = {
   city: "Jaipur",
   cityTier: "tier2",

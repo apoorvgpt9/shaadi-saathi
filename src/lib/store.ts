@@ -1,4 +1,4 @@
-// The app's state machine: the persisted plan state, its reducer, storage parsing and bound actions.
+// The app's state machine: the persisted plan state, its reducer, storage parsing and actions.
 import type { Dispatch } from "react";
 import { z } from "zod";
 import { summarizeChange } from "@/lib/plan/summary";
@@ -6,7 +6,10 @@ import { ChatMessage, IntakeDraft, LIMITS, Plan, type ChangeSummary } from "@/li
 
 export const STORAGE_KEY = "shaadi-saathi:v1";
 
-/** A proposed edit as a pure function of the plan, so Accept can re-apply it to whatever the plan is by then. */
+/**
+ * A proposed edit as a pure function of the plan, so Accept can re-apply it to whatever the plan is
+ * by then.
+ */
 export type Proposal = (plan: Plan) => { plan: Plan; ignored: string[] };
 
 export interface Pending {
@@ -44,7 +47,9 @@ const Stored = z
   })
   .refine((s) => s.stage === "intake" || s.plan !== null, "Plan stage needs a plan");
 
-/** Returns the stored state, or null when it is missing, corrupt or from an incompatible version. */
+/**
+ * Returns the stored state, or null when it is missing, corrupt or from an incompatible version.
+ */
 export function parseStored(raw: string | null): PlanState | null {
   if (!raw) {
     return null;
@@ -60,7 +65,10 @@ export function parseStored(raw: string | null): PlanState | null {
   }
 }
 
-/** True when the last message is the user's and nothing has answered it (a failed call, or a reload mid-call). */
+/**
+ * True when the last message is the user's and nothing has answered it (a failed call, or a reload
+ * mid-call).
+ */
 export function awaitingReply(messages: ChatMessage[]): boolean {
   return messages.at(-1)?.role === "user";
 }
@@ -84,7 +92,10 @@ function receiveReply(state: PlanState, reply: string, draft: IntakeDraft): Plan
   return { ...state, draft, messages: [...state.messages, message] };
 }
 
-/** Builds the pending change from the latest plan, not the one the request started from, so edits made meanwhile are kept. */
+/**
+ * Builds the pending change from the latest plan, not the one the request started from, so edits
+ * made meanwhile are kept.
+ */
 function propose(state: PlanState, build: Proposal, today: string): PlanState {
   if (!state.plan) {
     return state;
@@ -94,7 +105,10 @@ function propose(state: PlanState, build: Proposal, today: string): PlanState {
   return { ...state, pending: { build, before: state.plan, after, ignored, summary } };
 }
 
-/** Re-applies the pending change to the plan as it is now: vendors, ideas and edits that landed behind the dialog survive. */
+/**
+ * Re-applies the pending change to the plan as it is now: vendors, ideas and edits that landed
+ * behind the dialog survive.
+ */
 function accept(state: PlanState): PlanState {
   if (!state.pending || !state.plan) {
     return state;
@@ -103,7 +117,10 @@ function accept(state: PlanState): PlanState {
   return { ...state, plan, pending: null };
 }
 
-/** Pure state transition for every PlanAction; actions that need a plan or a pending change leave the state unchanged when there is none. */
+/**
+ * Pure state transition for every PlanAction; actions that need a plan or a pending change leave
+ * the state unchanged when there is none.
+ */
 export function reducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
     case "hydrate":

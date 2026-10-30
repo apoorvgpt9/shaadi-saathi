@@ -17,7 +17,8 @@ interface TabItem {
 
 /**
  * WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and selection together.
- * Every panel stays mounted (hidden when inactive), so typed text and in-flight requests survive a tab switch.
+ * Every panel stays mounted (hidden when inactive), so typed text and in-flight requests survive a
+ * tab switch.
  */
 export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }): ReactElement {
   const [active, setActive] = useState(tabs[0]?.id);

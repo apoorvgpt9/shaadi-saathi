@@ -33,7 +33,9 @@ function FunctionIdeasBlock({
   const ideas = plan.ideas.find((i) => i.kind === kind)?.ideas ?? [];
   const name = FUNCTION_LABELS[kind];
 
-  /** Asks for this function's ideas, with the user's feedback on the current ones when there is any. */
+  /**
+   * Asks for this function's ideas, with the user's feedback on the current ones when there is any.
+   */
   async function request(feedback: string | null): Promise<boolean> {
     setBusy(true);
     setError(null);

@@ -11,7 +11,8 @@ const MAX_BODY_CHARS = 100_000;
 
 /** The parsed JSON body, or undefined when it is oversized or not valid JSON. */
 async function readJsonBody(request: Request): Promise<unknown> {
-  // Refuse a declared oversize body before buffering it; a chunked body is still checked after reading.
+  // Refuse a declared oversize body before buffering it; a chunked body is still checked after
+  // reading.
   const declaredLength = Number(request.headers.get("content-length"));
   if (declaredLength > MAX_BODY_CHARS) {
     return undefined;
@@ -30,8 +31,8 @@ async function readJsonBody(request: Request): Promise<unknown> {
 }
 
 /**
- * Shared POST handler: rate limit, body validation, the AI call, response validation, error mapping and one log
- * line per request. Never throws, and never logs user content.
+ * Shared POST handler: rate limit, body validation, the AI call, response validation, error mapping
+ * and one log line per request. Never throws, and never logs user content.
  */
 export async function handleAi<Req, Res>(
   request: Request,

@@ -1,4 +1,4 @@
-// Everything persisted in localStorage, the vendor and idea payloads inside it, and the edits applied to it.
+// Everything stored in localStorage, the vendor and idea payloads in it, and the edits to it.
 import {
   CategoryId,
   FunctionKind,
@@ -64,7 +64,9 @@ export const Plan = z.object({
   ideas: z.array(FunctionIdeas),
 });
 
-/** One structured edit. The change route exposes each variant to Claude as a tool named by `type`. */
+/**
+ * One structured edit. The change route exposes each variant to Claude as a tool named by `type`.
+ */
 export const PlanChange = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("set_guests"),

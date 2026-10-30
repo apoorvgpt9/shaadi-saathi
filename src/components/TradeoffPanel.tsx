@@ -24,7 +24,10 @@ interface Props {
   onChoose: (build: Proposal) => void;
 }
 
-/** The AI picks and explains option bundles; every figure shown here comes from the engine, against the plan as it is now. */
+/**
+ * The AI picks and explains option bundles; every figure shown here comes from the engine, against
+ * the plan as it is now.
+ */
 export function TradeoffPanel({ plan, total, budget, onChoose }: Props): ReactElement {
   const [state, setState] = useState<State>({ kind: "idle" });
   const options = state.kind === "done" ? state.options : null;

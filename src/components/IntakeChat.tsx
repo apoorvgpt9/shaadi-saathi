@@ -24,7 +24,10 @@ interface Props {
   onReply: (reply: string, draft: IntakeDraft) => void;
 }
 
-/** The opening conversation: the log, a composer, and a one-click example, talking to the intake assistant. */
+/**
+ * The opening conversation: the log, a composer, and a one-click example, talking to the intake
+ * assistant.
+ */
 export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props): ReactElement {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -64,7 +67,8 @@ export function IntakeChat({ messages, draft, onUserMessage, onReply }: Props): 
     }
   }
 
-  // After a failure, or a reload mid-call, the last stored message is the user's and nothing has answered it.
+  // After a failure, or a reload mid-call, the last stored message is the user's and nothing has
+  // answered it.
   const unanswered = awaitingReply(messages);
   const notice = unanswered ? (error ?? "That message did not get a reply.") : null;
 

@@ -36,7 +36,9 @@ export const WeddingFunction = z.object({
   guests: Guests,
 });
 
-/** A complete profile. `guests` is the wedding-day headcount; a "wedding" function always exists. */
+/**
+ * A complete profile. `guests` is the wedding-day headcount; a "wedding" function always exists.
+ */
 export const Profile = z.object({
   city: z.string().trim().min(1).max(LIMITS.cityChars),
   cityTier: CityTier,
@@ -54,7 +56,9 @@ export const Profile = z.object({
   notes: z.array(ShortText).max(LIMITS.notes),
 });
 
-/** What the intake AI extracts each turn. Nullable rather than optional to suit structured outputs. */
+/**
+ * What the intake AI extracts each turn. Nullable rather than optional to suit structured outputs.
+ */
 export const IntakeDraft = z.object({
   weddingDate: IsoDate.nullable(),
   city: z.string().nullable(),

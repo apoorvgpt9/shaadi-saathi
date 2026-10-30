@@ -12,7 +12,10 @@ interface Props {
   onCancel: () => void;
 }
 
-/** Manual entry of the four essentials. The browser enforces the ranges, and the date cannot be in the past. */
+/**
+ * Manual entry of the four essentials. The browser enforces the ranges, and the date cannot be in
+ * the past.
+ */
 export function ProfileEditForm({ draft, onSave, onCancel }: Props): ReactElement {
   const [today] = useState(todayIso);
 

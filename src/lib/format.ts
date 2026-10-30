@@ -1,4 +1,4 @@
-// Display formatting (rupees, dates, plurals) and UTC date arithmetic shared by the engine and the UI.
+// Display formatting (rupees, dates, plurals) and UTC date maths shared by the engine and UI.
 const INR = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
@@ -68,7 +68,10 @@ export function formatDate(iso: string): string {
   return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()] ?? ""} ${date.getUTCFullYear()}`;
 }
 
-/** Share of the budget used, as a whole percent. Over budget it rounds up, so it never reads 100% while still over. */
+/**
+ * Share of the budget used, as a whole percent. Over budget it rounds up, so it never reads 100%
+ * while still over.
+ */
 export function pct(total: number, budget: number): number {
   const share = (total * 100) / budget;
   return total > budget ? Math.ceil(share) : Math.round(share);

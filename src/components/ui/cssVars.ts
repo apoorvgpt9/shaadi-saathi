@@ -1,4 +1,4 @@
-// Builds a `style` value that carries CSS custom properties, which React's CSSProperties type does not list.
+// Builds a `style` value of CSS custom properties, which React's CSSProperties type omits.
 import type { CSSProperties } from "react";
 
 /** Custom property names start with two dashes: `{ "--i": 1 }`. */

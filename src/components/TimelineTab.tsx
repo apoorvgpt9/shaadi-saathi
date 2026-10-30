@@ -5,7 +5,8 @@ import { addDays, formatDate, groupByMonth } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
 import { Flags } from "@/components/NextTasks";
 
-// Selected "To do" is quiet, since most tasks are; Done is the emphasised state and Delayed asks for a look.
+// Selected "To do" is quiet, since most tasks are; Done is the emphasised state and Delayed asks
+// for a look.
 const STATUSES: { value: TaskStatus; label: string; selected: string }[] = [
   { value: "todo", label: "To do", selected: "bg-sand text-ink ring-1 ring-inset ring-line" },
   { value: "done", label: "Done", selected: "bg-maroon text-white" },
@@ -53,7 +54,10 @@ function DelayedDate({
   );
 }
 
-/** The To do / Done / Delayed segmented control; choosing a different status moves the due date 14 days on. */
+/**
+ * The To do / Done / Delayed segmented control; choosing a different status moves the due date 14
+ * days on.
+ */
 function StatusToggle({
   task,
   onSet,

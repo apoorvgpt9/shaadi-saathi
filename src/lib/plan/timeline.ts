@@ -1,4 +1,4 @@
-// The task schedule: dated, dependency-ordered, flagged tasks derived from the plan's function dates.
+// The task schedule: dated, dependency-ordered, flagged tasks from the plan's function dates.
 import { addDays } from "@/lib/format";
 import type {
   CategoryId,
@@ -105,7 +105,9 @@ interface Entry {
   delayedTo: string | null;
 }
 
-/** One entry per template whose anchor function is in the plan, carrying the user's saved status. */
+/**
+ * One entry per template whose anchor function is in the plan, carrying the user's saved status.
+ */
 function entriesFor(plan: Plan): Entry[] {
   const functionDates = new Map(plan.profile.functions.map((f) => [f.kind, f.date]));
   return TASK_TEMPLATES.flatMap((template) => {
@@ -120,7 +122,9 @@ function entriesFor(plan: Plan): Entry[] {
   });
 }
 
-/** Overdue open tasks are ranked earliest-ideal first, so they can be spread over the coming days. */
+/**
+ * Overdue open tasks are ranked earliest-ideal first, so they can be spread over the coming days.
+ */
 function urgentRanks(entries: Entry[], today: string): Map<string, number> {
   const overdue = entries
     .filter((e) => e.status === "todo" && e.ideal < today)
@@ -128,7 +132,10 @@ function urgentRanks(entries: Entry[], today: string): Map<string, number> {
   return new Map(overdue.map((e, rank) => [e.template.id, rank]));
 }
 
-/** Where the overdue task of a given rank lands: two per day, none later than MAX_URGENT_STAGGER_DAYS out. */
+/**
+ * Where the overdue task of a given rank lands: two per day, none later than
+ * MAX_URGENT_STAGGER_DAYS out.
+ */
 function staggeredDue(today: string, rank: number): string {
   const daysOut = Math.min(MAX_URGENT_STAGGER_DAYS, Math.floor(rank / URGENT_TASKS_PER_DAY));
   return addDays(today, daysOut);
@@ -150,7 +157,9 @@ function blockingDependencies(
   });
 }
 
-/** Only a reported delay upstream is a risk; ties from spreading urgent tasks are just sequencing. */
+/**
+ * Only a reported delay upstream is a risk; ties from spreading urgent tasks are just sequencing.
+ */
 function isRiskyBlocker(dependency: ScheduledTask): boolean {
   return dependency.status === "delayed" || dependency.flags.includes("at_risk");
 }
@@ -199,14 +208,14 @@ function dueAndFlags(
 }
 
 /**
- * Dated, flagged tasks for the plan's functions, soonest first.
- * Pure: "today" is injected, so the same plan and date always give the same schedule.
- * Flags: urgent (overdue, re-staggered over the coming days), at_risk (pushed back by a delayed or at-risk
- * prerequisite), clash (due on or after its function).
+ * Dated, flagged tasks for the plan's functions, soonest first. Pure: "today" is injected, so the
+ * same plan and date always give the same schedule. Flags: urgent (overdue, re-staggered over the
+ * coming days), at_risk (pushed back by a delayed or at-risk prerequisite), clash (due on or after
+ * its function).
  *
  * @example
- * // Wedding on 2027-03-01, today 2026-10-29: "book-venue" (150 days before) is due 2026-10-02, already
- * // overdue, so it is flagged urgent and moved to today.
+ * // Wedding on 2027-03-01, today 2026-10-29: "book-venue" (150 days before) is due 2026-10-02,
+ * // already overdue, so it is flagged urgent and moved to today.
  * const tasks = scheduleTasks(plan, "2026-10-29");
  * tasks.find((t) => t.id === "book-venue"); // { due: "2026-10-29", flags: ["urgent"], ... }
  */
@@ -228,12 +237,13 @@ export function scheduleTasks(plan: Plan, today: string): ScheduledTask[] {
 }
 
 /**
- * The next `count` open tasks: ready ones (all prerequisites done) first, topped up with blocked ones.
- * Keeps input order.
+ * The next `count` open tasks: ready ones (all prerequisites done) first, topped up with blocked
+ * ones. Keeps input order.
  *
  * @example
  * // The example plan on 2026-10-29, with the three intake tasks already done:
- * nextTasks(scheduleTasks(plan, "2026-10-29")).map((t) => t.id); // ["book-venue", "book-photographer", "book-pandit"]
+ * nextTasks(scheduleTasks(plan, "2026-10-29")).map((t) => t.id);
+ * // ["book-venue", "book-photographer", "book-pandit"]
  */
 export function nextTasks(tasks: ScheduledTask[], count = 3): ScheduledTask[] {
   const open = tasks.filter((t) => t.status !== "done");

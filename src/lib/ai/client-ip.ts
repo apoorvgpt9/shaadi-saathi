@@ -1,6 +1,9 @@
 // Identifies the calling client from proxy headers, for rate limiting.
 
-/** The caller's address: `x-real-ip`, else the first `x-forwarded-for` entry, else "unknown". Empty values are skipped. */
+/**
+ * The caller's address: `x-real-ip`, else the first `x-forwarded-for` entry, else "unknown". Empty
+ * values are skipped.
+ */
 export function clientIp(request: Request): string {
   const realIp = request.headers.get("x-real-ip");
   if (realIp) {

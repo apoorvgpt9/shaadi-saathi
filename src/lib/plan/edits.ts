@@ -30,7 +30,10 @@ export function setTask(
   return { ...plan, tasks: { ...plan.tasks, [id]: state } };
 }
 
-/** Deletes a quote and detaches it from the budget category using it, which falls back to its estimate. */
+/**
+ * Deletes a quote and detaches it from the budget category using it, which falls back to its
+ * estimate.
+ */
 export function removeQuote(plan: Plan, id: string): Plan {
   const next = { ...plan, quotes: plan.quotes.filter((q) => q.id !== id) };
   const used = CATEGORY_IDS.find((c) => plan.budget[c]?.quoteId === id);

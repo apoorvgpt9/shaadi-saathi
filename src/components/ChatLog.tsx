@@ -13,12 +13,18 @@ const GREETING: ChatMessage = {
 interface Props {
   messages: ChatMessage[];
   busy: boolean;
-  /** Set when the last message went unanswered: the failure copy, or a note after a reload mid-call. Hidden while busy. */
+  /**
+   * Set when the last message went unanswered: the failure copy, or a note after a reload mid-call.
+   * Hidden while busy.
+   */
   notice: string | null;
   onRetry: () => void;
 }
 
-/** One chat turn: the assistant's with the app mark on the left, the user's as a bubble on the right. */
+/**
+ * One chat turn: the assistant's with the app mark on the left, the user's as a bubble on the
+ * right.
+ */
 function Message({ message }: { message: ChatMessage }): ReactElement {
   if (message.role === "assistant") {
     return (
@@ -36,7 +42,10 @@ function Message({ message }: { message: ChatMessage }): ReactElement {
   );
 }
 
-/** The conversation so far, plus the replying and retry states. Long unbroken text wraps instead of widening the page. */
+/**
+ * The conversation so far, plus the replying and retry states. Long unbroken text wraps instead of
+ * widening the page.
+ */
 export function ChatLog({ messages, busy, notice, onRetry }: Props): ReactElement {
   const log = useRef<HTMLDivElement>(null);
   useEffect(() => {

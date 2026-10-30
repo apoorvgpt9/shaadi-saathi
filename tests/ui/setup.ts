@@ -4,8 +4,8 @@ import { afterEach } from "vitest";
 
 afterEach(cleanup);
 
-// jsdom has no modal dialog, so model the parts the app relies on: `open`, the Escape key (a cancelable `cancel`
-// event, then close) and the `close` event.
+// jsdom has no modal dialog, so model the parts the app relies on: `open`, the Escape key (a
+// cancelable `cancel` event, then close) and the `close` event.
 const escapeListeners = new WeakMap<HTMLDialogElement, AbortController>();
 
 HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -34,5 +34,6 @@ HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
 // jsdom does not implement element scrolling; the chat log scrolls itself to the newest message.
 Element.prototype.scrollTo = () => undefined;
 
-// axe probes a canvas for icon ligatures; with none installed, jsdom logs "not implemented" on every run.
+// axe probes a canvas for icon ligatures; with none installed, jsdom logs "not implemented" on
+// every run.
 HTMLCanvasElement.prototype.getContext = () => null;

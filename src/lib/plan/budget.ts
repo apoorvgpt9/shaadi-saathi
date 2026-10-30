@@ -1,4 +1,4 @@
-// The budget engine: benchmark estimates per category, overlaid with the user's quotes, overrides and confirmations.
+// Budget engine: benchmark estimates per category, overlaid with quotes, overrides, confirmations.
 import { formatINR } from "@/lib/format";
 import { CATEGORY_IDS } from "@/lib/types";
 import type {
@@ -47,7 +47,10 @@ function sum(values: number[]): number {
   return values.reduce((total, value) => total + value, 0);
 }
 
-/** "1 plate", "3 plates". Unlike format.plural it adds no digit grouping, which the basis text relies on. */
+/**
+ * "1 plate", "3 plates". Unlike format.plural it adds no digit grouping, which the basis text
+ * relies on.
+ */
 function plural(count: number, word: string): string {
   const suffix = count === 1 ? "" : "s";
   return `${count} ${word}${suffix}`;

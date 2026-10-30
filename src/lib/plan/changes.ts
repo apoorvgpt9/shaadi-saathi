@@ -144,9 +144,9 @@ function applyOne(plan: Plan, change: PlanChange): Outcome {
 }
 
 /**
- * Applies changes in order to a copy of the plan; the input is never mutated.
- * A change that does not fit, or would leave the plan failing its schema, is skipped and reported in `ignored`.
- * Never throws.
+ * Applies changes in order to a copy of the plan; the input is never mutated. A change that does
+ * not fit, or would leave the plan failing its schema, is skipped and reported in `ignored`. Never
+ * throws.
  *
  * @example
  * // The README example: 50 more guests, budget down to Rs 7,00,000, wedding two weeks earlier.

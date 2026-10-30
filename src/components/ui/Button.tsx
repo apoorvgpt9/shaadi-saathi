@@ -8,11 +8,16 @@ const VARIANTS = {
 } as const;
 
 interface Props extends ComponentProps<"button"> {
-  /** Visual weight: primary for the one main action, ghost for quiet ones. Defaults to secondary. */
+  /**
+   * Visual weight: primary for the one main action, ghost for quiet ones. Defaults to secondary.
+   */
   variant?: keyof typeof VARIANTS;
 }
 
-/** A button that defaults to type="button", so it never submits a form by accident. Extra classes append to its own. */
+/**
+ * A button that defaults to type="button", so it never submits a form by accident. Extra classes
+ * append to its own.
+ */
 export function Button({
   variant = "secondary",
   className = "",

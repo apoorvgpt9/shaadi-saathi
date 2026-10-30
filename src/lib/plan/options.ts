@@ -11,7 +11,9 @@ export interface TradeoffOption {
   ids: string[];
 }
 
-/** The AI's options with unknown lever ids dropped; an option left with no levers is dropped too. */
+/**
+ * The AI's options with unknown lever ids dropped; an option left with no levers is dropped too.
+ */
 export function usableOptions(
   raw: { title: string; why: string; leverIds: string[] }[],
   levers: { id: string }[],
@@ -35,7 +37,10 @@ export interface OptionPreview {
   within: boolean;
 }
 
-/** What choosing an option would do to the plan as it stands now: money saved, % of budget used, and whether it fits. Pure. */
+/**
+ * What choosing an option would do to the plan as it stands now: money saved, % of budget used, and
+ * whether it fits. Pure.
+ */
 export function previewOption(plan: Plan, ids: string[]): OptionPreview {
   const now = computeBudget(plan);
   const next = computeBudget(applyLevers(plan, ids));
