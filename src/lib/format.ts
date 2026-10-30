@@ -1,28 +1,59 @@
+// Display formatting (rupees, dates, plurals) and UTC date arithmetic shared by the engine and the UI.
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 const MS_PER_DAY = 86_400_000;
 const LAKH = 100_000;
 const CRORE = 10_000_000;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** Full rupee amount with Indian digit grouping, e.g. ₹8,00,000. */
+/**
+ * Full rupee amount with Indian digit grouping.
+ *
+ * @example
+ * formatINR(800_000); // "₹8,00,000"
+ * formatINR(1_250_000); // "₹12,50,000"
+ */
 export function formatINR(n: number): string {
   return INR.format(n);
 }
 
-const oneDecimal = (n: number) => String(Number(n.toFixed(1)));
+/** A number with at most one decimal place, and no trailing ".0". */
+function oneDecimal(n: number): string {
+  return String(Number(n.toFixed(1)));
+}
 
-/** Compact amount for headers, e.g. ₹8L, ₹9.6L, ₹1.2Cr. */
+/**
+ * Compact amount for headers: lakh and crore above a lakh, full rupees below.
+ *
+ * @example
+ * formatLakh(800_000); // "₹8L"
+ * formatLakh(958_000); // "₹9.6L"
+ * formatLakh(12_000_000); // "₹1.2Cr"
+ * formatLakh(75_000); // "₹75,000"
+ */
 export function formatLakh(n: number): string {
   // Choose the unit from the rounded lakh value, so ₹99.95L reads ₹1Cr rather than ₹100L.
-  if (n >= CRORE || Number((n / LAKH).toFixed(1)) >= 100) return `₹${oneDecimal(n / CRORE)}Cr`;
-  if (n >= LAKH) return `₹${oneDecimal(n / LAKH)}L`;
+  const roundsUpToCrore = Number((n / LAKH).toFixed(1)) >= 100;
+  if (n >= CRORE || roundsUpToCrore) {
+    return `₹${oneDecimal(n / CRORE)}Cr`;
+  }
+  if (n >= LAKH) {
+    return `₹${oneDecimal(n / LAKH)}L`;
+  }
   return formatINR(n);
 }
 
 // Dates are ISO strings (YYYY-MM-DD) handled in UTC so the user's timezone never shifts a day.
-const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
+function toMs(iso: string): number {
+  return Date.parse(`${iso}T00:00:00Z`);
+}
 
-/** Shifts a YYYY-MM-DD date by `n` days (negative for earlier); pure, with no timezone or DST drift. */
+/**
+ * Shifts a YYYY-MM-DD date by `n` days (negative for earlier); pure, with no timezone or DST drift.
+ *
+ * @example
+ * addDays("2027-03-01", -14); // "2027-02-15"
+ * addDays("2028-02-28", 1); // "2028-02-29"
+ */
 export function addDays(iso: string, n: number): string {
   return new Date(toMs(iso) + n * MS_PER_DAY).toISOString().slice(0, 10);
 }
@@ -41,12 +72,19 @@ export function pct(total: number, budget: number): number {
 
 /** A rupee difference with an explicit sign, e.g. +₹4,000. */
 export function signed(n: number): string {
-  return `${n > 0 ? "+" : n < 0 ? "-" : ""}${formatINR(Math.abs(n))}`;
+  let sign = "";
+  if (n > 0) {
+    sign = "+";
+  } else if (n < 0) {
+    sign = "-";
+  }
+  return `${sign}${formatINR(Math.abs(n))}`;
 }
 
 /** "1 guest", "250 guests". */
 export function plural(n: number, word: string): string {
-  return `${n.toLocaleString("en-IN")} ${word}${n === 1 ? "" : "s"}`;
+  const suffix = n === 1 ? "" : "s";
+  return `${n.toLocaleString("en-IN")} ${word}${suffix}`;
 }
 
 /** Items grouped by the YYYY-MM of their `due` date, in first-seen order. */

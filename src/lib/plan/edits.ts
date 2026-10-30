@@ -1,6 +1,5 @@
-import { CATEGORY_IDS, type BudgetEntry, type CategoryId, type Plan, type TaskStatus } from "@/lib/types";
-
 // Small pure plan edits, applied through the store's `update_plan` action. Each returns a new plan.
+import { CATEGORY_IDS, type BudgetEntry, type CategoryId, type Plan, type TaskStatus } from "@/lib/types";
 
 /** Merges `patch` into one category's budget entry, creating the entry if it does not exist yet. */
 export function patchEntry(plan: Plan, category: CategoryId, patch: Partial<BudgetEntry>): Plan {
@@ -10,7 +9,8 @@ export function patchEntry(plan: Plan, category: CategoryId, patch: Partial<Budg
 
 /** Sets a task's status; `delayedTo` is kept only for "delayed" and cleared otherwise. */
 export function setTask(plan: Plan, id: string, status: TaskStatus, delayedTo: string | null): Plan {
-  return { ...plan, tasks: { ...plan.tasks, [id]: { status, delayedTo: status === "delayed" ? delayedTo : null } } };
+  const state = { status, delayedTo: status === "delayed" ? delayedTo : null };
+  return { ...plan, tasks: { ...plan.tasks, [id]: state } };
 }
 
 /** Deletes a quote and detaches it from the budget category using it, which falls back to its estimate. */

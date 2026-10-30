@@ -1,6 +1,6 @@
+// Benchmark rates, multipliers and display labels: the single home of the cost assumptions.
 import type { CategoryId, CityTier, FunctionKind, Style } from "@/lib/types";
 
-// Benchmark rates, multipliers and display labels: the single home of the cost assumptions.
 // Labelled assumptions: Tier-2 base values in rupees, October 2026. Not quotes from any vendor.
 
 export const CATEGORY_LABELS: Record<CategoryId, string> = {

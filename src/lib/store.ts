@@ -1,3 +1,4 @@
+// The app's state machine: the persisted plan state, its reducer, storage parsing and bound actions.
 import type { Dispatch } from "react";
 import { z } from "zod";
 import { summarizeChange } from "@/lib/plan/summary";
@@ -39,17 +40,24 @@ const Stored = z
 
 /** Returns the stored state, or null when it is missing, corrupt or from an incompatible version. */
 export function parseStored(raw: string | null): PlanState | null {
-  if (!raw) return null;
+  if (!raw) {
+    return null;
+  }
   try {
     const parsed = Stored.safeParse(JSON.parse(raw));
-    return parsed.success ? { ...parsed.data, pending: null } : null;
+    if (!parsed.success) {
+      return null;
+    }
+    return { ...parsed.data, pending: null };
   } catch {
     return null;
   }
 }
 
 /** True when the last message is the user's and nothing has answered it (a failed call, or a reload mid-call). */
-export const awaitingReply = (messages: ChatMessage[]): boolean => messages.at(-1)?.role === "user";
+export function awaitingReply(messages: ChatMessage[]): boolean {
+  return messages.at(-1)?.role === "user";
+}
 
 export type PlanAction =
   | { type: "hydrate"; state: PlanState }
@@ -63,6 +71,32 @@ export type PlanAction =
   | { type: "undo" }
   | { type: "reset" };
 
+/** Records the assistant's reply and its updated draft; a blank reply reads "Noted.". */
+function receiveReply(state: PlanState, reply: string, draft: IntakeDraft): PlanState {
+  const content = reply.trim().slice(0, LIMITS.messageChars) || "Noted.";
+  const message: ChatMessage = { role: "assistant", content };
+  return { ...state, draft, messages: [...state.messages, message] };
+}
+
+/** Builds the pending change from the latest plan, not the one the request started from, so edits made meanwhile are kept. */
+function propose(state: PlanState, build: Proposal, today: string): PlanState {
+  if (!state.plan) {
+    return state;
+  }
+  const { plan: after, ignored } = build(state.plan);
+  const summary = summarizeChange(state.plan, after, today);
+  return { ...state, pending: { build, before: state.plan, after, ignored, summary } };
+}
+
+/** Re-applies the pending change to the plan as it is now: vendors, ideas and edits that landed behind the dialog survive. */
+function accept(state: PlanState): PlanState {
+  if (!state.pending || !state.plan) {
+    return state;
+  }
+  const { plan } = state.pending.build(state.plan);
+  return { ...state, plan, pending: null };
+}
+
 /** Pure state transition for every PlanAction; actions that need a plan or a pending change leave the state unchanged when there is none. */
 export function reducer(state: PlanState, action: PlanAction): PlanState {
   switch (action.type) {
@@ -71,32 +105,17 @@ export function reducer(state: PlanState, action: PlanAction): PlanState {
     case "user_message":
       return { ...state, messages: [...state.messages, action.message] };
     case "assistant_reply":
-      return {
-        ...state,
-        draft: action.draft,
-        messages: [
-          ...state.messages,
-          { role: "assistant", content: action.reply.trim().slice(0, LIMITS.messageChars) || "Noted." },
-        ],
-      };
+      return receiveReply(state, action.reply, action.draft);
     case "edit_draft":
       return { ...state, draft: action.draft };
     case "start_plan":
       return { ...state, stage: "plan", plan: action.plan, pending: null };
     case "update_plan":
       return state.plan ? { ...state, plan: action.update(state.plan) } : state;
-    case "propose": {
-      if (!state.plan) return state;
-      // Computed from the latest plan, not the one the request started from, so edits made meanwhile are kept.
-      const { plan: after, ignored } = action.build(state.plan);
-      const summary = summarizeChange(state.plan, after, action.today);
-      return { ...state, pending: { build: action.build, before: state.plan, after, ignored, summary } };
-    }
+    case "propose":
+      return propose(state, action.build, action.today);
     case "accept":
-      // Re-applied to the plan as it is now: vendors, ideas and edits that landed behind the dialog survive.
-      return state.pending && state.plan
-        ? { ...state, plan: state.pending.build(state.plan).plan, pending: null }
-        : state;
+      return accept(state);
     case "undo":
       return { ...state, pending: null };
     case "reset":

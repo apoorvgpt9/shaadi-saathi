@@ -1,3 +1,5 @@
+// Every size limit in the contract, as one constant.
+
 /** Every size limit in the contract, so schemas, engine and UI never disagree. */
 export const LIMITS = {
   guests: { min: 1, max: 5000 },

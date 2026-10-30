@@ -1,7 +1,6 @@
+// Derived views (computed by the engine, never stored).
 import type { CategoryId, FunctionKind } from "./domain";
 import type { PlanChange, PriceStatus, TaskStatus } from "./plan";
-
-// Derived views (computed by the engine, never stored).
 
 export interface BudgetLine {
   category: CategoryId;

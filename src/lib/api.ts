@@ -1,3 +1,4 @@
+// The browser's typed client for the AI routes: validated replies, timeouts, cancellation and failure copy.
 import { z } from "zod";
 import {
   ChangeRequest,
@@ -33,17 +34,46 @@ const ErrorBody = z.object({
 // Above the server's 100 s per model attempt, so a healthy slow call (vendors, ideas) is not cut off.
 const TIMEOUT_MS = 150_000;
 
-const fail = (code: ApiFailureCode, message = ""): ApiResult<never> => ({ ok: false, error: { code, message } });
+function fail(code: ApiFailureCode, message = ""): ApiResult<never> {
+  return { ok: false, error: { code, message } };
+}
 
 // Every call is tied to this scope. Start over cancels it, so a late answer cannot land on the next plan.
 let scope = new AbortController();
 /** Aborts every in-flight call and starts a fresh scope for the next ones. Safe to call at any time. */
-export function cancelRequests() {
+export function cancelRequests(): void {
   scope.abort();
   scope = new AbortController();
 }
 
-/** POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal` cancels it. */
+/** Reads a non-2xx reply as the server's described failure, or a generic `ai_error` when it is not in our shape. */
+function failureFromBody(json: unknown): ApiResult<never> {
+  const parsed = ErrorBody.safeParse(json);
+  if (!parsed.success) {
+    return fail("ai_error");
+  }
+  return fail(parsed.data.error.code, parsed.data.error.message);
+}
+
+/** Why a request that never produced a reply failed: our own timeout, a cancellation, or the network. */
+function transportFailure(request: AbortSignal, caller: AbortSignal): ApiFailureCode {
+  if (request.reason === "timeout") {
+    return "timeout";
+  }
+  return caller.aborted ? "aborted" : "network";
+}
+
+/**
+ * POSTs JSON and validates the reply. Never throws: every failure becomes `{ ok: false }`. `signal` cancels it.
+ *
+ * @example
+ * const result = await post("/api/quote", body, QuoteResponse);
+ * if (result.ok) {
+ *   use(result.data); // validated against QuoteResponse
+ * } else {
+ *   show(result.error.code); // "invalid_input", "rate_limited", "timeout", "network", ...
+ * }
+ */
 export async function post<Res>(
   path: string,
   body: unknown,
@@ -54,8 +84,11 @@ export async function post<Res>(
   const timer = setTimeout(() => {
     request.abort("timeout");
   }, TIMEOUT_MS);
-  if (signal.aborted) request.abort();
-  else signal.addEventListener("abort", () => request.abort(), { once: true });
+  if (signal.aborted) {
+    request.abort();
+  } else {
+    signal.addEventListener("abort", () => request.abort(), { once: true });
+  }
   try {
     const res = await fetch(path, {
       method: "POST",
@@ -65,13 +98,15 @@ export async function post<Res>(
     });
     const json: unknown = await res.json().catch(() => null);
     if (!res.ok) {
-      const parsed = ErrorBody.safeParse(json);
-      return parsed.success ? fail(parsed.data.error.code, parsed.data.error.message) : fail("ai_error");
+      return failureFromBody(json);
     }
     const parsed = schema.safeParse(json);
-    return parsed.success ? { ok: true, data: parsed.data } : fail("ai_error");
+    if (!parsed.success) {
+      return fail("ai_error");
+    }
+    return { ok: true, data: parsed.data };
   } catch {
-    return fail(request.signal.reason === "timeout" ? "timeout" : signal.aborted ? "aborted" : "network");
+    return fail(transportFailure(request.signal, signal));
   } finally {
     clearTimeout(timer);
   }
@@ -102,7 +137,9 @@ const FAILURE_COPY: Record<ApiFailureCode, { title: string; hint: string }> = {
 };
 
 /** Plain-language title and hint for a failure code. */
-export const describeFailure = (code: ApiFailureCode) => FAILURE_COPY[code];
+export function describeFailure(code: ApiFailureCode): { title: string; hint: string } {
+  return FAILURE_COPY[code];
+}
 
 /** Copy for a failed call. The server's own message wins where it explains the problem (a quote with no total, say). */
 export function failureMessage({ code, message }: ApiFailure, suffix = ""): string {
@@ -112,4 +149,6 @@ export function failureMessage({ code, message }: ApiFailure, suffix = ""): stri
 }
 
 /** Today's date in the user's own timezone, as YYYY-MM-DD. */
-export const todayIso = (): string => new Date(Date.now()).toLocaleDateString("en-CA");
+export function todayIso(): string {
+  return new Date(Date.now()).toLocaleDateString("en-CA");
+}
