@@ -1,5 +1,5 @@
 import { LIMITS } from "./limits";
-import { z } from "./zod";
+import { z } from "zod";
 
 // The wedding itself: enums, the validated profile, and what the intake AI extracts to build one.
 

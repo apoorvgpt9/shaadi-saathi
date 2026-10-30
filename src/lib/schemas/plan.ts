@@ -1,6 +1,6 @@
 import { CategoryId, FunctionKind, Guests, IsoDate, Profile, Rupees, ShortText, Style } from "./domain";
 import { LIMITS } from "./limits";
-import { z } from "./zod";
+import { z } from "zod";
 
 // Everything persisted in localStorage, the vendor and idea payloads inside it, and the edits applied to it.
 

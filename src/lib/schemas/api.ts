@@ -1,7 +1,7 @@
 import { CategoryId, FunctionKind, Guests, IntakeDraft, IsoDate, Profile, Rupees } from "./domain";
 import { LIMITS } from "./limits";
 import { FunctionIdeas, PlanChange, Quote, TaskStatus, VendorChecklist } from "./plan";
-import { z } from "./zod";
+import { z } from "zod";
 
 // API contracts for the AI routes (request bodies are validated server-side).
 
