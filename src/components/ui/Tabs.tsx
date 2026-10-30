@@ -1,10 +1,10 @@
-"use client";
-
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+// Accessible tabs: a WAI-ARIA tablist with keyboard navigation.
+import { useId, useRef, useState, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
 
 interface TabItem {
   id: string;
   label: string;
+  /** Stays mounted while another tab is active. */
   panel: ReactNode;
 }
 
@@ -12,7 +12,7 @@ interface TabItem {
  * WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and selection together.
  * Every panel stays mounted (hidden when inactive), so typed text and in-flight requests survive a tab switch.
  */
-export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
+export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }): ReactElement {
   const [active, setActive] = useState(tabs[0]?.id);
   const base = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -25,7 +25,9 @@ export function Tabs({ tabs, label }: { tabs: TabItem[]; label: string }) {
       Home: 0,
       End: last,
     }[e.key];
-    if (next === undefined) return;
+    if (next === undefined) {
+      return;
+    }
     e.preventDefault();
     setActive(tabs[next]?.id);
     refs.current[next]?.focus();

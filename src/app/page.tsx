@@ -1,5 +1,8 @@
+// The home page: a server-rendered shell around the client-side app.
+import type { ReactElement } from "react";
 import { App } from "@/components/App";
 
-export default function Home() {
+/** The only page; the app itself decides between the intake and plan screens. */
+export default function Home(): ReactElement {
   return <App />;
 }

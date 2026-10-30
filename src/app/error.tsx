@@ -1,11 +1,19 @@
+// The route error boundary: a last-resort screen that can also clear the saved plan.
 "use client";
 
+import type { ReactElement } from "react";
 import { STORAGE_KEY } from "@/lib/store";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/Button";
 
+interface Props {
+  error: Error;
+  /** Re-renders the failed route segment. */
+  reset: () => void;
+}
+
 /** Last-resort screen for a render crash. Saved data is the usual suspect, so clearing it is offered. */
-export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
+export default function ErrorPage({ reset }: Props): ReactElement {
   return (
     <>
       <SiteHeader />

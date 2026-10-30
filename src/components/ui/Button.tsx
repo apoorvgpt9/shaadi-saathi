@@ -1,4 +1,5 @@
-import type { ComponentProps } from "react";
+// The app's one button, with its visual variants.
+import type { ComponentProps, ReactElement } from "react";
 
 const VARIANTS = {
   primary: "bg-maroon text-white hover:bg-maroon-deep disabled:bg-sand disabled:text-muted",
@@ -7,10 +8,12 @@ const VARIANTS = {
 } as const;
 
 interface Props extends ComponentProps<"button"> {
+  /** Visual weight: primary for the one main action, ghost for quiet ones. Defaults to secondary. */
   variant?: keyof typeof VARIANTS;
 }
 
-export function Button({ variant = "secondary", className = "", type = "button", ...rest }: Props) {
+/** A button that defaults to type="button", so it never submits a form by accident. Extra classes append to its own. */
+export function Button({ variant = "secondary", className = "", type = "button", ...rest }: Props): ReactElement {
   return (
     <button
       type={type}

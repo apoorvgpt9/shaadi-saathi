@@ -1,6 +1,5 @@
-"use client";
-
-import { useState } from "react";
+// The "What changed?" form that turns a typed life change into a proposed plan update.
+import { useState, type ReactElement } from "react";
 import { LIMITS } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { TextArea } from "@/components/ui/Field";
@@ -14,22 +13,27 @@ interface Props {
   /** The request text lives in the parent, which clears it on Accept; Undo leaves it here for editing. */
   text: string;
   onTextChange: (text: string) => void;
+  /** Resolves with what the host did, so the box can show a question or an error under the form. */
   onSubmit: (text: string) => Promise<ChangeOutcome>;
 }
 
-export function ChangeBox({ text, onTextChange, onSubmit }: Props) {
+/** A form for describing what changed in plain words; the host decides what that means for the plan. */
+export function ChangeBox({ text, onTextChange, onSubmit }: Props): ReactElement {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: "question" | "error"; text: string } | null>(null);
 
   async function submit() {
     const trimmed = text.trim();
-    if (!trimmed || busy) return;
+    if (!trimmed || busy) {
+      return;
+    }
     setBusy(true);
     setNote(null);
     const outcome = await onSubmit(trimmed);
     setBusy(false);
-    if (outcome.kind !== "applied")
+    if (outcome.kind !== "applied") {
       setNote({ tone: outcome.kind, text: outcome.kind === "question" ? outcome.text : outcome.message });
+    }
   }
 
   return (

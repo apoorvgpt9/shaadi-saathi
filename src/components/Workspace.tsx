@@ -1,8 +1,10 @@
-import type { CSSProperties, ReactNode } from "react";
+// The plan page layout: header, budget meter, change box, tabs and the next-tasks sidebar.
+import type { ReactElement, ReactNode } from "react";
 import { formatDate, plural } from "@/lib/format";
 import type { BudgetSummary, Profile, ScheduledTask } from "@/lib/types";
 import { BudgetMeter } from "@/components/BudgetMeter";
 import { NextTasks } from "@/components/NextTasks";
+import { cssVars } from "@/components/ui/cssVars";
 import { StartOver } from "@/components/ui/StartOver";
 import { Tabs } from "@/components/ui/Tabs";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -19,14 +21,17 @@ const TABS: { id: TabId; label: string }[] = [
 interface Props {
   profile: Profile;
   budget: BudgetSummary;
+  /** The few tasks to show in the sidebar, already ordered. */
   nextTasks: ScheduledTask[];
+  /** The content of each tab, supplied by PlanScreen. */
   panels: Record<TabId, ReactNode>;
   /** The "What changed?" box, which owns its request state in PlanScreen. */
   changeBox: ReactNode;
   onReset: () => void;
 }
 
-export function Workspace({ profile, budget, nextTasks, panels, changeBox, onReset }: Props) {
+/** The plan page: the plan's headline and budget at the top, the tabs below, and the next tasks beside them. */
+export function Workspace({ profile, budget, nextTasks, panels, changeBox, onReset }: Props): ReactElement {
   const wedding = profile.functions.find((f) => f.kind === "wedding");
   const meta = [profile.city, wedding && formatDate(wedding.date), plural(profile.guests, "guest")];
 
@@ -46,11 +51,7 @@ export function Workspace({ profile, budget, nextTasks, panels, changeBox, onRes
           </h1>
         </section>
         <div className="space-y-6">
-          <section
-            aria-label="Budget at a glance"
-            className="card reveal p-6 sm:p-8"
-            style={{ "--i": 1 } as CSSProperties}
-          >
+          <section aria-label="Budget at a glance" className="card reveal p-6 sm:p-8" style={cssVars({ "--i": 1 })}>
             <BudgetMeter summary={budget} />
           </section>
           {changeBox}

@@ -1,22 +1,27 @@
-import type { ReactNode } from "react";
+// Gates AI-generated content behind loading and retry states.
+import type { ReactElement, ReactNode } from "react";
 import { describeFailure, type ApiFailureCode } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
 
+/** Where an AI request stands: not started, in flight, or the failure code it ended with. */
 export type AiStatus = "idle" | "loading" | ApiFailureCode;
 
 interface Props {
   /** True once the AI-generated content exists. */
   ready: boolean;
   status: AiStatus;
+  /** Plural name of the content, used in the loading label and the retry button. */
   noun: string;
   onRetry: () => void;
   children: ReactNode;
 }
 
 /** Shows the content, or a skeleton while it loads, or a calm retry prompt when the AI could not provide it. */
-export function AiGate({ ready, status, noun, onRetry, children }: Props) {
-  if (ready) return children;
+export function AiGate({ ready, status, noun, onRetry, children }: Props): ReactElement {
+  if (ready) {
+    return <>{children}</>;
+  }
   if (status === "loading") {
     return (
       <div role="status" className="space-y-4">

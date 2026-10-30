@@ -1,3 +1,5 @@
+// The side-by-side table of pasted vendor quotes for one budget category.
+import type { ReactElement } from "react";
 import { formatINR } from "@/lib/format";
 import type { Quote } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
@@ -5,14 +7,18 @@ import { Button } from "@/components/ui/Button";
 
 interface Props {
   quotes: Quote[];
+  /** The guest count the plan needs covered. */
   needed: number;
+  /** The benchmark estimate for this category, already formatted. */
   estimate: string;
+  /** The quote currently feeding the budget line, if any. */
   usedId: string | null;
   onUse: (id: string) => void;
   onRemove: (id: string) => void;
 }
 
-const list = (items: string[]) =>
+/** A bulleted list, or a muted "None listed" when there is nothing to show. */
+const list = (items: string[]): ReactElement =>
   items.length ? (
     <ul className="list-disc space-y-1 pl-4 wrap-break-word">
       {items.map((t) => (
@@ -24,7 +30,7 @@ const list = (items: string[]) =>
   );
 
 /** Quotes for one category side by side, with the benchmark estimate for the same budget line. */
-export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove }: Props) {
+export function QuoteCompare({ quotes, needed, estimate, usedId, onUse, onRemove }: Props): ReactElement {
   return (
     <div className="mt-6 border-t border-line pt-4">
       <h3 className="eyebrow">Quotes compared</h3>

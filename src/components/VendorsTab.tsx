@@ -1,6 +1,5 @@
-"use client";
-
-import { useState } from "react";
+// The Vendors tab: AI checklists per category, with pasted-quote extraction and comparison.
+import { useState, type ReactElement } from "react";
 import { api, failureMessage } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/plan/benchmarks";
@@ -25,7 +24,16 @@ interface Props {
   refresh: { stale: boolean; busy: boolean; onRefresh: () => void };
 }
 
-function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: Plan; onUpdate: Props["onUpdate"] }) {
+/** A collapsed form to paste a vendor's quote as text and have the AI extract its details. */
+function QuoteForm({
+  category,
+  plan,
+  onUpdate,
+}: {
+  category: CategoryId;
+  plan: Plan;
+  onUpdate: Props["onUpdate"];
+}): ReactElement {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +88,16 @@ function QuoteForm({ category, plan, onUpdate }: { category: CategoryId; plan: P
   );
 }
 
-function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUpdate: Props["onUpdate"] }) {
+/** The three checklist columns for one category; ticks are stored on the plan by item position. */
+function Checklist({
+  v,
+  plan,
+  onUpdate,
+}: {
+  v: VendorChecklist;
+  plan: Plan;
+  onUpdate: Props["onUpdate"];
+}): ReactElement {
   return (
     <div className="grid gap-6 md:grid-cols-3">
       {SECTIONS.map(({ key, title }) => (
@@ -111,46 +128,71 @@ function Checklist({ v, plan, onUpdate }: { v: VendorChecklist; plan: Plan; onUp
   );
 }
 
-export function VendorsTab({ plan, summary, onUpdate, refresh }: Props) {
+interface StaleNoticeProps {
+  busy: boolean;
+  onRefresh: () => void;
+}
+
+/** Warns that the checklists predate the current profile, and offers to regenerate them. */
+function StaleNotice({ busy, onRefresh }: StaleNoticeProps): ReactElement {
+  return (
+    <div className="card flex flex-wrap items-center justify-between gap-3 border-tint-yellow-ink/30 bg-tint-yellow p-4 text-sm text-tint-yellow-ink">
+      <p className="min-w-0 flex-1">
+        Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.
+      </p>
+      <Button disabled={busy} onClick={onRefresh}>
+        <Icon name="retry" />
+        {busy ? "Refreshing" : "Refresh checklists"}
+      </Button>
+    </div>
+  );
+}
+
+interface VendorSectionProps {
+  vendor: VendorChecklist;
+  plan: Plan;
+  summary: BudgetSummary;
+  onUpdate: Props["onUpdate"];
+}
+
+/** One category: its checklist, any quotes pasted for it compared side by side, and the form to add another. */
+function VendorSection({ vendor, plan, summary, onUpdate }: VendorSectionProps): ReactElement {
+  const { category } = vendor;
+  const quotes = plan.quotes.filter((q) => q.category === category);
+  const line = summary.lines.find((l) => l.category === category);
+
+  return (
+    <section aria-labelledby={`v-${category}`} className="card p-6 sm:p-8">
+      <h2 id={`v-${category}`} className="mb-5 font-serif text-xl tracking-tight">
+        {CATEGORY_LABELS[category]}
+      </h2>
+      <Checklist v={vendor} plan={plan} onUpdate={onUpdate} />
+      {quotes.length > 0 && (
+        <QuoteCompare
+          quotes={quotes}
+          needed={plan.profile.guests}
+          estimate={line ? formatINR(line.estimate) : ""}
+          usedId={plan.budget[category]?.quoteId ?? null}
+          onUse={(id) => onUpdate((p) => patchEntry(p, category, { quoteId: id }))}
+          onRemove={(id) => onUpdate((p) => removeQuote(p, id))}
+        />
+      )}
+      <QuoteForm category={category} plan={plan} onUpdate={onUpdate} />
+    </section>
+  );
+}
+
+/** The AI vendor checklists by category, with quote extraction and comparison. */
+export function VendorsTab({ plan, summary, onUpdate, refresh }: Props): ReactElement {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">
         Quote details are extracted from the text you paste. Confirm with the vendor before booking.
       </p>
-      {refresh.stale && (
-        <div className="card flex flex-wrap items-center justify-between gap-3 border-tint-yellow-ink/30 bg-tint-yellow p-4 text-sm text-tint-yellow-ink">
-          <p className="min-w-0 flex-1">
-            Your plan has changed since these checklists were written. Refreshing replaces them and clears the ticks.
-          </p>
-          <Button disabled={refresh.busy} onClick={refresh.onRefresh}>
-            <Icon name="retry" />
-            {refresh.busy ? "Refreshing" : "Refresh checklists"}
-          </Button>
-        </div>
-      )}
-      {plan.vendors.map((v) => {
-        const quotes = plan.quotes.filter((q) => q.category === v.category);
-        const line = summary.lines.find((l) => l.category === v.category);
-        return (
-          <section key={v.category} aria-labelledby={`v-${v.category}`} className="card p-6 sm:p-8">
-            <h2 id={`v-${v.category}`} className="mb-5 font-serif text-xl tracking-tight">
-              {CATEGORY_LABELS[v.category]}
-            </h2>
-            <Checklist v={v} plan={plan} onUpdate={onUpdate} />
-            {quotes.length > 0 && (
-              <QuoteCompare
-                quotes={quotes}
-                needed={plan.profile.guests}
-                estimate={line ? formatINR(line.estimate) : ""}
-                usedId={plan.budget[v.category]?.quoteId ?? null}
-                onUse={(id) => onUpdate((p) => patchEntry(p, v.category, { quoteId: id }))}
-                onRemove={(id) => onUpdate((p) => removeQuote(p, id))}
-              />
-            )}
-            <QuoteForm category={v.category} plan={plan} onUpdate={onUpdate} />
-          </section>
-        );
-      })}
+      {refresh.stale && <StaleNotice busy={refresh.busy} onRefresh={refresh.onRefresh} />}
+      {plan.vendors.map((v) => (
+        <VendorSection key={v.category} vendor={v} plan={plan} summary={summary} onUpdate={onUpdate} />
+      ))}
     </div>
   );
 }
