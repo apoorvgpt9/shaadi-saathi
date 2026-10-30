@@ -6,6 +6,8 @@ ShaadiSaathi helps an Indian family organise their wedding: the **budget**, the 
 
 **Live demo:** <https://shaadi-saathi-omega.vercel.app>
 
+**Demo video (2:40):** <https://youtu.be/2veA-6XN5CU>
+
 ## The problem
 
 Planning a wedding is not one problem. It is many connected ones. When the guest count changes, catering changes. When the date moves, the bookings that depend on it get urgent. When the budget shrinks, the family has to decide what matters most. A generic chatbot can list "10 wedding ideas", but it cannot keep a real plan consistent with a family's budget, deadlines and priorities.
